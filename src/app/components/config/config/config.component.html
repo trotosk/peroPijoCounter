@@ -1,0 +1,30 @@
+<h2>Configuración de la aplicación y usuario</h2>
+
+<section>
+  <h3>App</h3>
+  <label>Título de la app:</label>
+  <input [(ngModel)]="appTitle" />
+  <label>Valor inicial por defecto de contadores:</label>
+  <input type="number" [(ngModel)]="defaultCounterValue" />
+  <button (click)="saveConfig()">Guardar configuración</button>
+</section>
+
+<section>
+  <h3>Usuario</h3>
+  <div>
+    <label>Correo (no editable)</label>
+    <input [value]="user.email" readonly />
+  </div>
+  <div>
+    <label>Nombre</label>
+    <input [(ngModel)]="newName" />
+    <button (click)="changeName()">Actualizar nombre</button>
+  </div>
+  <div>
+    <label>Nuevo password (máx 15 caracteres)</label>
+    <input type="password" [(ngModel)]="newPassword" maxlength="15" />
+    <button (click)="changePassword()">Actualizar password</button>
+  </div>
+</section>
+
+<div *ngIf="message" style="color:green">{{message}}</div>

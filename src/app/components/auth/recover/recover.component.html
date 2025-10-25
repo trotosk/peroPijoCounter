@@ -1,0 +1,7 @@
+<div>
+  <h2>Recuperar contraseña</h2>
+  <label>Correo</label><input [(ngModel)]="email" />
+  <button (click)="recover()">Enviar</button>
+  <div *ngIf="message">{{message}}</div>
+  <p>Nota: el envío usa mailto: si no hay backend configurado.</p>
+</div>

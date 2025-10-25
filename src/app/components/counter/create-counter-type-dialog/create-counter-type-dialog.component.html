@@ -1,0 +1,19 @@
+<h2 mat-dialog-title>Nuevo contador</h2>
+
+<mat-dialog-content>
+  <p>Selecciona el tipo de contador que deseas crear:</p>
+
+  <mat-form-field appearance="fill" style="width:100%;">
+    <mat-label>Tipo de contador</mat-label>
+    <mat-select [(value)]="selectedType" required>
+      <mat-option *ngFor="let t of types" [value]="t">{{t}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancelar</button>
+  <button mat-flat-button color="primary" [disabled]="!selectedType" (click)="continue()">
+    Continuar
+  </button>
+</mat-dialog-actions>
+

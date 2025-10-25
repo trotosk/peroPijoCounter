@@ -1,0 +1,23 @@
+<h2>Listado de tus contadores</h2>
+<table border="1" cellpadding="5">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Creado</th>
+      <th>Última Mod.</th>
+      <th>Contador local</th>
+      <th>Contador visitante</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let c of counters">
+      <td>{{c.id}}</td>
+      <td>{{c.createdAt}}</td>
+      <td>{{c.updatedAt}}</td>
+      <td>{{c.left.name}} {{c.left.value}}</td>
+      <td>{{c.right.name}} {{c.right.value}}</td>
+      <td><button (click)="edit(c)">Cargar</button><button (click)="eliminar(c)">Eliminar</button></td>
+    </tr>
+  </tbody>
+</table>

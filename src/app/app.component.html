@@ -1,0 +1,60 @@
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
+<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
+<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * Delete the template below * * * * * * * * * -->
+<!-- * * * * * * * to get started with your project! * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+
+
+
+<main class="main">
+  <div class="content">
+    <div class="left-side">
+      <h1>{{ title }}</h1>
+    </div>
+    <div class="divider" role="separator" aria-label="Divider"></div>
+    <div class="right-side menu">
+      <div class="pill-group">
+        
+         <a
+            class="pill"
+            (click)="createCounter()"
+            target="_parent"
+            rel="noopener"
+          >
+            <span>Crear contador nuevo</span>
+            
+          </a>
+        @for (item of [
+          { title: '🔎Tus contadores', link: '/app/list' },
+          { title: 'Cargar contador', link: '/app/open' },
+          { title: '⚙️ Configuración', link: '/app/config' },
+          { title: 'Logado', link: '/login' },
+        ]; track item.title) {
+          <a
+            class="pill"
+            [href]="item.link"
+            target="_parent"
+            rel="noopener"
+          >
+            <span>{{ item.title }}</span>
+            
+          </a>
+        }
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * The content above * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * * -->
+<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * End of Placeholder  * * * * * * * * * * * * -->
+<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
+
+
+<router-outlet />

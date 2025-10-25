@@ -1,0 +1,30 @@
+<div class="login">
+  <h1>Mi App de Contadores</h1>
+  <div *ngIf="error" class="error">{{error}}</div>
+  <label>Correo</label>
+  <input [(ngModel)]="email" />
+  <label>Password</label>
+  <input type="password" [(ngModel)]="password" />
+  <button (click)="login()">Entrar</button>
+  <div>
+
+<div class="right-side menu">
+    <div class="pill-group">
+        @for (item of [
+          { title: '🆕 Alta de usuario', link: '/register' },
+          { title: '📋 Recuperar contraseña', link: '/recover' },
+        ]; track item.title) {
+          <a
+            class="pill"
+            [href]="item.link"
+            target="_parent"
+            rel="noopener"
+          >
+            <span>{{ item.title }}</span>
+          </a>
+        }
+        
+      </div>
+    </div>
+  </div>
+</div>

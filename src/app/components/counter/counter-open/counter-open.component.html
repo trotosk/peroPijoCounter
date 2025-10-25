@@ -1,0 +1,25 @@
+<h2>Abrir contador por ID</h2>
+<label>Introduce ID:</label>
+<input [(ngModel)]="counterId" />
+<button (click)="load()">Cargar</button>
+
+<div *ngIf="message" style="color:red">{{message}}</div>
+
+<div *ngIf="record">
+  <div class="two-columns" style="display:flex; gap:1rem; margin-top:1rem;">
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border-right:1px solid #ccc;">
+      <input [(ngModel)]="record.left.name" [readonly]="true" />
+      <div class="value">{{record.left.value}}</div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+      <input [(ngModel)]="record.right.name" [readonly]="true" />
+      <div class="value">{{record.right.value}}</div>
+    </div>
+  </div>
+
+  <footer style="font-size:0.8rem; margin-top:1rem;">
+    ID: <span>{{record!.id}}</span> |
+    Creado: {{record!.createdAt}} |
+    Última modificación: {{record!.updatedAt}}
+  </footer>
+</div>

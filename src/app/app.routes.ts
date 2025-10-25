@@ -1,0 +1,25 @@
+import { Routes } from '@angular/router';
+import { LoginComponent } from './components/auth/login/login.component';
+import { RecoverComponent } from './components/auth/recover/recover.component';
+import { RegisterComponent } from './components/auth/register/register.component';
+import { ConfigComponent } from './components/config/config/config.component';
+import { CounterEditComponent } from './components/counter/counter-edit/counter-edit.component';
+import { CounterListComponent } from './components/counter/counter-list/counter-list.component';
+import { CounterOpenComponent } from './components/counter/counter-open/counter-open.component';
+import { HomeComponent } from './components/home/home/home.component';
+import { AuthGuard } from './guards/auth.guard';
+
+export const routes: Routes = [
+  { path: '', component: LoginComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  { path: 'recover', component: RecoverComponent },
+  { path: 'app', component: HomeComponent, canActivate: [AuthGuard], children: [
+      { path: 'create', component: CounterEditComponent },
+      { path: 'list', component: CounterListComponent },
+      { path: 'open', component: CounterOpenComponent },
+      { path: 'config', component: ConfigComponent },
+      { path: '', redirectTo: 'list', pathMatch: 'full' }
+    ]},
+  { path: '**', redirectTo: '' }
+];;

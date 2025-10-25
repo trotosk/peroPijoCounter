@@ -1,0 +1,8 @@
+<div class="register">
+  <h2>Alta de usuario</h2>
+  <div *ngIf="error" class="error">{{error}}</div>
+  <label>Correo</label><input [(ngModel)]="email" />
+  <label>Nombre</label><input [(ngModel)]="name" />
+  <label>Password (max 15)</label><input type="password" [(ngModel)]="password" maxlength="15" />
+  <button (click)="register()">Crear cuenta</button>
+</div>
