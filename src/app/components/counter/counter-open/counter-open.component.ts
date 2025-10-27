@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CounterService } from '../../../services/counter.service';
-import { CounterRecord } from '../../../models/counter.model';
+import { CounterGame, CounterRecord } from '../../../models/counter.model';
 import { AuthService } from '../../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 export class CounterOpenComponent {
   counterId = '';
   record: CounterRecord | null = null;
+  recordGame: CounterGame | null = null;
   message = '';
   readOnly = true;
   intervalId: any;
@@ -22,13 +23,14 @@ export class CounterOpenComponent {
   constructor(private counterSvc: CounterService, private auth: AuthService) {}
 
   load() {
-    const rec = this.counterSvc.findById(this.counterId);
+    const rec = this.counterSvc.findCounterById(this.counterId);
     if (!rec) {
       this.record = null;
       this.message = 'ID no válido';
       return;
     }
     this.record = JSON.parse(JSON.stringify(rec)); // clon
+    this.getSelectedGame();
     const currentUser = this.auth.currentUser();
     this.readOnly = !currentUser || currentUser.id !== rec.ownerId;
     this.message = '';
@@ -39,15 +41,23 @@ export class CounterOpenComponent {
 
   refresh() {
     if (!this.record) return;
-    const rec = this.counterSvc.findById(this.record.id);
-    if (rec) {
-      this.record.left.value = rec.left.value;
-      this.record.right.value = rec.right.value;
+    const rec = this.counterSvc.findCounterById(this.record.id);
+    if (!rec) return;
+    const recordGameL = this.record.games.find(g => g.id === this.record?.currentGameId) || null;
+    if (this.recordGame && recordGameL) {
+      this.recordGame.leftValue = recordGameL.leftValue;
+      this.recordGame.rightValue = recordGameL.rightValue;
       this.record.updatedAt = rec.updatedAt;
     }
   }
 
   ngOnDestroy() {
     if (this.intervalId) clearInterval(this.intervalId);
+  }
+
+  getSelectedGame() {
+    if (!this.record) return;
+    this.recordGame = this.record.games.find(g => g.id === this.record?.currentGameId) || null;
+
   }
 }

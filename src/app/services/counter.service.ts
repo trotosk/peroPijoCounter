@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
-import { CounterRecord } from '../models/counter.model';
+import { CounterRecord, CounterRecordList } from '../models/counter.model';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({ providedIn: 'root' })
@@ -16,24 +16,30 @@ export class CounterService {
     this.storage.set(this.key, items);
   }
 
-  createForUser(ownerId: string, title = 'Mi contador'): CounterRecord {
+  createCounterForUser(ownerId: string, title = 'Mi contador', type = 'general'): CounterRecord {
     const now = new Date().toISOString();
     const rec: CounterRecord = {
       id: uuidv4(),
       ownerId,
       title,
-      left: { name: 'Left', value: 0 },
-      right: { name: 'Right', value: 0 },
+      type,
+      games: [],
+      leftName: 'Local',
+      rightName: 'Visitante',
       createdAt: now,
       updatedAt: now
     };
     const arr = this.loadAll();
     arr.push(rec);
     this.saveAll(arr);
+
+    //Incluimos un juego al menos
+    const game = this.createGame(rec.id, 'Juego 1');
+    rec.games.push(game);
     return rec;
   }
 
-  update(rec: CounterRecord) {
+  updateCounter(rec: CounterRecord) {
     const arr = this.loadAll();
     const idx = arr.findIndex(r => r.id === rec.id);
     if (idx === -1) throw new Error('No encontrado');
@@ -42,20 +48,69 @@ export class CounterService {
     this.saveAll(arr);
   }
 
-  remove(rec: CounterRecord) {
+  removeCounter(id: string) {
     const arr = this.loadAll();
-    const idx = arr.findIndex(r => r.id === rec.id);
+    const idx = arr.findIndex(r => r.id === id);
     if (idx === -1) throw new Error('No encontrado');
-    rec.updatedAt = new Date().toISOString();
+    //rec.updatedAt = new Date().toISOString();
     arr.splice(idx, 1);
     this.saveAll(arr);
   }
 
-  findById(id: string): CounterRecord | undefined {
+  findCounterById(id: string): CounterRecord | undefined {
     return this.loadAll().find(r => r.id === id);
   }
 
-  listByUser(userId: string): CounterRecord[] {
+  listCountersByUser(userId: string): CounterRecord[] {
     return this.loadAll().filter(r => r.ownerId === userId);
   }
+
+  listCountersByUserForList(userId: string): CounterRecordList[] {
+    return this.loadAll().filter(r => r.ownerId === userId).map(r => ({
+      id: r.id,
+      ownerId: r.ownerId,
+      title: r.title,
+      type: r.type,
+      leftValue: r.games?.filter(t => t.id === r.currentGameId)[0]?.leftValue,
+      rightValue: r.games?.filter(t => t.id === r.currentGameId)[0]?.rightValue,
+      leftName: r.leftName,
+      rightName: r.rightName,
+      currentGameId: r.currentGameId,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt
+    }));
+  }
+
+  
+
+  createGame(counterId: string, title = 'Nuevo Juego') {
+    const counter = this.findCounterById(counterId);
+    if (!counter) throw new Error('Counter not found');
+    const now = new Date().toISOString();
+    const game = {
+      id: uuidv4(),
+      title,
+      leftValue: 0,
+      rightValue: 0,
+      createdAt: now,
+      updatedAt: now
+    };
+    counter.games.push(game);
+    counter.currentGameId = game.id; // Hacemos el nuevo juego el activo
+    this.updateCounter(counter);
+    return game;
+  }
+
+  /** Elimina un juego */
+  removeGame(counterId: string, gameId: string): CounterRecord | null {
+    const counter = this.findCounterById(counterId);
+    if (!counter) return null;
+
+    counter.games = counter.games.filter(g => g.id !== gameId);
+    counter.updatedAt = new Date().toISOString();
+    this.updateCounter(counter);
+    return counter;
+  }
+  
+
 }

@@ -1,33 +1,37 @@
 <div class="counter-edit">
   <div class="tituloCounter">
     <h2>{{record?.title}} Counter </h2>
-    <h4> (ID: {{record?.id}})</h4>
+    <h4>&nbsp;(ID: {{record?.id}})</h4>
   </div>
-
-  <div class="two-columns" style="display:flex; gap:1rem; height:60vh;">
+  <div class="two-columns-sup">
+    <div class="team-name">
+      <input [(ngModel)]="record!.leftName" [readonly]="readOnly" /> 
+    </div>
+    <div class="team-name">
+      <input [(ngModel)]="record!.rightName" [readonly]="readOnly" />
+    </div>
+  </div>
+  <div class="two-columns">
     <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border-right:1px solid #ccc;">
-      Local
-      <input [(ngModel)]="record!.left.name" [readonly]="readOnly" />
-      <div class="value">{{record!.left.value}}</div>
-      <div>
-        <button (click)="inc('left')" [disabled]="readOnly">+1</button>
-        <button (click)="dec('left')" [disabled]="readOnly">-1</button>
-      </div>
+        <div class="marcador">
+          <div><button class="link-btn control" (click)="inc('left')" [disabled]="readOnly"><mat-icon>add_circle</mat-icon></button></div>
+          <div class="value">{{recordGame!.leftValue}}</div>
+          <div><button class="link-btn control" (click)="dec('left')" [disabled]="readOnly"><mat-icon>remove_circle</mat-icon></button></div>
+        </div>
     </div>
 
     <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-      Visitante
-      <input [(ngModel)]="record!.right.name" [readonly]="readOnly" />
-      <div class="value">{{record!.right.value}}</div>
-      <div>
-        <button (click)="inc('right')" [disabled]="readOnly">+1</button>
-        <button (click)="dec('right')" [disabled]="readOnly">-1</button>
+      <div class="marcador">
+        <div><button class="link-btn control" (click)="inc('right')" [disabled]="readOnly"><mat-icon>add_circle</mat-icon></button></div>
+        <div class="value">{{recordGame!.rightValue}}</div>
+        <div><button class="link-btn control" (click)="dec('right')" [disabled]="readOnly"><mat-icon>remove_circle</mat-icon></button></div>
       </div>
+      
     </div>
   </div>
 
   <div style="margin-top:1rem;">
-    <button (click)="reset()" [disabled]="readOnly">Reset</button>
+    <button (click)="resetGame()" [disabled]="readOnly">Reset</button>
   </div>
 
   <footer style="font-size:0.8rem; margin-top:1rem;">

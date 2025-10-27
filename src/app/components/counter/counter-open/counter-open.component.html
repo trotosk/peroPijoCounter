@@ -8,12 +8,12 @@
 <div *ngIf="record">
   <div class="two-columns" style="display:flex; gap:1rem; margin-top:1rem;">
     <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border-right:1px solid #ccc;">
-      <input [(ngModel)]="record.left.name" [readonly]="true" />
-      <div class="value">{{record.left.value}}</div>
+      <input [(ngModel)]="record.leftName" [readonly]="true" />
+      <div class="value">{{recordGame?.leftValue}}</div>
     </div>
     <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-      <input [(ngModel)]="record.right.name" [readonly]="true" />
-      <div class="value">{{record.right.value}}</div>
+      <input [(ngModel)]="record.rightName" [readonly]="true" />
+      <div class="value">{{recordGame?.rightValue}}</div>
     </div>
   </div>
 
