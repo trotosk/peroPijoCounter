@@ -1,42 +1,104 @@
-<div class="counter-edit">
-  <div class="tituloCounter">
-    <h2>{{record?.title}} Counter </h2>
-    <h4>&nbsp;(ID: {{record?.id}})</h4>
-  </div>
-  <div class="two-columns-sup">
-    <div class="team-name">
-      <input [(ngModel)]="record!.leftName" [readonly]="readOnly" /> 
-    </div>
-    <div class="team-name">
-      <input [(ngModel)]="record!.rightName" [readonly]="readOnly" />
-    </div>
-  </div>
-  <div class="two-columns">
-    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border-right:1px solid #ccc;">
-        <div class="marcador">
-          <div><button class="link-btn control" (click)="inc('left')" [disabled]="readOnly"><mat-icon>add_circle</mat-icon></button></div>
-          <div class="value">{{recordGame!.leftValue}}</div>
-          <div><button class="link-btn control" (click)="dec('left')" [disabled]="readOnly"><mat-icon>remove_circle</mat-icon></button></div>
-        </div>
-    </div>
+<div class="scoreboard-container"  [class.fullscreen]="isFullscreen">
 
-    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-      <div class="marcador">
-        <div><button class="link-btn control" (click)="inc('right')" [disabled]="readOnly"><mat-icon>add_circle</mat-icon></button></div>
-        <div class="value">{{recordGame!.rightValue}}</div>
-        <div><button class="link-btn control" (click)="dec('right')" [disabled]="readOnly"><mat-icon>remove_circle</mat-icon></button></div>
+  <button class="fullscreen-toggle" (click)="toggleFullscreen()">
+    <i class="fa" [class.fa-expand]="!isFullscreen" [class.fa-compress]="isFullscreen"></i>
+  </button>
+
+  <!-- Header -->
+  <div class="header" *ngIf="!isFullscreen">
+    <div class="title">
+      <h2>{{ record!.title }}</h2>
+      <span class="id">ID para compartir: {{ record!.id }} </span>
+      <button class="copy-btn copya-btn" (click)="copyIdToClipboard()" title="Copiar ID">
+        <i class="fa fa-copy"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Lista de sets -->
+  <div class="games-list" *ngIf="!isFullscreen">
+    <button *ngFor="let game of record!.games"
+            [class.active]="game.id === record!.currentGameId"
+            (click)="changeCurrentGame(game.id)">
+      {{ game.title }}
+      <div>{{ game.leftValue }} - {{ game.rightValue }}</div>
+    </button>
+  </div>
+
+  <!-- Fila superior con resultados de sets anteriores para fullcreen-->
+<div class="fullscreen-set-results" *ngIf="isFullscreen && record!.games.length > 1">
+  <div class="set-pill" 
+       *ngFor="let g of record!.games"
+       [class.current]="g.id === record!.currentGameId">
+    <span *ngIf="g.id !== record!.currentGameId">
+      {{ g.title }}: {{ g.leftValue }} - {{ g.rightValue }}
+    </span>
+    <span *ngIf="g.id == record!.currentGameId">
+      {{ g.title }}: En juego
+    </span>
+  </div>
+</div>
+
+  <!-- Marcadores -->
+  <div class="score-columns" *ngIf="recordGame">
+    <!-- Equipo local -->
+    <div class="team left-team">
+      <input [(ngModel)]="record!.leftName" (ngModelChange)="saveCounter()" class="team-name" [readonly]="isFullscreen" placeholder="Equipo local" />
+      <div class="score-controls" *ngIf="!isFullscreen">
+        <button (click)="changeScore('left', 1)">+</button>
+        <div class="score" [@bounce]="recordGame.leftValue">{{ recordGame.leftValue }}</div>
+        <button (click)="changeScore('left', -1)">−</button>
       </div>
-      
+      <div class="score fullscreen-score" *ngIf="isFullscreen">{{ recordGame.leftValue }}</div>
+    </div>
+
+    <!-- Separador -->
+    <div class="divider"></div>
+
+    <!-- Equipo visitante -->
+    <div class="team right-team">
+      <input [(ngModel)]="record!.rightName" (ngModelChange)="saveCounter()" class="team-name" [readonly]="isFullscreen" placeholder="Equipo visitante" />
+      <div class="score-controls"  *ngIf="!isFullscreen">
+        <button (click)="changeScore('right', 1)">+</button>
+        <div class="score" [@bounce]="recordGame.rightValue">{{ recordGame.rightValue }}</div>
+        <button (click)="changeScore('right', -1)">−</button>
+      </div>
+      <div class="score fullscreen-score" *ngIf="isFullscreen">{{ recordGame.rightValue }}</div>
     </div>
   </div>
 
-  <div style="margin-top:1rem;">
-    <button (click)="resetGame()" [disabled]="readOnly">Reset</button>
+  <!-- Botones -->
+  <div class="add-game" *ngIf="!isFullscreen">
+    <button (click)="addGame()">
+     <i class="fa fa-plus"></i> Añadir set
+    </button>
+    <button (click)="requestDelete()">
+      <i class="fa fa-trash"></i> Eliminar set
+    </button>
   </div>
 
   <footer style="font-size:0.8rem; margin-top:1rem;">
-    ID: <span>{{record?.id}}</span> |
-    Creado: {{record?.createdAt}} |
-    Última modificación: {{record?.updatedAt}}
+    ID: <span>{{record!.id}}</span> |
+    Creado: {{record!.createdAt}} |
+    Última modificación: {{record!.updatedAt}}
   </footer>
+
+  <!-- Toast -->
+  <div class="toast" *ngIf="toastMessage">
+    {{ toastMessage }}
+  </div>
+
+
+  <!-- Modal de confirmación -->
+  <div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3>Eliminar {{ recordGame?.title }}</h3>
+      <p>¿Seguro que quieres eliminar este set?</p>
+      <div class="modal-actions">
+        <button class="cancel" (click)="cancelDelete()">Cancelar</button>
+        <button class="confirm" (click)="confirmDelete()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
 </div>

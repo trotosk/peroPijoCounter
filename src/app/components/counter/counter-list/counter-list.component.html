@@ -1,23 +1,76 @@
-<h2>Listado de tus contadores</h2>
-<table border="1" cellpadding="5">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Creado</th>
-      <th>Última Mod.</th>
-      <th>Contador local</th>
-      <th>Contador visitante</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let c of counters">
-      <td>{{c.id}}</td>
-      <td>{{c.createdAt}}</td>
-      <td>{{c.updatedAt}}</td>
-      <td>{{c.leftName}} {{c.leftValue}}</td>
-      <td>{{c.rightName}} {{c.rightValue}}</td>
-      <td><button (click)="edit(c)">Cargar</button><button (click)="eliminar(c)">Eliminar</button></td>
-    </tr>
-  </tbody>
-</table>
+<div class="list-container">
+  <h2>📋 Tus contadores</h2>
+
+  <div class="table-container">
+    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z3">
+
+      <!-- ID -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
+        <td mat-cell *matCellDef="let element">
+          <span class="id-text">{{ element.id }}</span>
+          <button mat-icon-button (click)="copyId(element.id)" matTooltip="Copiar ID">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- Creado -->
+      <ng-container matColumnDef="createdAt">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Creado</th>
+        <td mat-cell *matCellDef="let element">{{ formatDate(element.createdAt) }}</td>
+      </ng-container>
+
+      <!-- Modificado -->
+      <ng-container matColumnDef="updatedAt">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Última Modificación</th>
+        <td mat-cell *matCellDef="let element">{{ formatDate(element.updatedAt) }}</td>
+      </ng-container>
+
+      <!-- Local -->
+      <ng-container matColumnDef="leftName">
+        <th mat-header-cell *matHeaderCellDef>Local (Set Activo)</th>
+        <td mat-cell *matCellDef="let element">
+          <strong>{{ element.leftName }}</strong> {{ element.leftValue }}
+        </td>
+      </ng-container>
+
+      <!-- Visitante -->
+      <ng-container matColumnDef="rightName">
+        <th mat-header-cell *matHeaderCellDef>Visitante (Set Activo)</th>
+        <td mat-cell *matCellDef="let element">
+          <strong>{{ element.rightName }}</strong> {{ element.rightValue }}
+        </td>
+      </ng-container>
+
+      <!-- Sets -->
+      <ng-container matColumnDef="sets">
+        <th mat-header-cell *matHeaderCellDef>Sets</th>
+        <td mat-cell *matCellDef="let element">{{ element.gamesCount || 0 }}</td>
+      </ng-container>
+
+      <!-- Acciones -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Acciones</th>
+        <td mat-cell *matCellDef="let element">
+          <button mat-raised-button color="primary" (click)="edit(element)">
+            Cargar
+          </button>
+          <button mat-stroked-button color="warn" (click)="eliminar(element)">
+            Eliminar
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- Header y body -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+
+    <mat-paginator
+      [pageSizeOptions]="[5, 10, 20]"
+      showFirstLastButtons
+      [pageSize]="10"
+    ></mat-paginator>
+  </div>
+</div>

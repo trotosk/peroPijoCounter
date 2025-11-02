@@ -8,51 +8,80 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-config',
   templateUrl: './config.component.html',
+  styleUrls: ['./config.component.scss'],
   standalone: true,
-  imports: [CommonModule,
-    FormsModule
-  ]
+  imports: [CommonModule, FormsModule],
 })
 export class ConfigComponent implements OnInit {
   user: any = {};
-  appTitle = '';
-  defaultCounterValue = 0;
   newName = '';
+  oldPassword = '';
   newPassword = '';
-  message = '';
+  toastMessage = '';
+  toastType: 'success' | 'error' | '' = '';
+  showPassword = false;
 
-  constructor(private auth: AuthService, private storage: StorageService, private userSvc: UserService) {}
+  constructor(
+    private auth: AuthService,
+    private storage: StorageService,
+    private userSvc: UserService
+  ) {}
 
   ngOnInit() {
     const u = this.auth.currentUser();
     if (!u) return;
     this.user = u;
     this.newName = u.name;
-
-    const cfg = this.storage.get<any>('appConfig') || {};
-    this.appTitle = cfg.appTitle || 'Mi App de Contadores';
-    this.defaultCounterValue = cfg.defaultCounterValue || 0;
   }
 
-  saveConfig() {
-    this.storage.set('appConfig', { appTitle: this.appTitle, defaultCounterValue: this.defaultCounterValue });
-    this.message = 'Configuración guardada.';
-  }
-
+  // ✅ Actualiza nombre
   changeName() {
-    if (!this.newName) return;
-    this.user.name = this.newName;
-    this.userSvc.update(this.user);
-    this.message = 'Nombre actualizado.';
-  }
-
-  changePassword() {
-    if (!this.newPassword || this.newPassword.length > 15) {
-      this.message = 'Password inválido (máx 15 caracteres)';
+    if (!this.newName.trim()) {
+      this.showToast('El nombre no puede estar vacío', 'error');
       return;
     }
+
+    this.user.name = this.newName;
+    this.userSvc.update(this.user);
+    this.showToast('Nombre actualizado correctamente', 'success');
+  }
+
+  // ✅ Actualiza contraseña
+  changePassword() {
+    if (!this.oldPassword || !this.newPassword) {
+      this.showToast('Debes rellenar ambas contraseñas', 'error');
+      return;
+    }
+
+    if (this.oldPassword !== this.user.password) {
+      this.showToast('La contraseña antigua no coincide', 'error');
+      return;
+    }
+
+    if (this.newPassword.length > 15) {
+      this.showToast('La nueva contraseña no puede superar 15 caracteres', 'error');
+      return;
+    }
+
     this.user.password = this.newPassword;
     this.userSvc.update(this.user);
-    this.message = 'Password actualizado.';
+    this.oldPassword = '';
+    this.newPassword = '';
+    this.showToast('Contraseña actualizada correctamente', 'success');
+  }
+
+  // ✅ Toasts con auto cierre
+  showToast(message: string, type: 'success' | 'error') {
+    this.toastMessage = message;
+    this.toastType = type;
+
+    setTimeout(() => {
+      this.toastMessage = '';
+      this.toastType = '';
+    }, 3000);
+  }
+
+  togglePassword() {
+    this.showPassword = !this.showPassword;
   }
 }

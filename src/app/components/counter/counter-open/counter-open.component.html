@@ -1,25 +1,18 @@
-<h2>Abrir contador por ID</h2>
-<label>Introduce ID:</label>
-<input [(ngModel)]="counterId" />
-<button (click)="load()">Cargar</button>
+<div class="open-container">
+  <div class="card">
+    <h2 class="title">🔎 Cargar marcador por ID</h2>
 
-<div *ngIf="message" style="color:red">{{message}}</div>
+    <div class="form-group">
+      <label for="counterId">Introduce el ID del marcador</label>
+      <input
+        id="counterId"
+        type="text"
+        [(ngModel)]="counterId"
+        placeholder="Ejemplo: 123e4567-e89b-12d3-a456-426614174000"
+      />
+    </div>
 
-<div *ngIf="record">
-  <div class="two-columns" style="display:flex; gap:1rem; margin-top:1rem;">
-    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; border-right:1px solid #ccc;">
-      <input [(ngModel)]="record.leftName" [readonly]="true" />
-      <div class="value">{{recordGame?.leftValue}}</div>
-    </div>
-    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
-      <input [(ngModel)]="record.rightName" [readonly]="true" />
-      <div class="value">{{recordGame?.rightValue}}</div>
-    </div>
+    <button (click)="load()" class="load-btn">Cargar marcador</button>
   </div>
-
-  <footer style="font-size:0.8rem; margin-top:1rem;">
-    ID: <span>{{record!.id}}</span> |
-    Creado: {{record!.createdAt}} |
-    Última modificación: {{record!.updatedAt}}
-  </footer>
 </div>
+

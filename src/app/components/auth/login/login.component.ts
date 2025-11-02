@@ -7,29 +7,40 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  imports: [CommonModule,
-    FormsModule
-  ]
+  styleUrls: ['./login.component.scss'],
+  imports: [CommonModule, FormsModule],
 })
 export class LoginComponent {
   email = '';
   password = '';
   error = '';
+  loading = false;
+  showPassword = false;
 
   constructor(private auth: AuthService, private router: Router) {}
 
   login() {
     this.error = '';
-    const u = this.auth.login(this.email, this.password);
-    if (!u) {
-      this.error = 'Email o password incorrecto';
-      return;
-    }
-    this.router.navigate(['/app']);
+    this.loading = true;
+
+    setTimeout(() => {
+      const user = this.auth.login(this.email, this.password);
+      this.loading = false;
+
+      if (!user) {
+        this.error = '❌ El usuario no existe o la contraseña es incorrecta.';
+        return;
+      }
+
+      this.router.navigate(['/app']);
+    }, 1200); // simula una carga más realista
   }
 
-   go(r: string) {
+  go(r: string) {
     this.router.navigate(['/', r]);
   }
-}
 
+  togglePassword() {
+    this.showPassword = !this.showPassword;
+  }
+}

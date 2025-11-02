@@ -1,0 +1,255 @@
+:host {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  background: #f7f8fa;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+}
+
+.config-page {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  padding: 2rem 2.5rem;
+  width: 100%;
+  max-width: 650px;
+  position: relative;
+  animation: fadeIn 0.4s ease;
+}
+
+h2 {
+  text-align: center;
+  color: #1b3a57;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.config-section {
+  margin-bottom: 2rem;
+  border-top: 2px solid #eaeaea;
+  padding-top: 1.5rem;
+
+  h3 {
+    color: #185a9d;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.config-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+  gap: 0.5rem;
+
+  label {
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+    color: #333;
+  }
+
+  input {
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+
+    &:focus {
+      border-color: #43cea2;
+      box-shadow: 0 0 0 3px rgba(67, 206, 162, 0.25);
+    }
+
+    &:read-only {
+      background: #f2f2f2;
+      cursor: not-allowed;
+    }
+  }
+
+  button.save-btn {
+    align-self: flex-end;
+    background: linear-gradient(90deg, #43cea2, #185a9d);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+
+    &:hover {
+      opacity: 0.95;
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+/* 💡 Sección futura */
+.future {
+  text-align: center;
+  background: #f9f9f9;
+  border-radius: 0.8rem;
+  padding: 1.5rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* 🔔 Toast */
+.toast {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  padding: 0.9rem 1.5rem;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  animation: fadeInUp 0.4s ease;
+
+  &.success {
+    background: #43a047;
+  }
+
+  &.error {
+    background: #e53935;
+  }
+}
+
+/* 📱 Responsive design */
+@media (max-width: 768px) {
+  :host {
+    padding: 1rem;
+  }
+
+  .config-page {
+    padding: 1.5rem;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+  }
+
+  .config-section {
+    h3 {
+      font-size: 1.1rem;
+    }
+  }
+
+  .config-field {
+    input {
+      font-size: 0.9rem;
+      padding: 0.5rem 0.7rem;
+    }
+
+    button.save-btn {
+      align-self: stretch;
+      font-size: 0.9rem;
+      padding: 0.7rem;
+      border-radius: 0.4rem;
+    }
+  }
+
+  .toast {
+    bottom: 15px;
+    right: 15px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h2 {
+    font-size: 1.4rem;
+  }
+
+  .config-field {
+    gap: 0.3rem;
+
+    input {
+      font-size: 0.85rem;
+    }
+
+    button.save-btn {
+      padding: 0.6rem;
+    }
+  }
+}
+
+/* ✨ Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.password-field {
+  position: relative;
+  margin-bottom: 1rem;
+
+  .password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    input {
+      width: 100%;
+      padding: 0.7rem 2.5rem 0.7rem 0.9rem; // espacio para el icono
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+
+      &:focus {
+        border-color: #43cea2;
+        box-shadow: 0 0 0 3px rgba(67, 206, 162, 0.25);
+      }
+    }
+
+    .toggle-visibility {
+      position: absolute;
+      right: 0.7rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #666;
+      font-size: 1.2rem;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #185a9d;
+      }
+
+      i {
+        pointer-events: none; // evita clics sobre el icono
+      }
+    }
+  }
+}
+
