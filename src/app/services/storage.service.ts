@@ -5,6 +5,7 @@ export class StorageService {
   private prefix = 'my-counter-app:'; // prefijo para claves
 
   get<T>(key: string): T | null {
+    if (!localStorage) return null;
     const raw = localStorage.getItem(this.prefix + key);
     return raw ? JSON.parse(raw) as T : null;
   }

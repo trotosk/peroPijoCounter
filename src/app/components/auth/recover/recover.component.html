@@ -1,7 +1,38 @@
-<div>
-  <h2>Recuperar contraseña</h2>
-  <label>Correo</label><input [(ngModel)]="email" />
-  <button (click)="recover()">Enviar</button>
-  <div *ngIf="message">{{message}}</div>
-  <p>Nota: el envío usa mailto: si no hay backend configurado.</p>
+<div class="recover-container">
+  <div class="recover-card">
+    <h2>🔑 Recuperar contraseña</h2>
+    <p class="subtitle">
+      Introduce tu correo electrónico y te enviaremos tu contraseña.
+    </p>
+
+    <div class="form-field">
+      <label>Correo electrónico</label>
+      <input
+        type="email"
+        [(ngModel)]="email"
+        placeholder="tu-correo@ejemplo.com"
+      />
+    </div>
+
+    <button class="recover-btn" (click)="recover()">Solicitar recuperación</button>
+
+    <button class="back-btn" (click)="goBack()">← Volver al inicio de sesión</button>
+
+    <div *ngIf="message" class="message">
+      {{ message }}
+    </div>
+  </div>
+
+  <!-- 🔔 Toast con icono -->
+  <div
+    class="toast"
+    *ngIf="toastMessage"
+    [ngClass]="{ success: toastType === 'success', error: toastType === 'error' }"
+  >
+    <span class="icon">
+      <ng-container *ngIf="toastType === 'success'">✅</ng-container>
+      <ng-container *ngIf="toastType === 'error'">❌</ng-container>
+    </span>
+    <span class="text">{{ toastMessage }}</span>
+  </div>
 </div>

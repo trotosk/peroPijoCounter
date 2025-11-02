@@ -1,30 +1,73 @@
-<h2>Configuración de la aplicación y usuario</h2>
+<div class="config-page">
+  <h2>⚙️ Configuración</h2>
 
-<section>
-  <h3>App</h3>
-  <label>Título de la app:</label>
-  <input [(ngModel)]="appTitle" />
-  <label>Valor inicial por defecto de contadores:</label>
-  <input type="number" [(ngModel)]="defaultCounterValue" />
-  <button (click)="saveConfig()">Guardar configuración</button>
-</section>
+  <!-- 🧍 Sección Usuario -->
+  <section class="config-section">
+    <h3>👤 Usuario</h3>
+    <div class="config-field">
+      <label>Correo electrónico</label>
+      <input [value]="user.email" readonly />
+    </div>
 
-<section>
-  <h3>Usuario</h3>
-  <div>
-    <label>Correo (no editable)</label>
-    <input [value]="user.email" readonly />
-  </div>
-  <div>
-    <label>Nombre</label>
-    <input [(ngModel)]="newName" />
-    <button (click)="changeName()">Actualizar nombre</button>
-  </div>
-  <div>
-    <label>Nuevo password (máx 15 caracteres)</label>
-    <input type="password" [(ngModel)]="newPassword" maxlength="15" />
-    <button (click)="changePassword()">Actualizar password</button>
-  </div>
-</section>
+    <div class="config-field">
+      <label>Nombre</label>
+      <input [(ngModel)]="newName" placeholder="Nuevo nombre" />
+      <button class="save-btn" (click)="changeName()">Guardar</button>
+    </div>
 
-<div *ngIf="message" style="color:green">{{message}}</div>
+    <div class="config-field password-field">
+      <label>Contraseña actual</label>
+      <div class="password-wrapper">
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          [(ngModel)]="oldPassword"
+          placeholder="Introduce tu contraseña actual"
+        />
+
+          <button
+          type="button"
+          class="toggle-visibility"
+          (click)="togglePassword()"
+          [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+        >
+          <i [class]="showPassword ? 'fa fa-eye-slash' : 'fa fa-eye'"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="config-field password-field">
+      <label>Nueva contraseña (máx. 15 caracteres)</label>
+      <div class="password-wrapper">
+        <input
+          [type]="showPassword ? 'text' : 'password'"
+          [(ngModel)]="newPassword"
+          maxlength="15"
+          placeholder="Introduce nueva contraseña"
+        />
+        <button
+        type="button"
+        class="toggle-visibility"
+        (click)="togglePassword()"
+        [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+          <i [class]="showPassword ? 'fa fa-eye-slash' : 'fa fa-eye'"></i>
+        </button>
+      </div>
+      <button class="save-btn" (click)="changePassword()">Actualizar contraseña</button>
+    </div>
+  </section>
+
+  <!-- 💡 Sección futura -->
+  <section class="config-section future">
+    <h3>🚧 Más opciones próximamente</h3>
+    <p>En el futuro podrás personalizar más ajustes de la aplicación aquí.</p>
+  </section>
+
+  <!-- 🔔 Toast -->
+  <div
+    class="toast"
+    *ngIf="toastMessage"
+    [ngClass]="{ success: toastType === 'success', error: toastType === 'error' }"
+  >
+    {{ toastMessage }}
+  </div>
+</div>

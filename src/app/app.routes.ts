@@ -13,12 +13,13 @@ export const routes: Routes = [
   { path: '', component: LoginComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'open', component: CounterOpenComponent },
   { path: 'recover', component: RecoverComponent },
-  { path: 'app', component: HomeComponent, canActivate: [AuthGuard], children: [
+  { path: 'app', component: HomeComponent, children: [
       { path: 'create', component: CounterEditComponent },
-      { path: 'list', component: CounterListComponent },
-      { path: 'open', component: CounterOpenComponent },
-      { path: 'config', component: ConfigComponent },
+      { path: 'list', component: CounterListComponent, canActivate: [AuthGuard] },
+      //{ path: 'open', component: CounterOpenComponent },
+      { path: 'config', component: ConfigComponent, canActivate: [AuthGuard] },
       { path: '', redirectTo: 'list', pathMatch: 'full' }
     ]},
   { path: '**', redirectTo: '' }

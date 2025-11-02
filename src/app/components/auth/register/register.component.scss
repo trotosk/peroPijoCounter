@@ -1,0 +1,224 @@
+:host {
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #43cea2, #185a9d);
+  font-family: "Inter", sans-serif;
+}
+
+.register-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.register-card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  padding: 2rem 2.5rem;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+h2 {
+  font-size: 1.8rem;
+  color: #222;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.form-group {
+  text-align: left;
+  margin-bottom: 1rem;
+
+  label {
+    display: block;
+    font-weight: 500;
+    color: #444;
+    margin-bottom: 0.3rem;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+    &:focus {
+      border-color: #43cea2;
+      box-shadow: 0 0 0 2px rgba(67, 206, 162, 0.2);
+    }
+  }
+}
+
+.input-with-icon {
+  position: relative;
+
+  .icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.1rem;
+    font-weight: bold;
+    opacity: 0;
+    transition: all 0.3s ease;
+  }
+
+  .icon.success {
+    color: #43a047;
+  }
+
+  .icon.error {
+    color: #e53935;
+  }
+
+  input:focus + .icon,
+  input.ng-valid + .icon,
+  input.ng-invalid.ng-dirty + .icon {
+    opacity: 1;
+  }
+}
+
+.field-error {
+  color: #c62828;
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+}
+
+.error-msg {
+  background: #ffe6e6;
+  color: #d8000c;
+  border: 1px solid #ffbaba;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  animation: shake 0.3s ease;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+}
+
+/* 🔸 Botón Crear cuenta */
+.register-btn {
+  background: linear-gradient(90deg, #43cea2, #185a9d);
+  border: none;
+  color: white;
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  flex: 1;
+
+  &:hover {
+    opacity: 0.95;
+    transform: translateY(-2px);
+  }
+}
+
+/* 🔹 Botón Volver */
+.back-btn {
+  background: transparent;
+  border: 2px solid #185a9d;
+  color: #185a9d;
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+
+  &:hover {
+    background: #185a9d;
+    color: white;
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translateX(-2px);
+  }
+  20%, 80% {
+    transform: translateX(4px);
+  }
+  30%, 50%, 70% {
+    transform: translateX(-6px);
+  }
+  40%, 60% {
+    transform: translateX(6px);
+  }
+}
+
+
+.password-field {
+  position: relative;
+  margin-bottom: 1rem;
+
+  .password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    input {
+      width: 100%;
+      padding: 0.7rem 2.5rem 0.7rem 0.9rem; // espacio para el icono
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+
+      &:focus {
+        border-color: #43cea2;
+        box-shadow: 0 0 0 3px rgba(67, 206, 162, 0.25);
+      }
+    }
+
+    .toggle-visibility {
+      position: absolute;
+      right: 0.7rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #666;
+      font-size: 1.2rem;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #185a9d;
+      }
+
+      i {
+        pointer-events: none; // evita clics sobre el icono
+      }
+    }
+  }
+}

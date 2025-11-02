@@ -1,63 +1,51 @@
 import { Component } from '@angular/core';
-import { CounterService } from '../../../services/counter.service';
-import { CounterGame, CounterRecord } from '../../../models/counter.model';
-import { AuthService } from '../../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { CounterService } from '../../../services/counter.service';
+import { CounterRecord, CounterGame } from '../../../models/counter.model';
 
 @Component({
   selector: 'app-counter-open',
+  imports: [CommonModule, FormsModule, MatSnackBarModule],
   templateUrl: './counter-open.component.html',
-  imports: [CommonModule,
-    FormsModule
-  ]
+  styleUrls: ['./counter-open.component.scss'],
 })
 export class CounterOpenComponent {
   counterId = '';
   record: CounterRecord | null = null;
   recordGame: CounterGame | null = null;
-  message = '';
-  readOnly = true;
-  intervalId: any;
 
-  constructor(private counterSvc: CounterService, private auth: AuthService) {}
+  constructor(
+    private counterSvc: CounterService,
+    private router: Router,
+    private snackBar: MatSnackBar
+  ) {}
 
   load() {
-    const rec = this.counterSvc.findCounterById(this.counterId);
-    if (!rec) {
-      this.record = null;
-      this.message = 'ID no válido';
+    const rec = this.counterSvc.findCounterById(this.counterId.trim());
+
+    if (!this.counterId.trim()) {
+      this.showToast('Por favor, introduce un ID antes de continuar.');
       return;
     }
-    this.record = JSON.parse(JSON.stringify(rec)); // clon
-    this.getSelectedGame();
-    const currentUser = this.auth.currentUser();
-    this.readOnly = !currentUser || currentUser.id !== rec.ownerId;
-    this.message = '';
 
-    if (this.intervalId) clearInterval(this.intervalId);
-    this.intervalId = setInterval(() => this.refresh(), 5000);
-  }
-
-  refresh() {
-    if (!this.record) return;
-    const rec = this.counterSvc.findCounterById(this.record.id);
-    if (!rec) return;
-    const recordGameL = this.record.games.find(g => g.id === this.record?.currentGameId) || null;
-    if (this.recordGame && recordGameL) {
-      this.recordGame.leftValue = recordGameL.leftValue;
-      this.recordGame.rightValue = recordGameL.rightValue;
-      this.record.updatedAt = rec.updatedAt;
+    if (!rec) {
+      this.showToast('❌ ID no válido o marcador no encontrado.');
+      return;
     }
+
+    // ✅ Si existe, navegamos al marcador
+    this.router.navigate(['/app/create'], { queryParams: { id: rec.id } });
   }
 
-  ngOnDestroy() {
-    if (this.intervalId) clearInterval(this.intervalId);
-  }
-
-  getSelectedGame() {
-    if (!this.record) return;
-    this.recordGame = this.record.games.find(g => g.id === this.record?.currentGameId) || null;
-
+  showToast(message: string) {
+    this.snackBar.open(message, 'Cerrar', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+      panelClass: ['error-toast'],
+    });
   }
 }

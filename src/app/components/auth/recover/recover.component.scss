@@ -1,0 +1,156 @@
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #43cea2, #185a9d);
+  font-family: 'Inter', sans-serif;
+}
+
+.recover-container {
+  width: 100%;
+  max-width: 420px;
+  padding: 1.5rem;
+}
+
+.recover-card {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  text-align: center;
+  animation: fadeIn 0.4s ease;
+}
+
+h2 {
+  color: #1b3a57;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-field {
+  text-align: left;
+  margin-bottom: 1rem;
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    color: #333;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s ease;
+
+    &:focus {
+      border-color: #43cea2;
+      box-shadow: 0 0 0 3px rgba(67, 206, 162, 0.25);
+    }
+  }
+}
+
+.recover-btn,
+.back-btn {
+  width: 100%;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 0.6rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.7rem;
+}
+
+.recover-btn {
+  background: linear-gradient(90deg, #43cea2, #185a9d);
+  color: white;
+
+  &:hover {
+    opacity: 0.95;
+    transform: translateY(-2px);
+  }
+}
+
+.back-btn {
+  background: transparent;
+  color: #185a9d;
+  border: 2px solid #185a9d;
+
+  &:hover {
+    background: #185a9d;
+    color: white;
+  }
+}
+
+.message {
+  margin-top: 1rem;
+  color: #444;
+  font-weight: 500;
+  background: #f9f9f9;
+  border-radius: 0.5rem;
+  padding: 0.7rem;
+}
+
+/* 🔔 Toast con iconos */
+.toast {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  padding: 0.9rem 1.2rem;
+  border-radius: 0.7rem;
+  color: white;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  animation: fadeInUp 0.4s ease;
+
+  .icon {
+    font-size: 1.3rem;
+  }
+
+  &.success {
+    background: #43a047;
+  }
+
+  &.error {
+    background: #e53935;
+  }
+}
+
+/* ✨ Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -34,7 +34,7 @@ export class CounterService {
     this.saveAll(arr);
 
     //Incluimos un juego al menos
-    const game = this.createGame(rec.id, 'Juego 1');
+    const game = this.createGame(rec.id, 'Set 1');
     rec.games.push(game);
     return rec;
   }
@@ -73,6 +73,7 @@ export class CounterService {
       type: r.type,
       leftValue: r.games?.filter(t => t.id === r.currentGameId)[0]?.leftValue,
       rightValue: r.games?.filter(t => t.id === r.currentGameId)[0]?.rightValue,
+      gamesCount: r.games.length,
       leftName: r.leftName,
       rightName: r.rightName,
       currentGameId: r.currentGameId,
@@ -83,7 +84,7 @@ export class CounterService {
 
   
 
-  createGame(counterId: string, title = 'Nuevo Juego') {
+  createGame(counterId: string, title = 'Set 1') {
     const counter = this.findCounterById(counterId);
     if (!counter) throw new Error('Counter not found');
     const now = new Date().toISOString();
