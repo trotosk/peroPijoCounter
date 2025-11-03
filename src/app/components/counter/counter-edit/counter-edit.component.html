@@ -12,6 +12,27 @@
       <button class="copy-btn copya-btn" (click)="copyIdToClipboard()" title="Copiar ID">
         <i class="fa fa-copy"></i>
       </button>
+      
+      <!-- 📋 Copiar URL actual -->
+      <button
+        type="button"
+        class="copy-btn copya-btn"
+        title="Copiar URL"
+        (click)="copyCurrentUrl()"
+      >
+        <i class="fa fa-link"></i> <!-- o lucide: <LinkIcon /> -->
+      </button>
+
+      <!-- 💬 Compartir por WhatsApp -->
+      <a
+        [href]="whatsappShareUrl"
+        target="_blank"
+        rel="noopener"
+        class="icon-button"
+        title="Compartir por WhatsApp"
+      >
+        <i class="fa fa-whatsapp" style="color: #25D366"></i>
+      </a>
     </div>
   </div>
 

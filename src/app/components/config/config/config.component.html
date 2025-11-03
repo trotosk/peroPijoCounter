@@ -6,15 +6,15 @@
     <h3>👤 Usuario</h3>
     <div class="config-field">
       <label>Correo electrónico</label>
-      <input [value]="user.email" readonly />
+      <input [value]="user?.email" readonly />
     </div>
-
+<!--
     <div class="config-field">
       <label>Nombre</label>
       <input [(ngModel)]="newName" placeholder="Nuevo nombre" />
       <button class="save-btn" (click)="changeName()">Guardar</button>
     </div>
-
+-->
     <div class="config-field password-field">
       <label>Contraseña actual</label>
       <div class="password-wrapper">

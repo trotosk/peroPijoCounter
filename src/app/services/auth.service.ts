@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { Auth, user, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+//import { User } from '../models/user.model';
+import { user as firebaseUser } from '@angular/fire/auth';
 import { User } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })

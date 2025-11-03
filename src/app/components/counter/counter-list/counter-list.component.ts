@@ -13,9 +13,10 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
-import { CounterService } from '../../../services/counter.service';
 import { AuthService } from '../../../services/auth.service';
-import { CounterRecordList } from '../../../models/counter.model';
+import { CounterRecord, CounterRecordList } from '../../../models/counter.model';
+import { Observable } from 'rxjs';
+import { FirestoreCounterService } from '../../../services/firestore-counter.service';
 
 @Component({
   selector: 'app-counter-list',
@@ -54,24 +55,23 @@ export class CounterListComponent implements OnInit {
   searchId = '';
   startDate: Date | null = null;
   endDate: Date | null = null;
+  counters$!: Observable<CounterRecord[]>;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(
-    private counterSvc: CounterService,
     private auth: AuthService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private counterfireStore: FirestoreCounterService
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     const user = this.auth.currentUser();
     if (!user) return;
 
-    const counters = this.counterSvc
-      .listCountersByUserForList(user.id)
-      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    const counters = await this.counterfireStore.getCountersViewByUser(user.id);
 
     this.dataSource.data = counters;
     this.originalData = counters;
@@ -117,21 +117,37 @@ export class CounterListComponent implements OnInit {
     });
   }
 
+  copyCurrentUrl(id: string) {
+    const url = `${window.location.origin}/app/create?id=${id}`;
+    navigator.clipboard.writeText(url)
+      .then(() => this.snackBar.open('📋 URL copiado al portapapeles', 'Cerrar', {
+      duration: 2000,
+      panelClass: ['info-toast']
+      })).catch(() => alert('❌ No se pudo copiar el enlace'));
+  }
+
+
   edit(counter: CounterRecordList) {
     this.router.navigate(['/app/create'], { queryParams: { id: counter.id } });
   }
 
-  eliminar(counter: CounterRecordList) {
+  async eliminar(counter: CounterRecordList) {
     const confirmDelete = confirm(
       `¿Seguro que quieres eliminar el marcador "${counter.leftName} vs ${counter.rightName}"?`
     );
     if (confirmDelete) {
-      this.counterSvc.removeCounter(counter.id);
-      this.snackBar.open('🗑️ Marcador eliminado correctamente', 'Cerrar', {
-        duration: 2000,
-        panelClass: ['success-toast']
-      });
-      this.ngOnInit();
+
+      try {
+        await this.counterfireStore.deleteCounter(counter.id);
+        this.snackBar.open('🗑️ Marcador eliminado correctamente', 'Cerrar', {
+          duration: 2000,
+          panelClass: ['success-toast']
+        });
+        this.ngOnInit();
+      } catch (err) {
+        console.error('Error al eliminar contador:', err);
+        alert('No se pudo eliminar el contador.');
+      }
     }
   }
 

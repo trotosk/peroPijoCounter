@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
+  /*
   private prefix = 'my-counter-app:'; // prefijo para claves
 
   get<T>(key: string): T | null {
@@ -17,4 +18,5 @@ export class StorageService {
   remove(key: string): void {
     localStorage.removeItem(this.prefix + key);
   }
+    */
 }

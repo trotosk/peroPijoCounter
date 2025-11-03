@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { CounterService } from '../../../services/counter.service';
 import { CounterRecord, CounterGame } from '../../../models/counter.model';
 import { FirestoreCounterService } from '../../../services/firestore-counter.service';
 
@@ -26,7 +25,7 @@ export class CounterOpenComponent {
 
   async load() {
     const rec = await this.fsService.findCounterById(this.counterId.trim());
-    console.log('Recuperado:', rec);
+    //console.log('Recuperado:', rec);
     if (!this.counterId.trim()) {
       this.showToast('Por favor, introduce un ID antes de continuar.');
       return;
