@@ -1,5 +1,4 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CounterService } from '../../../services/counter.service';
 import { AuthService } from '../../../services/auth.service';
 import { CounterGame, CounterRecord } from '../../../models/counter.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,6 +9,7 @@ import { trigger, transition, style, animate, keyframes } from '@angular/animati
 import { RouterModule } from '@angular/router';
 import { FirestoreCounterService } from '../../../services/firestore-counter.service';
 import { Subscription } from 'rxjs';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-counter-edit',
@@ -28,7 +28,7 @@ import { Subscription } from 'rxjs';
     ])
   ],
   imports: [CommonModule,
-    FormsModule, MatIconModule,RouterModule]
+    FormsModule, MatIconModule,RouterModule,MatSnackBarModule,]
 })
 
 export class CounterEditComponent implements OnInit, OnDestroy {
@@ -56,11 +56,11 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   
 
   constructor(
-    private counterSvc: CounterService,
     private auth: AuthService,
     private route: ActivatedRoute,
     private router: Router,
-    private fsService: FirestoreCounterService
+    private fsService: FirestoreCounterService,
+    private snackBar: MatSnackBar,
   ) {}
 
   ngOnDestroy(): void {
@@ -77,7 +77,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     if (!id) {
       // Crear uno nuevo
       if (!cur) throw new Error('No user');
-      this.record = this.counterSvc.createCounterForUser(cur.id, this.type!, this.type!);
+      this.record = await this.fsService.createCounterForUser(cur.id, this.type!, this.type!);
       // Al crear uno nuevo, seleccionamos el primer juego
       this.record.currentGameId = this.record.games[0].id;
       //lo guardamos en Firestore
@@ -96,7 +96,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
 */
        // Escucha Firestore en tiempo real
       this.sub = this.fsService.watchCounter(id).subscribe(c => {
-        console.log('Datos Firestore recibidos:', c);
+        //console.log('Datos Firestore recibidos:', c);
         if (!c) return;
         this.counter = c;
         this.record = JSON.parse(JSON.stringify(c));
@@ -137,7 +137,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
 
   getSelectedGame() {
     if (!this.record) return;
-    console.log('CurrentGameId:', this.record.currentGameId);
+    //console.log('CurrentGameId:', this.record.currentGameId);
     this.recordGame = this.record.games.find(g => g.id === this.record?.currentGameId) || null;
 
   }
@@ -189,7 +189,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   saveCounter() {
     if (!this.record) return;
     // Guardar cambios en el servicio en memoria local
-    this.counterSvc.updateCounter(this.record);
+    this.fsService.updateCounter(this.record.id,this.record);
 
      // 🔥 Sincroniza con Firestore
     this.fsService.saveCounter(this.record)
@@ -202,9 +202,9 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     this.record.currentGameId = gameId;
   }
 
-  addGame() {
+  async addGame() {
     if (!this.record) return;
-    const newGame = this.counterSvc.createGame(this.record!.id, `Set ${this.record!.games.length + 1}`);
+    const newGame = await this.fsService.createGame(this.record!.id, `Set ${this.record!.games.length + 1}`);
     this.record.games.push(newGame);
     this.record.currentGameId = newGame.id;
     this.changeCurrentGame(newGame.id);
@@ -228,6 +228,26 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   copyIdToClipboard() {
     if (!this.record) return;
     navigator.clipboard.writeText(this.record.id);
+
+    this.snackBar.open('📋 ID copiado al portapapeles', 'Cerrar', {
+      duration: 2000,
+      panelClass: ['info-toast']
+    });
+  }
+
+  copyCurrentUrl() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url)
+      .then(() => this.snackBar.open('📋 URL copiado al portapapeles', 'Cerrar', {
+      duration: 2000,
+      panelClass: ['info-toast']
+      })).catch(() => alert('❌ No se pudo copiar el enlace'));
+  }
+
+  get whatsappShareUrl(): string {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent('¡Mira este marcador en vivo!');
+    return `https://wa.me/?text=${text}%20${url}`;
   }
 
   showToast(message: string) {

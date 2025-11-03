@@ -18,9 +18,6 @@ export class AppComponent implements OnInit, OnDestroy {
   menuItems: MenuItem[] = [];
   private authSub?: Subscription;
 
-  config: any; // Ver si hace falta
-  counterService: any; // Ver si hace falta
-
 
   constructor(private dialog: MatDialog, public auth: AuthService, private router: Router) {}
   

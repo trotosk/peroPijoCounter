@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private key = 'users';
-
+/*
   constructor(private storage: StorageService) {}
 
   private loadAll(): User[] {
@@ -57,4 +57,5 @@ export class UserService {
     const u = this.findByEmail(email);
     return u ? u.password : null;
   }
+    */
 }

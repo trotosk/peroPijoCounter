@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { CounterRecord, CounterRecordList } from '../models/counter.model';
 import { v4 as uuidv4 } from 'uuid';
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class CounterService {
   private key = 'counters';
 
   constructor(private storage: StorageService) {}
-
+/*
   private loadAll(): CounterRecord[] {
     return this.storage.get<CounterRecord[]>(this.key) || [];
   }
@@ -65,7 +66,7 @@ export class CounterService {
     return this.loadAll().filter(r => r.ownerId === userId);
   }
 
-  listCountersByUserForList(userId: string): CounterRecordList[] {
+  listCountersByUserForList_b(userId: string): CounterRecordList[] {
     return this.loadAll().filter(r => r.ownerId === userId).map(r => ({
       id: r.id,
       ownerId: r.ownerId,
@@ -80,6 +81,32 @@ export class CounterService {
       createdAt: r.createdAt,
       updatedAt: r.updatedAt
     }));
+  }
+
+  listCountersByUserForList(counters$: Observable<CounterRecord[]>): CounterRecordList[] {
+    return this.counters$ = this.counterSvc.getCountersByUser(uid).pipe(
+      map(counters =>
+        counters.map(c => ({
+          id: c.id,
+          title: c.title ?? 'Sin título',
+          scoreText: `${c.scoreA ?? 0} - ${c.scoreB ?? 0}`
+        }))
+      )
+    );
+    return counters$.pipe(map(r => ({
+      id: r.id,
+      ownerId: r.ownerId,
+      title: r.title,
+      type: r.type,
+      leftValue: r.games?.filter(t => t.id === r.currentGameId)[0]?.leftValue,
+      rightValue: r.games?.filter(t => t.id === r.currentGameId)[0]?.rightValue,
+      gamesCount: r.games.length,
+      leftName: r.leftName,
+      rightName: r.rightName,
+      currentGameId: r.currentGameId,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt
+    })));
   }
 
   
@@ -102,7 +129,7 @@ export class CounterService {
     return game;
   }
 
-  /** Elimina un juego */
+  // Elimina un juego
   removeGame(counterId: string, gameId: string): CounterRecord | null {
     const counter = this.findCounterById(counterId);
     if (!counter) return null;
@@ -112,6 +139,6 @@ export class CounterService {
     this.updateCounter(counter);
     return counter;
   }
-  
+  */
 
 }
