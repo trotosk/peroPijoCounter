@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CounterService } from '../../../services/counter.service';
 import { AuthService } from '../../../services/auth.service';
 import { CounterGame, CounterRecord } from '../../../models/counter.model';
@@ -8,6 +8,8 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from "@angular/material/icon";
 import { trigger, transition, style, animate, keyframes } from '@angular/animations';
 import { RouterModule } from '@angular/router';
+import { FirestoreCounterService } from '../../../services/firestore-counter.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-counter-edit',
@@ -29,8 +31,18 @@ import { RouterModule } from '@angular/router';
     FormsModule, MatIconModule,RouterModule]
 })
 
-export class CounterEditComponent implements OnInit {
-  record: CounterRecord | null = null;
+export class CounterEditComponent implements OnInit, OnDestroy {
+  record: CounterRecord = {
+        id: '',
+        ownerId: '',
+        title: '',
+        type: '',
+        games: [],
+        leftName: 'Local',
+        rightName: 'Visitante',
+        createdAt: '',
+        updatedAt: ''
+      };
   recordGame: CounterGame | null = null;
   idFromRoute: string | null = null;
   readOnly = false;
@@ -39,15 +51,23 @@ export class CounterEditComponent implements OnInit {
   showDeleteConfirm = false;
   isFullscreen = false;
   isFullscreenFijo= false;
+  counter: any;
+  sub?: Subscription;
+  
 
   constructor(
     private counterSvc: CounterService,
     private auth: AuthService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private fsService: FirestoreCounterService
   ) {}
 
-  ngOnInit() {
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+  }
+
+  async ngOnInit() {
     // Si viene id por query param -> cargar (editar si es del user)
     const id = this.route.snapshot.queryParamMap.get('id');
     this.type = this.route.snapshot.queryParamMap.get('type');
@@ -60,15 +80,48 @@ export class CounterEditComponent implements OnInit {
       this.record = this.counterSvc.createCounterForUser(cur.id, this.type!, this.type!);
       // Al crear uno nuevo, seleccionamos el primer juego
       this.record.currentGameId = this.record.games[0].id;
+      //lo guardamos en Firestore
+      this.fsService.saveCounter(this.record)
+        .then(() => console.log('Nuevo contador guardado en Firestore'))
+        .catch(err => console.error('Error guardando nuevo contador en Firestore', err));
     } else {
       // Cargar existente
-      const rec = this.counterSvc.findCounterById(id);
+      const rec = await this.fsService.findCounterById(id);//this.counterSvc.findCounterById(id);
       this.idFromRoute = id;
+/*
       if (!rec) {
         alert('ID no válido');
         return;
       }
+*/
+       // Escucha Firestore en tiempo real
+      this.sub = this.fsService.watchCounter(id).subscribe(c => {
+        console.log('Datos Firestore recibidos:', c);
+        if (!c) return;
+        this.counter = c;
+        this.record = JSON.parse(JSON.stringify(c));
+        this.getSelectedGame();
+      });
 
+      // Determinar modo de lectura
+      if (!cur) {
+        // Usuario público (no logueado)
+        this.readOnly = true;
+        this.isFullscreen = true;
+        this.isFullscreenFijo = true;
+      } else if (rec?.ownerId !== cur.id) {
+        // Usuario logueado pero no propietario
+        this.readOnly = true;
+        this.isFullscreen = true;
+        this.isFullscreenFijo = true;
+      } else {
+        // Propietario
+        this.readOnly = false;
+        this.isFullscreen = false;
+        this.isFullscreenFijo = false;
+      }
+
+/*
       if (!cur || rec.ownerId !== cur.id) {
         this.readOnly = true; // modo lectura
         this.isFullscreen = true;
@@ -76,17 +129,11 @@ export class CounterEditComponent implements OnInit {
       }
 
       this.record = JSON.parse(JSON.stringify(rec)); // clon para edición local
+      */
     }
     this.getSelectedGame(); // Cargar el juego seleccionado
   }
-/*
-  inc(side: 'left' | 'right') {
-    if (!this.record || this.readOnly) return;
-    const pair = side === 'left' ? this.record.left : this.record.right;
-    pair.value = pair.value + 1;
-    this.save();
-  }
-*/
+
 
   getSelectedGame() {
     if (!this.record) return;
@@ -116,14 +163,7 @@ export class CounterEditComponent implements OnInit {
     this.saveCounter();
   }
 
-  /*
-  dec(side: 'left' | 'right') {
-    if (!this.record || this.readOnly) return;
-    const pair = side === 'left' ? this.record.left : this.record.right;
-    pair.value = Math.max(0, pair.value - 1);
-    this.saveCounter();
-  }
-*/
+
   // Decrementar el marcador del lado indicado
   dec(side: 'left' | 'right') {
     if (!this.record || !this.recordGame ||this.readOnly) return;
@@ -148,7 +188,13 @@ export class CounterEditComponent implements OnInit {
 
   saveCounter() {
     if (!this.record) return;
+    // Guardar cambios en el servicio en memoria local
     this.counterSvc.updateCounter(this.record);
+
+     // 🔥 Sincroniza con Firestore
+    this.fsService.saveCounter(this.record)
+      .then(() => console.log('Guardado en Firestore'))
+      .catch(err => console.error('Error guardando en Firestore', err));
   }
 
   selectGame(gameId: string) {
@@ -176,39 +222,13 @@ export class CounterEditComponent implements OnInit {
     } else {
       this.dec(side);
     }
-    /*
-    if (side === 'left') game.leftValue = Math.max(0, game.leftValue + delta);
-    else game.rightValue = Math.max(0, game.rightValue + delta);
-    game.updatedAt = new Date().toISOString();
-    */
+
   }
 
   copyIdToClipboard() {
     if (!this.record) return;
     navigator.clipboard.writeText(this.record.id);
   }
-/*
-  removeCurrentGame() {
-    if (!this.record) return;
-    if (this.record.games.length === 1) {
-      this.showToast('No se puede eliminar el último set');
-      return;
-    }
-
-    const current = this.recordGame;
-    if (!current) return;
-
-    const confirmDelete = confirm(`¿Deseas eliminar ${current.title}?`);
-    if (confirmDelete) {
-      this.record.games = this.record.games.filter(g => g.id !== current.id);
-      this.record.currentGameId = this.record.games[this.record.games.length - 1].id;
-      this.showToast(`${current.title} eliminado correctamente`);
-    }
-
-    this.changeCurrentGame(this.record.games[this.record.games.length - 1].id);
-    this.saveCounter();
-  }
-    */
 
   showToast(message: string) {
     this.toastMessage = message;
@@ -249,6 +269,13 @@ export class CounterEditComponent implements OnInit {
       this.isFullscreen = !this.isFullscreen;
     }
     
+  }
+
+  async addPoint(team: 'A'|'B') {
+    if (!this.counter) return;
+    // ejemplo: actualiza score en firestore
+    const newScore = { /* calcula */ };
+    await this.fsService.updateCounter(this.counter.id!, { /*score: newScore*/ });
   }
 
 }

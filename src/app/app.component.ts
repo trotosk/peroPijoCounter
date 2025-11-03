@@ -22,7 +22,7 @@ export class AppComponent implements OnInit, OnDestroy {
   counterService: any; // Ver si hace falta
 
 
-  constructor(private dialog: MatDialog, private auth: AuthService, private router: Router) {}
+  constructor(private dialog: MatDialog, public auth: AuthService, private router: Router) {}
   
   ngOnDestroy(): void {
     this.authSub?.unsubscribe();
@@ -38,7 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
    /** 🔁 Genera dinámicamente el menú según estado del usuario */
   refreshMenu() {
-    const isAuth = this.auth.isLoggedIn();
+    const isAuth = this.auth.isAuthenticated();
 
     this.menuItems = [
       {

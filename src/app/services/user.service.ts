@@ -25,10 +25,10 @@ export class UserService {
     const user: User = {
       id: uuidv4(),
       email,
-      name,
+      //name,
       password: password.slice(0, 15),
-      createdAt: now,
-      updatedAt: now
+      //createdAt: now,
+      //updatedAt: now
     };
     users.push(user);
     this.saveAll(users);
@@ -47,7 +47,7 @@ export class UserService {
     const users = this.loadAll();
     const idx = users.findIndex(u => u.id === user.id);
     if (idx === -1) throw new Error('Usuario no encontrado');
-    user.updatedAt = new Date().toISOString();
+    //user.updatedAt = new Date().toISOString();
     users[idx] = user;
     this.saveAll(users);
   }
