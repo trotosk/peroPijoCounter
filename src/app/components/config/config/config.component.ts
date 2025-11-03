@@ -31,7 +31,7 @@ export class ConfigComponent implements OnInit {
     const u = this.auth.currentUser();
     if (!u) return;
     this.user = u;
-    this.newName = u.name;
+    this.newName = u.email;
   }
 
   // ✅ Actualiza nombre

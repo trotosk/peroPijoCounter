@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-recover',
@@ -13,29 +15,30 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class RecoverComponent {
   email = '';
-  message = '';
   toastMessage = '';
+  message = '';
   toastType: 'success' | 'error' | null = null;
+  loading = false;
 
-  constructor(private auth: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private auth: Auth, private router: Router) {}
 
-  recover() {
+  async recover() {
     if (!this.email || !this.email.includes('@')) {
       this.showToast('Introduce un correo válido', 'error');
       this.message = 'El correo introducido no es válido.';
       return;
     }
 
-    const userMail = this.auth.findUserByEmail?.(this.email); // Comprueba si existe el usuario
-    if (!userMail || !userMail.ok) {
-      this.showToast('El correo no existe en el sistema', 'error');
-      this.message = 'No existe ningún usuario con ese correo.';
-      return;
+    this.loading = true;
+    try {
+      await sendPasswordResetEmail(this.auth, this.email);
+      this.showToast('📧 Se ha enviado un correo de recuperación', 'success');
+      this.loading = false;
+    } catch (err: any) {
+      this.loading = false;
+      this.showToast(err.message || 'Error enviando correo de recuperación', 'error');
+      this.message = 'No existe ningún usuario con ese correo o el servicio de recuperación está temporalmente fuera de servicio. Inténtalo más tarde.';
     }
-
-    // Simulamos envío de correo con su contraseña
-    this.showToast('📧 Servicio temporalmente fuera de servicio', 'error');
-    this.message = 'El servicio de recuperación está temporalmente fuera de servicio.';
   }
 
   goBack() {

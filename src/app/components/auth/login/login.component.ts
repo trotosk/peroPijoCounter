@@ -19,12 +19,12 @@ export class LoginComponent {
 
   constructor(private auth: AuthService, private router: Router) {}
 
-  login() {
+  async login() {
     this.error = '';
     this.loading = true;
 
-    setTimeout(() => {
-      const user = this.auth.login(this.email, this.password);
+    try {
+      const user = await this.auth.login(this.email, this.password);
       this.loading = false;
 
       if (!user) {
@@ -32,15 +32,35 @@ export class LoginComponent {
         return;
       }
 
-      this.router.navigate(['/app']);
-    }, 1200); // simula una carga más realista
+      this.router.navigate(['/app/list']); // redirige al listado o panel principal
+    } catch (err: any) {
+      this.loading = false;
+      this.error = err.message || 'Error al iniciar sesión.';
+    }
   }
 
-  go(r: string) {
-    this.router.navigate(['/', r]);
+  async loginWithGoogle() {
+    this.error = '';
+    this.loading = true;
+    try {
+      const user = await this.auth.loginWithGoogle();
+      this.loading = false;
+      if (!user) {
+        this.error = 'No se pudo iniciar sesión con Google.';
+        return;
+      }
+      this.router.navigate(['/app/list']);
+    } catch (err: any) {
+      this.loading = false;
+      this.error = err.message || 'Error al iniciar sesión con Google.';
+    }
   }
 
   togglePassword() {
     this.showPassword = !this.showPassword;
+  }
+
+  go(r: string) {
+    this.router.navigate(['/', r]);
   }
 }

@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { UserService } from '../../../services/user.service';
 import { AuthService } from '../../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -19,12 +18,9 @@ export class RegisterComponent {
   emailError = '';
   emailValid = false;
   showPassword = false;
+  loading = false;
 
-  constructor(
-    private userSvc: UserService,
-    private auth: AuthService,
-    private router: Router
-  ) {}
+  constructor(private auth: AuthService, private router: Router) {}
 
   validateEmail() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -35,10 +31,8 @@ export class RegisterComponent {
         : '';
   }
 
-  register() {
+  async register() {
     this.error = '';
-    this.emailError = '';
-
     if (!this.email || !this.name || !this.password) {
       this.error = 'Rellena todos los campos';
       return;
@@ -54,26 +48,30 @@ export class RegisterComponent {
       return;
     }
 
+    this.loading = true;
+
     try {
-      const u = this.userSvc.create(this.email, this.name, this.password);
-      if (!u) {
-        this.error = 'El usuario ya existe';
+      const user = await this.auth.register(this.email, this.password);
+      this.loading = false;
+
+      if (!user) {
+        this.error = 'No se pudo registrar el usuario';
         return;
       }
 
-      // Auto login y redirección
-      this.auth.login(this.email, this.password);
+      // Redirige automáticamente al login o a la app
       this.router.navigate(['/app/list']);
-    } catch (e: any) {
-      this.error = e.message || 'Error al crear usuario';
+    } catch (err: any) {
+      this.loading = false;
+      this.error = err.message || 'Error al registrar usuario.';
     }
-  }
-
-  goBack() {
-    this.router.navigate(['/login']);
   }
 
   togglePassword() {
     this.showPassword = !this.showPassword;
+  }
+
+  goBack() {
+    this.router.navigate(['/login']);
   }
 }

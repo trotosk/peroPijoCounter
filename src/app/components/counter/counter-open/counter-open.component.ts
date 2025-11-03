@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CounterService } from '../../../services/counter.service';
 import { CounterRecord, CounterGame } from '../../../models/counter.model';
+import { FirestoreCounterService } from '../../../services/firestore-counter.service';
 
 @Component({
   selector: 'app-counter-open',
@@ -18,14 +19,14 @@ export class CounterOpenComponent {
   recordGame: CounterGame | null = null;
 
   constructor(
-    private counterSvc: CounterService,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private fsService: FirestoreCounterService
   ) {}
 
-  load() {
-    const rec = this.counterSvc.findCounterById(this.counterId.trim());
-
+  async load() {
+    const rec = await this.fsService.findCounterById(this.counterId.trim());
+    console.log('Recuperado:', rec);
     if (!this.counterId.trim()) {
       this.showToast('Por favor, introduce un ID antes de continuar.');
       return;

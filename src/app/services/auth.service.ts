@@ -1,79 +1,70 @@
 import { Injectable } from '@angular/core';
-import { UserService } from './user.service';
-import { User } from '../models/user.model';
+import { Auth, user, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { User } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  [x: string]: any;
-  private storageKey = 'currentUserId';
-
-  // observable para informacion del logado
-  private _isAuthenticated$ = new BehaviorSubject<boolean>(this.isLoggedIn());
+  private _isAuthenticated$ = new BehaviorSubject<boolean>(false);
   public readonly isAuthenticated$ = this._isAuthenticated$.asObservable();
 
-  constructor(private userService: UserService) {}
+  private _isLoading$ = new BehaviorSubject<boolean>(true); // 👈 nuevo estado
+  public readonly isLoading$ = this._isLoading$.asObservable();
 
-  login(email: string, password: string): User | null {
-    const user = this.userService.findByEmail(email);
-    if (!user) return null;
-    if (user.password !== password) return null;
-    localStorage.setItem(this.storageKey, user.id);
-    this._isAuthenticated$.next(true); // notifica a todos los observadores
-    return user;
+  constructor(private auth: Auth) {
+    // Observa los cambios de sesión
+    user(this.auth).subscribe(u => {
+      this._isAuthenticated$.next(!!u);
+      this._isLoading$.next(false); // 👈 ya se resolvió Firebase
+    });
   }
 
-  // Verifica si estamos en navegador
-  private isBrowser(): boolean {
-    return typeof window !== 'undefined' && !!window.localStorage;
+  /** 🔑 Registro nuevo usuario con email y contraseña */
+  async register(email: string, password: string): Promise<User> {
+    const cred = await createUserWithEmailAndPassword(this.auth, email, password);
+    return { id: cred.user.uid, email: cred.user.email ?? '', password: '' };
   }
 
-  // Cierra sesión
-  logout() {
-    if (this.isBrowser()) localStorage.removeItem(this.storageKey);
-    this._isAuthenticated$.next(false); // notifica a todos los observadores
-  }
-  
-  // Recupera el ID del usuario logueado
-  currentUserId(): string | null {
-    return this.isBrowser() ? localStorage.getItem(this.storageKey) : null;
+  /** 🔐 Login con email y contraseña */
+  async login(email: string, password: string): Promise<User | null> {
+    const cred = await signInWithEmailAndPassword(this.auth, email, password);
+    const u = cred.user;
+    return { id: u.uid, email: u.email ?? '', password: '' };
   }
 
-  // Recupera el usuario logueado
+  /** 🔑 Login con Google */
+  async loginWithGoogle(): Promise<User | null> {
+    const provider = new GoogleAuthProvider();
+    const cred = await signInWithPopup(this.auth, provider);
+    const u = cred.user;
+    return { id: u.uid, email: u.email ?? '', password: '' };
+  }
+
+  /** 🚪 Logout */
+  async logout(): Promise<void> {
+    await signOut(this.auth);
+    this._isAuthenticated$.next(false);
+  }
+
+  /** 👤 Usuario actual */
   currentUser(): User | null {
-    const id = this.currentUserId();
-    return id ? this.userService.findById(id) || null : null;
+    const u = this.auth.currentUser;
+    return u ? { id: u.uid, email: u.email ?? '', password: '' } : null;
   }
 
-  // Comprueba si hay un usuario logueado
-  isLoggedIn(): boolean {
-    return !!this.currentUserId();
+  /** 🧠 ID del usuario actual */
+  currentUserId(): string | null {
+    return this.auth.currentUser?.uid ?? null;
   }
 
-  /** ✅ Devuelve el estado actual sin necesidad de suscribirse */
+  /** ✅ Estado actual (booleano) */
   isAuthenticated(): boolean {
-    return this._isAuthenticated$.value;
+    //console.log('AuthService.isAuthenticated:', this.auth.currentUser);
+    return this.auth.currentUser ? true : false; 
   }
 
-  // Recuperar: por defecto abre mailto, y te dejo un punto para integrar un backend.
-  sendRecovery(email: string): { ok: boolean; message: string } {
-    const pw = this.userService.getPasswordByEmail(email);
-    if (!pw) return { ok: false, message: 'Usuario no encontrado' };
-
-    // Opción básica: abrir mailto (inseguro y depende del cliente)
-    const subject = encodeURIComponent('Recuperación de contraseña');
-    const body = encodeURIComponent(`Tu contraseña es: ${pw}`);
-    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-
-    // Si tuvieras un backend, aquí harías una petición POST al endpoint de envio de correo.
-    return { ok: true, message: 'Se abrió cliente de correo para enviar la contraseña.' };
-  }
-
-  // Recuperar: por defecto abre mailto, y te dejo un punto para integrar un backend.
-  findUserByEmail(email: string): { ok: boolean; message: string } {
-    const pw = this.userService.getPasswordByEmail(email);
-    if (!pw) return { ok: false, message: 'Usuario no encontrado' };
-
-    return { ok: true, message: 'Existe un usuario con ese correo.' };
+  isLoading(): boolean {
+    return this._isLoading$.value;
   }
 }

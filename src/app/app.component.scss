@@ -168,3 +168,12 @@
       margin-block: 1.5rem;
     }
   }
+
+  .loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 1.2rem;
+  color: #555;
+}
