@@ -5,36 +5,34 @@
   </button>
 
   <!-- Header -->
-  <div class="header" *ngIf="!isFullscreen">
-    <div class="title">
-      <h2>{{ record!.title }}</h2>
-      <span class="id">ID para compartir: {{ record!.id }} </span>
-      <button class="copy-btn copya-btn" (click)="copyIdToClipboard()" title="Copiar ID">
-        <i class="fa fa-copy"></i>
-      </button>
-      
-      <!-- 📋 Copiar URL actual -->
-      <button
-        type="button"
-        class="copy-btn copya-btn"
-        title="Copiar URL"
-        (click)="copyCurrentUrl()"
-      >
-        <i class="fa fa-link"></i> <!-- o lucide: <LinkIcon /> -->
-      </button>
+ <div class="header" *ngIf="!isFullscreen">
+  <div class="title">
 
-      <!-- 💬 Compartir por WhatsApp -->
-      <a
-        [href]="whatsappShareUrl"
-        target="_blank"
-        rel="noopener"
-        class="icon-button"
-        title="Compartir por WhatsApp"
-      >
-        <i class="fa fa-whatsapp" style="color: #25D366"></i>
-      </a>
-    </div>
+    <h2>{{ record!.title }}</h2>
+    <span class="id">ID para compartir: {{ record!.id }} </span>
+
+    <!-- ICONOS -->
+    <button class="copy-btn copya-btn" (click)="copyIdToClipboard()" title="Copiar ID">
+      <i class="fa fa-copy"></i>
+    </button>
+
+    <button type="button" class="copy-btn copya-btn" title="Copiar URL" (click)="copyCurrentUrl()">
+      <i class="fa fa-link"></i>
+    </button>
+
+    <a [href]="whatsappShareUrl" target="_blank" rel="noopener" class="icon-button" title="Compartir por WhatsApp">
+      <i class="fa fa-whatsapp" style="color: #25D366"></i>
+    </a>
+
   </div>
+  <!-- NUEVA UBICACIÓN DEL BOTÓN -->
+    <button
+      class="perm-btn"
+      (click)="goToPermissions()"
+      *ngIf="!isAuthorized && !readOnly">
+      <i class="bi bi-people"></i> Gestionar permisos
+    </button>
+</div>
 
   <!-- Lista de sets -->
   <div class="games-list" *ngIf="!isFullscreen">

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://peropijocounter.web.app/sitemap.xml

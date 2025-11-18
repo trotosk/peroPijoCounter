@@ -1,3 +1,5 @@
+$danger: #dc3545;
+
 .list-container {
   padding: 2rem;
   max-width: 1300px;
@@ -21,30 +23,62 @@ h2 {
 
 .table-container {
   overflow-x: auto;
+  margin-bottom: 2rem;
+
+  table {
+    width: 100%;
+    border-radius: 0.75rem;
+    overflow: hidden;
+
+    th.mat-header-cell {
+      background-color: #f8f8f8;
+      font-weight: 600;
+    }
+
+    td.mat-cell,
+    th.mat-header-cell {
+      padding: 1rem;
+      vertical-align: middle;
+    }
+
+    .id-text {
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    button.copya-btn {
+      border: none;
+      background: #e9ecef;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-left: 0.3rem;
+
+      &:hover {
+        background: #dcdcdc;
+      }
+    }
+
+    /* Estilo para menú de acciones */
+    button[mat-icon-button] {
+      background: #e9ecef;
+      border-radius: 50%;
+      padding: 0.4rem;
+      transition: 0.2s;
+
+      &:hover {
+        background: #dcdcdc;
+      }
+
+      mat-icon {
+        font-size: 1.2rem;
+      }
+    }
+  }
 }
 
-table {
-  width: 100%;
-  border-radius: 0.75rem;
-  overflow: hidden;
-}
-
-th.mat-header-cell {
-  background-color: #f8f8f8;
-  font-weight: 600;
-}
-
-td.mat-cell,
-th.mat-header-cell {
-  padding: 1rem;
-}
-
-.id-text {
-  font-family: monospace;
-  font-size: 0.85rem;
-  color: #555;
-}
-
+/* Snackbars personalizados */
 ::ng-deep .mat-mdc-snack-bar-container.info-toast {
   background: #1976d2;
   color: white;
@@ -55,10 +89,82 @@ th.mat-header-cell {
   color: white;
 }
 
-.copya-btn {
-  border: none;
-    background: #e9ecef;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: 0.2s;
+/* Paginador */
+.mat-paginator {
+  margin-top: 1rem;
+  .mat-paginator-range-label {
+    font-size: 0.9rem;
+  }
+  button {
+    color: #1976d2;
+  }
+}
+
+.table-container.authorized {
+  margin-top: 3rem; /* más espacio entre tablas */
+}
+
+/* 🔹 MODAL CONFIRMACIÓN */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  animation: fadeIn 0.3s ease both;
+}
+
+.modal {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 90%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  animation: popIn 0.35s ease both;
+
+  h3 {
+    margin-top: 0;
+    font-size: 1.4rem;
+  }
+
+  p {
+    color: #555;
+    margin: 0.5rem 0 1.5rem;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+
+    button {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .cancel {
+      background: #dee2e6;
+      &:hover {
+        background: #ced4da;
+      }
+    }
+
+    .confirm {
+      background: $danger;
+      color: white;
+      &:hover {
+        background: darken($danger, 7%);
+      }
+    }
+  }
 }

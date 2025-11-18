@@ -11,6 +11,9 @@ import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
+import { provideAnalytics, getAnalytics } from '@angular/fire/analytics';
+import { RouterAnalyticsService } from './services/router-analytics.service';
+
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,6 +25,17 @@ export const appConfig: ApplicationConfig = {
     // Firebase providers
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideFirestore(() => getFirestore()),
+    //provideAnalytics(() => getAnalytics()),
+    provideAnalytics(() => {
+      if (typeof window !== 'undefined') {
+        return getAnalytics();
+      }
+      return null as any; // ❌ evita que devuelva null inesperado
+    }),
+    // Tracking automático de pantallas
+    RouterAnalyticsService,
+    //ScreenTrackingService,
+    
     provideAuth(() => getAuth()),
   ]
 };

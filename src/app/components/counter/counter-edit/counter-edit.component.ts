@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
 import { CounterGame, CounterRecord } from '../../../models/counter.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { RouterModule } from '@angular/router';
 import { FirestoreCounterService } from '../../../services/firestore-counter.service';
 import { Subscription } from 'rxjs';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { Analytics, getAnalytics, logEvent } from '@angular/fire/analytics';
 
 @Component({
   selector: 'app-counter-edit',
@@ -53,6 +54,10 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   isFullscreenFijo= false;
   counter: any;
   sub?: Subscription;
+  currentUserId: string | null = null;
+  isAuthorized= false;
+  private platformId = inject(PLATFORM_ID);
+  private analytics: Analytics | null = null;
   
 
   constructor(
@@ -72,6 +77,10 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     const id = this.route.snapshot.queryParamMap.get('id');
     this.type = this.route.snapshot.queryParamMap.get('type');
     const cur = this.auth.currentUser();
+    this.currentUserId = cur ? cur.id : null;
+
+    // inicializa Firebase Analytics aquí
+    this.analytics = getAnalytics();
 
     // Nuevo o editar existente
     if (!id) {
@@ -83,7 +92,11 @@ export class CounterEditComponent implements OnInit, OnDestroy {
       //lo guardamos en Firestore
       this.fsService.saveCounter(this.record)
         .then(() => console.log('Nuevo contador guardado en Firestore'))
-        .catch(err => console.error('Error guardando nuevo contador en Firestore', err));
+        //.catch(err => console.error('Error guardando nuevo contador en Firestore', err));
+        .catch(err => {
+          console.error('Error guardando nuevo contador en Firestore', err);
+            if(this.analytics) logEvent(this.analytics, 'Error guardando nuevo contador en Firestore: ', { err });
+          });
     } else {
       // Cargar existente
       const rec = await this.fsService.findCounterById(id);//this.counterSvc.findCounterById(id);
@@ -109,16 +122,31 @@ export class CounterEditComponent implements OnInit, OnDestroy {
         this.readOnly = true;
         this.isFullscreen = true;
         this.isFullscreenFijo = true;
-      } else if (rec?.ownerId !== cur.id) {
-        // Usuario logueado pero no propietario
+        this.isAuthorized = false;
+        logEvent(this.analytics, 'View_' + this.idFromRoute );
+      } else if (rec?.ownerId !== cur.id && !(rec?.authorizedUserIds || []).includes(cur.id)) {
+        // Usuario logueado pero no propietario ni autorizado
         this.readOnly = true;
         this.isFullscreen = true;
         this.isFullscreenFijo = true;
+        this.isAuthorized = false;
+        logEvent(this.analytics, 'View_'+ this.idFromRoute);
+      } else if ((rec?.authorizedUserIds || []).includes(cur.id)) {
+        // Usuario autorizado
+        this.readOnly = false;
+        this.isFullscreen = false;
+        this.isFullscreenFijo = false;
+        this.isAuthorized = true; 
+        logEvent(this.analytics, 'Auth_use_'+ this.idFromRoute);
       } else {
         // Propietario
         this.readOnly = false;
         this.isFullscreen = false;
         this.isFullscreenFijo = false;
+        this.isAuthorized = false;
+        if (this.analytics) {
+          logEvent(this.analytics, 'Owner_use_'+ this.idFromRoute, { id: this.idFromRoute || 'unknown' });
+        }
       }
 
 /*
@@ -269,6 +297,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     const current = this.recordGame;
     if (!current) return;
     this.record.games = this.record.games.filter(g => g.id !== current.id);
+    this.renumberSets();   // ⬅️ renombra todos los sets
     this.record.currentGameId = this.record.games[this.record.games.length - 1].id;
     this.changeCurrentGame(this.record.games[this.record.games.length - 1].id);
     this.saveCounter();
@@ -296,6 +325,19 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     // ejemplo: actualiza score en firestore
     const newScore = { /* calcula */ };
     await this.fsService.updateCounter(this.counter.id!, { /*score: newScore*/ });
+  }
+
+  goToPermissions() {
+      this.router.navigate(['/app/permissions'], { queryParams: { id: this.record!.id } });
+  }
+
+  private renumberSets() {
+    if (!this.record?.games) return;
+    this.record.games = this.record.games.map((g, index) => ({
+      ...g,
+      name: `Set ${index + 1}`,
+      title: `Set ${index + 1}`
+    }));
   }
 
 }

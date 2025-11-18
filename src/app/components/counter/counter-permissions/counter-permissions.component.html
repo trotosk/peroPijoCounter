@@ -1,0 +1,88 @@
+<!-- counter-permissions.component.html -->
+
+<div class="permissions-container" *ngIf="!loading">
+  <h2>Gestión de permisos de {{ counter?.id }}</h2>
+
+  <div class="counter-info">
+    <p><strong>Creado:</strong> {{ counter?.createdAt | date: 'short' }}</p>
+    <p><strong>Local:</strong> {{ counter?.leftName }}</p>
+    <p><strong>Última Modificación:</strong> {{ counter?.updatedAt | date: 'short' }}</p>
+    <p><strong>Visitante:</strong> {{ counter?.rightName }}</p>
+    <p><strong>Sets:</strong> {{ counter?.games?.length }}</p>
+  </div>
+
+  <h3>Usuarios autorizados</h3>
+
+  <div *ngIf="counter!.authorizedUsers?.length; else noUsers">
+    <table>
+      <thead>
+        <tr>
+          <th>Usuario autorizado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let user of counter!.authorizedUsers | slice:(page-1)*pageSize:(page-1)*pageSize+pageSize"
+        >
+          <td>{{ user.email }}</td>
+          <td>
+            <button (click)="removeAuthorizedUser(user)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Paginación -->
+    <div class="pagination">
+      <button (click)="page = page - 1" [disabled]="page === 1">Anterior</button>
+      <span>Página {{ page }}</span>
+      <button
+        (click)="page = page + 1"
+        [disabled]="page * pageSize >= counter!.authorizedUsers!.length">
+        Siguiente
+      </button>
+    </div>
+  </div>
+
+  <ng-template #noUsers>
+    <p class="no-users">No hay usuarios autorizados.</p>
+  </ng-template>
+
+  <div class="actions">
+    <button class="btn-add" (click)="openAddModal()">Añadir usuario</button>
+    <button class="btn-back btn-green" (click)="goBack()">Volver</button>
+  </div>
+
+    <!-- Toast -->
+  <div class="toast" *ngIf="toastMessage">
+    {{ toastMessage }}
+  </div>
+
+  <!-- Modal añadir usuario -->
+  <div class="modal-backdrop" *ngIf="showAddModal">
+    <div class="modal">
+      <h4>Añadir usuario autorizado</h4>
+      <input type="email" [(ngModel)]="newUserEmail" placeholder="Correo electrónico" />
+      <div class="modal-actions">
+        <button (click)="addAuthorizedUser()">Añadir</button>
+        <button (click)="closeAddModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal confirmar eliminación -->
+  <div class="modal-backdrop" *ngIf="userToDelete">
+    <div class="modal confirm-modal">
+      <h4>Confirmar eliminación</h4>
+      <p>¿Seguro que quieres eliminar a <strong>{{ userToDelete.email }}</strong>?</p>
+
+      <div class="modal-actions">
+        <button class="btn-confirm" (click)="confirmDelete()">Eliminar</button>
+        <button class="btn-cancel" (click)="cancelDelete()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
