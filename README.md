@@ -1,56 +1,27 @@
-# VoleyCounter
+# PeroPijoCounter
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.18.
+**PeroPijoCounter** es un marcador deportivo gratuito para seguir el resultado de tus partidos o los de tus hijos en tiempo real, y compartirlo fácilmente con amigos, familiares y otros padres.
 
-## Development server
+👉 **Puedes usar la aplicación aquí:**  
+https://peropijocounter.web.app/
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
-```
+## Características principales
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- Marcador en tiempo real
+- Compartir resultados con otros usuarios
+- Sin registro obligatorio
+- Gratis
+- Ideal para partidos de fútbol, vóley, baloncesto, etc.
 
-## Code scaffolding
+---
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
+## Tecnologías utilizadas
+- Angular
+- Firebase Hosting
+- Firebase Authentication
+- Firestore
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
