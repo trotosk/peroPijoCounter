@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { CreateCounterTypeDialogComponent } from './components/counter/create-counter-type-dialog/create-counter-type-dialog.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -6,6 +6,8 @@ import { AuthService } from './services/auth.service';
 import { MenuItem } from './models/menu.model';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
+import { RouterAnalyticsService } from './services/router-analytics.service';
+import { Meta, Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -17,9 +19,13 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'peroPijoCounter';
   menuItems: MenuItem[] = [];
   private authSub?: Subscription;
+  private analytics = inject(RouterAnalyticsService);
 
-
-  constructor(private dialog: MatDialog, public auth: AuthService, private router: Router) {}
+  constructor(private dialog: MatDialog, 
+    public auth: AuthService, 
+    private router: Router,
+    private title_: Title, 
+    private meta: Meta) {}
   
   ngOnDestroy(): void {
     this.authSub?.unsubscribe();
@@ -31,6 +37,9 @@ export class AppComponent implements OnInit, OnDestroy {
       this.refreshMenu();
     });
     this.refreshMenu(); // inicial
+
+    this.title_.setTitle(this.title);
+    this.meta.updateTag({ name: 'description', content: 'Sigue en directo y gratis el marcador de partidos amateur o infantiles. Actualiza el resultado y compártelo con padres, familiares o amigos para que todos sigan el partido en tiempo real, estén donde estén.' });
   }
 
    /** 🔁 Genera dinámicamente el menú según estado del usuario */

@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Firestore, doc, docData, updateDoc, setDoc, getDoc, collection, where, query, collectionData, getDocs, orderBy, deleteDoc } from '@angular/fire/firestore';
+import { Firestore, doc, docData, updateDoc, setDoc, getDoc, collection, where, query, collectionData, getDocs, orderBy, deleteDoc, arrayUnion, arrayRemove } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import { CounterRecord, CounterRecordList } from '../models/counter.model';
+import { AuthorizedUser, CounterRecord, CounterRecordList } from '../models/counter.model';
+
 
 @Injectable({ providedIn: 'root' })
 export class FirestoreCounterService {
@@ -124,6 +125,84 @@ async createGame(counterId: string, title = 'Set 1') {
         result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
-}
+  }
+
+ 
+
+  /**
+   * Añade un usuario autorizado a un marcador.
+   * @param counterId ID del marcador (Counter)
+   * @param newUser Usuario autorizado a añadir
+   */
+  async addAuthorizedUser(counterId: string, newUser: AuthorizedUser): Promise<void> {
+    const counterRef = doc(this.firestore, 'counters', counterId);
+    try {
+      await updateDoc(counterRef, {
+        authorizedUsers: arrayUnion(newUser),
+        authorizedUserIds: arrayUnion(newUser.userId)
+      });
+
+
+      //toast.success(`Permiso otorgado a ${newUser.email}`);
+    } catch (err) {
+      console.error('Error al añadir usuario autorizado:', err);
+      //toast.error('No se pudo añadir el usuario autorizado.');
+    }
+  }
+
+  /**
+   * Elimina un usuario autorizado de un marcador.
+   * @param counterId ID del marcador (Counter)
+   * @param user Usuario a eliminar
+   */
+  async removeAuthorizedUser(counterId: string, user: AuthorizedUser): Promise<void> {
+    const counterRef = doc(this.firestore, 'counters', counterId);
+    try {
+      await updateDoc(counterRef, {
+        authorizedUsers: arrayRemove(user),
+        authorizedUserIds: arrayRemove(user.userId)
+      });
+      //toast.success(`Permiso eliminado para ${user.email}`);
+    } catch (err) {
+      console.error('Error al eliminar usuario autorizado:', err);
+      //toast.error('No se pudo eliminar el usuario autorizado.');
+    }
+  }
+
+  // ✅ NUEVO: Obtener todos los contadores del usuario y transformarlos
+  async getAuthorizedCounters(userId: string): Promise<CounterRecordList[]> {
+    const countersRef = collection(this.firestore, 'counters');
+
+    // 🔹 Query directo usando array-contains sobre authorizedUserIds
+    const q = query(
+      countersRef,
+      where('authorizedUserIds', 'array-contains', userId),
+      orderBy('updatedAt', 'desc')
+    );
+
+    const snaps = await getDocs(q);
+
+    const list: CounterRecordList[] = snaps.docs.map(d => {
+      const data = d.data() as CounterRecord;
+
+      return {
+        id: d.id,
+        ownerId: data.ownerId,
+        title: data.title,
+        type: data.type,
+        leftValue: data.games?.find(t => t.id === data.currentGameId)?.leftValue ?? 0,
+        rightValue: data.games?.find(t => t.id === data.currentGameId)?.rightValue ?? 0,
+        gamesCount: data.games?.length ?? 0,
+        leftName: data.leftName,
+        rightName: data.rightName,
+        currentGameId: data.currentGameId,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt
+      };
+    });
+
+    return list;
+  }
+
   
 }

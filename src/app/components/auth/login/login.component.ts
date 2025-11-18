@@ -35,7 +35,14 @@ export class LoginComponent {
       this.router.navigate(['/app/list']); // redirige al listado o panel principal
     } catch (err: any) {
       this.loading = false;
-      this.error = err.message || 'Error al iniciar sesión.';
+      if (err.message.includes('auth/invalid-credential') || err.message.includes('auth/user-not-found') || err.message.includes('auth/wrong-password') || err.message.includes('auth/invalid-email')) {
+        this.error = '❌ El usuario no existe o la contraseña es incorrecta.';
+      }
+      else{
+        //this.error = err.message || 'Error al iniciar sesión.';
+        this.error = '❌ Error al iniciar sesión. Revisa tu conexión e inténtalo de nuevo.';
+      }
+      
     }
   }
 

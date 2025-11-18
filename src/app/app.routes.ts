@@ -8,9 +8,10 @@ import { CounterListComponent } from './components/counter/counter-list/counter-
 import { CounterOpenComponent } from './components/counter/counter-open/counter-open.component';
 import { HomeComponent } from './components/home/home/home.component';
 import { AuthGuard } from './guards/auth.guard';
+import { CounterPermissionsComponent } from './components/counter/counter-permissions/counter-permissions.component';
 
 export const routes: Routes = [
-  { path: '', component: LoginComponent },
+  { path: '', component: CounterOpenComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'open', component: CounterOpenComponent },
@@ -18,7 +19,7 @@ export const routes: Routes = [
   { path: 'app', component: HomeComponent, children: [
       { path: 'create', component: CounterEditComponent },
       { path: 'list', component: CounterListComponent, canActivate: [AuthGuard] },
-      //{ path: 'open', component: CounterOpenComponent },
+      { path: 'permissions', component: CounterPermissionsComponent, canActivate: [AuthGuard] },
       { path: 'config', component: ConfigComponent, canActivate: [AuthGuard] },
       { path: '', redirectTo: 'list', pathMatch: 'full' }
     ]},

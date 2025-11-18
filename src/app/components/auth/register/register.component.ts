@@ -51,7 +51,7 @@ export class RegisterComponent {
     this.loading = true;
 
     try {
-      const user = await this.auth.register(this.email, this.password);
+      const user = await this.auth.register(this.email, this.password, this.name);
       this.loading = false;
 
       if (!user) {

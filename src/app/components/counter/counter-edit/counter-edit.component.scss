@@ -433,3 +433,145 @@ $bg: #f8f9fa;
     }
   }
 }
+
+/* 📱 Ajustes fullscreen en móviles */
+@media (max-width: 900px) {
+  .fullscreen {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1rem;
+
+    .fullscreen-set-results {
+      position: relative;
+      top: 0.5rem;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      font-size: 0.9rem;
+      padding: 0.5rem;
+    }
+
+    .score-columns {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+      height: auto;
+      gap: 0.5rem;
+      justify-items: center;
+      margin-top: 2rem;
+
+      .divider {
+        display: none;
+      }
+    }
+
+    .team {
+      width: 100%;
+      max-width: 90vw;
+      height: auto;
+      padding: 0.5rem;
+
+      .fullscreen-score {
+        font-size: min(30vw, 25vh);
+        text-shadow: 0 0 25px rgba(255, 255, 255, 0.25);
+      }
+
+      .team-name {
+        font-size: clamp(1.5rem, 5vw, 3rem);
+      }
+    }
+
+    .fullscreen-toggle {
+      top: 0.5rem;
+      right: 0.5rem;
+      font-size: 1.1rem;
+      padding: 0.4rem 0.6rem;
+    }
+  }
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  h2 {
+    width: 100%;
+  }
+
+  .perm-btn {
+    background: linear-gradient(135deg, #ffcf78, #ffb347);
+    border: none;
+    padding: 0.45rem 1rem;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: #5a3d00;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: 0.25s box-shadow, 0.25s transform;
+
+    i {
+      font-size: 1rem;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(255, 174, 0, 0.35);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+   margin-top: 2.5rem; // ⬅⬅ mueve todo el header hacia abajo
+
+  .title {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    h2 {
+      width: 100%;
+      margin: 0;
+    }
+  }
+
+  .perm-btn {
+    background: linear-gradient(135deg, #ffcf78, #ffb347);
+    border: none;
+    padding: 0.6rem 1.1rem;
+    border-radius: 0.6rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: #5a3d00;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: 0.25s ease;
+
+    i {
+      font-size: 1rem;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(255, 174, 0, 0.35);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+  }
+}
+

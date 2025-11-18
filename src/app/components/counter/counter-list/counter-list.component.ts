@@ -17,6 +17,7 @@ import { AuthService } from '../../../services/auth.service';
 import { CounterRecord, CounterRecordList } from '../../../models/counter.model';
 import { Observable } from 'rxjs';
 import { FirestoreCounterService } from '../../../services/firestore-counter.service';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
   selector: 'app-counter-list',
@@ -34,7 +35,8 @@ import { FirestoreCounterService } from '../../../services/firestore-counter.ser
     MatDatepickerModule,
     MatFormFieldModule,
     MatInputModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatMenuModule 
   ],
   templateUrl: './counter-list.component.html',
   styleUrls: ['./counter-list.component.scss']
@@ -60,6 +62,33 @@ export class CounterListComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
+  actionOptions = [
+    {
+      id: 'load',
+      label: 'Cargar',
+      icon: 'upload',
+      internalRoute: '/app/create'
+    },
+    {
+      id: 'delete',
+      label: 'Eliminar',
+      icon: 'delete',
+    },
+    {
+      id: 'permissions',
+      label: 'Gestión de permisos a terceros',
+      icon: 'admin_panel_settings',
+      internalRoute: '/app/permissions'
+    }
+  ];
+
+  // Segunda tabla
+  authorizedDataSource = new MatTableDataSource<CounterRecordList>([]);
+  authorizedDisplayed = ['id', 'createdAt', 'updatedAt', 'leftName', 'rightName', 'sets', 'actions'];
+  authorizedColumns = ['id', 'createdAt', 'updatedAt', 'leftName', 'rightName', 'sets'];
+  showDeleteConfirm = false;
+  rowDelete: CounterRecordList | null = null;
+
   constructor(
     private auth: AuthService,
     private router: Router,
@@ -75,6 +104,9 @@ export class CounterListComponent implements OnInit {
 
     this.dataSource.data = counters;
     this.originalData = counters;
+
+    // Cargar marcadores autorizados
+    this.authorizedDataSource.data = await this.counterfireStore.getAuthorizedCounters(user.id);
   }
 
   ngAfterViewInit() {
@@ -131,6 +163,7 @@ export class CounterListComponent implements OnInit {
     this.router.navigate(['/app/create'], { queryParams: { id: counter.id } });
   }
 
+  /*
   async eliminar(counter: CounterRecordList) {
     const confirmDelete = confirm(
       `¿Seguro que quieres eliminar el marcador "${counter.leftName} vs ${counter.rightName}"?`
@@ -150,9 +183,57 @@ export class CounterListComponent implements OnInit {
       }
     }
   }
+    */
+
+  async eliminar(counter: CounterRecordList) {
+    this.rowDelete = counter;
+    this.showDeleteConfirm = true;
+  }
+
+  async confirmDelete() {
+    if (!this.rowDelete) return;
+    try {
+        await this.counterfireStore.deleteCounter(this.rowDelete.id);
+        this.snackBar.open('🗑️ Marcador eliminado correctamente', 'Cerrar', {
+          duration: 2000,
+          panelClass: ['success-toast']
+        });
+        this.ngOnInit();
+      } catch (err) {
+        console.error('Error al eliminar contador:', err);
+        alert('No se pudo eliminar el contador.');
+      }
+      this.showDeleteConfirm = false;
+  }
+
+  cancelDelete() {
+    this.showDeleteConfirm = false;
+  }
 
   formatDate(dateStr: string): string {
     const date = new Date(dateStr);
     return date.toLocaleDateString();
+  }
+
+  executeAction(action: any, row: CounterRecordList) {
+    if (action.id === 'load') {
+      return this.edit(row);
+    }
+
+    if (action.id === 'delete') {
+      return this.eliminar(row);
+    }
+
+    if (action.internalRoute) {
+      // Navegación interna
+      return this.router.navigate([action.internalRoute], {
+        queryParams: { id: row.id }
+      });
+    }
+
+    if (action.externalUrl) {
+      // Navegación externa
+      return window.open(action.externalUrl, '_blank');
+    }
   }
 }
