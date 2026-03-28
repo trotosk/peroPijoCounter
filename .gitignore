@@ -40,3 +40,9 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# WhatsApp service
+/whatsapp-service/.env
+/whatsapp-service/serviceAccountKey.json
+/whatsapp-service/.wwebjs_auth/
+/whatsapp-service/.wwebjs_cache/
