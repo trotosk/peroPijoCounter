@@ -38,31 +38,46 @@
   <div class="games-list" *ngIf="!isFullscreen">
     <button *ngFor="let game of record!.games"
             [class.active]="game.id === record!.currentGameId"
+            [class.left-won]="game.id !== record!.currentGameId && game.leftValue > game.rightValue"
+            [class.right-won]="game.id !== record!.currentGameId && game.rightValue > game.leftValue"
             (click)="changeCurrentGame(game.id)">
       {{ game.title }}
-      <div>{{ game.leftValue }} - {{ game.rightValue }}</div>
+      <div class="set-score-pill">
+        <span [class.score-winner]="game.id !== record!.currentGameId && game.leftValue > game.rightValue">{{ game.leftValue }}</span>
+        <span class="score-sep">–</span>
+        <span [class.score-winner]="game.id !== record!.currentGameId && game.rightValue > game.leftValue">{{ game.rightValue }}</span>
+      </div>
     </button>
   </div>
 
-  <!-- Fila superior con resultados de sets anteriores para fullcreen-->
-<div class="fullscreen-set-results" *ngIf="isFullscreen && record!.games.length > 1">
-  <div class="set-pill" 
-       *ngFor="let g of record!.games"
-       [class.current]="g.id === record!.currentGameId">
-    <span *ngIf="g.id !== record!.currentGameId">
-      {{ g.title }}: {{ g.leftValue }} - {{ g.rightValue }}
-    </span>
-    <span *ngIf="g.id == record!.currentGameId">
-      {{ g.title }}: En juego
-    </span>
+  <!-- Fila superior con resultados de sets anteriores para fullscreen -->
+  <div class="fullscreen-set-results" *ngIf="isFullscreen && record!.games.length > 1">
+    <div class="set-pill"
+         *ngFor="let g of record!.games"
+         [class.current]="g.id === record!.currentGameId"
+         [class.left-won]="g.id !== record!.currentGameId && g.leftValue > g.rightValue"
+         [class.right-won]="g.id !== record!.currentGameId && g.rightValue > g.leftValue">
+      <span *ngIf="g.id !== record!.currentGameId">
+        {{ g.title }}:
+        <b [class.pill-winner]="g.leftValue > g.rightValue">{{ g.leftValue }}</b>
+        –
+        <b [class.pill-winner]="g.rightValue > g.leftValue">{{ g.rightValue }}</b>
+      </span>
+      <span *ngIf="g.id == record!.currentGameId">
+        {{ g.title }}: En juego
+      </span>
+    </div>
   </div>
-</div>
 
   <!-- Marcadores -->
   <div class="score-columns" *ngIf="recordGame">
     <!-- Equipo local -->
     <div class="team left-team">
       <input [(ngModel)]="record!.leftName" (ngModelChange)="saveCounter()" class="team-name" [readonly]="isFullscreen" placeholder="Equipo local" />
+      <!-- Puntos de sets ganados -->
+      <div class="sets-dots" *ngIf="record!.games.length > 1">
+        <span *ngFor="let i of range(leftSetsWon)" class="set-dot"></span>
+      </div>
       <div class="score-controls" *ngIf="!isFullscreen">
         <button (click)="changeScore('left', 1)">+</button>
         <div class="score" [@bounce]="recordGame.leftValue">{{ recordGame.leftValue }}</div>
@@ -77,6 +92,10 @@
     <!-- Equipo visitante -->
     <div class="team right-team">
       <input [(ngModel)]="record!.rightName" (ngModelChange)="saveCounter()" class="team-name" [readonly]="isFullscreen" placeholder="Equipo visitante" />
+      <!-- Puntos de sets ganados -->
+      <div class="sets-dots" *ngIf="record!.games.length > 1">
+        <span *ngFor="let i of range(rightSetsWon)" class="set-dot"></span>
+      </div>
       <div class="score-controls"  *ngIf="!isFullscreen">
         <button (click)="changeScore('right', 1)">+</button>
         <div class="score" [@bounce]="recordGame.rightValue">{{ recordGame.rightValue }}</div>
