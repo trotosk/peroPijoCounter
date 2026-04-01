@@ -71,48 +71,32 @@
     <div class="finished-label" *ngIf="record!.isFinished">⚑ Finalizado</div>
   </div>
 
-<<<<<<< HEAD
-  <!-- Fila superior con resultados de sets anteriores para fullcreen-->
-  <div class="fullscreen-set-results" *ngIf="isFullscreen && record!.games.length > 0">
-    <div class="set-pill" 
-        *ngFor="let g of record!.games"
-        [class.current]="g.id === record!.currentGameId">
-      <span *ngIf="g.id !== record!.currentGameId">
-        {{ g.title }}: {{ g.leftValue }} - {{ g.rightValue }}
-      </span>
-      <span *ngIf="g.id === record!.currentGameId">
-        {{ g.title }}: 
-        <ng-container *ngIf="!record!.isFinished; else finishedLabel">
-          En juego
-        </ng-container>
-        <ng-template #finishedLabel>
-           {{ g.leftValue }} - {{ g.rightValue }}
-        </ng-template>
-      </span>
-    </div>
-    <!-- Mensaje finalizado global si el partido está finalizado -->
-    <div class="fullscreen-finished-label" *ngIf="record!.isFinished">
-      ⚑ Finalizado
-    </div>
-=======
   <!-- Fila superior con resultados de sets anteriores para fullscreen -->
-  <div class="fullscreen-set-results" *ngIf="isFullscreen && record!.games.length > 1">
+  <div class="fullscreen-set-results" *ngIf="isFullscreen && record!.games.length > 0">
     <div class="set-pill"
-         *ngFor="let g of record!.games"
-         [class.current]="g.id === record!.currentGameId"
-         [class.left-won]="g.id !== record!.currentGameId && g.leftValue > g.rightValue"
-         [class.right-won]="g.id !== record!.currentGameId && g.rightValue > g.leftValue">
+        *ngFor="let g of record!.games"
+        [class.current]="g.id === record!.currentGameId"
+        [class.left-won]="g.id !== record!.currentGameId && g.leftValue > g.rightValue"
+        [class.right-won]="g.id !== record!.currentGameId && g.rightValue > g.leftValue">
       <span *ngIf="g.id !== record!.currentGameId">
         {{ g.title }}:
         <b [class.pill-winner]="g.leftValue > g.rightValue">{{ g.leftValue }}</b>
         –
         <b [class.pill-winner]="g.rightValue > g.leftValue">{{ g.rightValue }}</b>
       </span>
-      <span *ngIf="g.id == record!.currentGameId">
-        {{ g.title }}: En juego
+      <span *ngIf="g.id === record!.currentGameId">
+        {{ g.title }}:
+        <ng-container *ngIf="!record!.isFinished; else finishedLabel">
+          En juego
+        </ng-container>
+        <ng-template #finishedLabel>
+          {{ g.leftValue }} - {{ g.rightValue }}
+        </ng-template>
       </span>
     </div>
->>>>>>> 40021f30a092a47f8d8ca176935a1b47bf25f64d
+    <div class="fullscreen-finished-label" *ngIf="record!.isFinished">
+      ⚑ Finalizado
+    </div>
   </div>
 
   <!-- Marcadores -->
@@ -203,7 +187,6 @@
     </div>
   </div>
 
-<<<<<<< HEAD
   <!-- Modal de finalizacion -->
   <div class="modal-overlay" *ngIf="showFinishConfirm" (click)="showFinishConfirm=false">
     <div class="modal" (click)="$event.stopPropagation()">
@@ -217,6 +200,3 @@
   </div>
 
 </div>
-=======
-</div>
->>>>>>> 40021f30a092a47f8d8ca176935a1b47bf25f64d
