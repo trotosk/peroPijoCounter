@@ -44,14 +44,15 @@ export class FirestoreCounterService {
   async getCountersViewByUser(userId: string): Promise<CounterRecordList[]> {
     const countersRef = collection(this.firestore, 'counters');
     const q = query(
-        countersRef, 
+        countersRef,
         where('ownerId', '==', userId),
-        where('deleted', '!=', true)
-       ,orderBy('updatedAt', 'desc')
+        orderBy('updatedAt', 'desc')
     );
     const snaps = await getDocs(q);
 
-    const list: CounterRecordList[] = snaps.docs.map((d) => {
+    const list: CounterRecordList[] = snaps.docs
+      .filter(d => !(d.data() as CounterRecord).deleted)
+      .map((d) => {
       const data = d.data() as CounterRecord;
       return {
         id: d.id,
@@ -60,7 +61,7 @@ export class FirestoreCounterService {
         type: data.type,
         leftValue: data.games?.filter(t => t.id === data.currentGameId)[0]?.leftValue,
         rightValue: data.games?.filter(t => t.id === data.currentGameId)[0]?.rightValue,
-        gamesCount: data.games.length,
+        gamesCount: data.games?.length ?? 0,
         leftName: data.leftName,
         rightName: data.rightName,
         currentGameId: data.currentGameId,
@@ -188,13 +189,14 @@ async createGame(counterId: string, title = 'Set 1') {
     const q = query(
       countersRef,
       where('authorizedUserIds', 'array-contains', userId),
-      where('deleted', '!=', true),
       orderBy('updatedAt', 'desc')
     );
 
     const snaps = await getDocs(q);
 
-    const list: CounterRecordList[] = snaps.docs.map(d => {
+    const list: CounterRecordList[] = snaps.docs
+      .filter(d => !(d.data() as CounterRecord).deleted)
+      .map(d => {
       const data = d.data() as CounterRecord;
 
       return {
