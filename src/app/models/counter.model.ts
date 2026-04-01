@@ -18,12 +18,22 @@ export interface CounterRecord {
   currentGameId?: string; // ID del juego actualmente activo
   createdAt: string; // fecha de creación
   updatedAt: string; // fecha de última actualización
-  /**
-   * Lista de usuarios autorizados para colaborar.
-   * Puede ser un array vacío si no hay ninguno.
-   */
-  authorizedUsers?: AuthorizedUser[];
+  authorizedUsers?: AuthorizedUser[]; // Lista de usuarios autorizados a ver/editar el marcador
   authorizedUserIds?: string[]; // Lista de IDs de usuarios autorizados para facilitar consultas
+  deleted?: boolean; // Marcador eliminado lógicamente
+  isFinished?: boolean; // indica si el partido está finalizado
+  isPublic: boolean; // indica si el marcador es público
+  matchStartedAt?: string;  // ISO timestamp del primer punto marcado
+  matchFinishedAt?: string; // ISO timestamp de cuando se finalizó el partido
+  matchPausedMs?: number;   // ms acumulados en pausa (para soportar reanudar)
+  whatsappConfig?: WhatsappConfig; // Configuración de envío automático por WhatsApp
+}
+
+export interface WhatsappConfig {
+  groupChatId: string;            // ID del chat/grupo de WhatsApp (ej: 34612345678-123456789@g.us)
+  groupName: string;              // Nombre visible del grupo (solo para mostrar)
+  mode: 'onChange' | 'interval'; // Enviar al cambiar el marcador o cada X minutos
+  intervalMinutes: number;        // Minutos entre envíos (usado si mode === 'interval')
 }
 
 export interface CounterRecordList {
@@ -38,6 +48,9 @@ export interface CounterRecordList {
   currentGameId?: string; // ID del juego actualmente activo
   createdAt: string; // fecha de creación
   updatedAt: string; // fecha de última actualización
+  deleted?: boolean; // Marcador eliminado lógicamente
+  isFinished?: boolean; // indica si el partido está finalizado
+  isPublic: boolean; // indica si el marcador es público
 }
 
 /**

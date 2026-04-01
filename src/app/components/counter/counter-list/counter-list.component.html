@@ -80,6 +80,7 @@
       <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="edit(row)" class="clickable-row"></tr>
     </table>
 
+
     <mat-paginator
       [pageSizeOptions]="[5, 10, 20]"
       showFirstLastButtons
@@ -90,7 +91,7 @@
 
 
 
-  <div class="table-container authorized" *ngIf="authorizedDataSource?.data!.length > 0">
+  <div class="table-container authorized" *ngIf="authorizedDataSource!.data!.length > 0">
     <h2>✔ Contadores autorizados</h2>
     <table mat-table [dataSource]="authorizedDataSource" matSort class="mat-elevation-z3">
 
@@ -155,6 +156,7 @@
       <tr mat-header-row *matHeaderRowDef="authorizedDisplayed"></tr>
       <tr mat-row *matRowDef="let row; columns: authorizedDisplayed" (click)="edit(row)" class="clickable-row"></tr>
     </table>
+
 
     <mat-paginator [pageSize]="5"></mat-paginator>
   </div>

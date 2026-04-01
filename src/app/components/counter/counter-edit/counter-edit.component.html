@@ -20,19 +20,130 @@
       <i class="fa fa-link"></i>
     </button>
 
-    <a [href]="whatsappShareUrl" target="_blank" rel="noopener" class="icon-button" title="Compartir por WhatsApp">
+    <a [href]="whatsappShareUrl" target="_blank" rel="noopener" class="icon-button" title="Compartir enlace por WhatsApp">
       <i class="fa fa-whatsapp" style="color: #25D366"></i>
     </a>
 
+    <!-- Botón envío automático WhatsApp -->
+    <button *ngIf="!readOnly"
+            class="copya-btn wa-auto-btn"
+            [class.wa-active]="waEnabled"
+            (click)="showWaPanel = !showWaPanel"
+            title="Envío automático por WhatsApp">
+      <i class="fa fa-paper-plane"></i>
+      <span class="wa-badge" *ngIf="waEnabled">ON</span>
+    </button>
+
   </div>
-  <!-- NUEVA UBICACIÓN DEL BOTÓN -->
+  <!-- Botón de permisos + público/privado -->
+  <div class="right-controls" *ngIf="!isFullscreen">
+
+    <!-- PERMISOS -->
     <button
       class="perm-btn"
       (click)="goToPermissions()"
       *ngIf="!isAuthorized && !readOnly">
-      <i class="bi bi-people"></i> Gestionar permisos
+      <i class="fa fa-users"></i>
+      Gestionar permisos
     </button>
+
+    <!-- PÚBLICO / PRIVADO -->
+    <button class="privacy-toggle"
+            (click)="togglePrivacy()">
+
+      <i class="fa"
+        [class.fa-eye]="record!.isPublic"
+        [class.fa-eye-slash]="!record!.isPublic">
+      </i>
+
+      <span class="privacy-text">
+        {{ record!.isPublic ? 'Marcador público' : 'Marcador privado' }}
+      </span>
+    </button>
+
+  </div>
 </div>
+
+  <!-- Panel WhatsApp automático -->
+  <div class="wa-panel" *ngIf="showWaPanel && !isFullscreen && !readOnly">
+
+    <div class="wa-panel-header">
+      <i class="fa fa-paper-plane"></i>
+      <strong>Envío automático por WhatsApp</strong>
+      <span class="wa-status-dot" [class.active]="waEnabled"></span>
+    </div>
+
+    <!-- Sin credenciales configuradas -->
+    <div class="wa-no-creds" *ngIf="!hasGreenApiCredentials">
+      <i class="fa fa-exclamation-triangle"></i>
+      Primero configura tu cuenta de Green API en
+      <a routerLink="/app/config">Ajustes <i class="fa fa-external-link"></i></a>
+    </div>
+
+    <!-- Con credenciales -->
+    <ng-container *ngIf="hasGreenApiCredentials">
+
+      <!-- Selección de grupo -->
+      <div class="wa-row">
+        <label>Grupo / Chat destino</label>
+        <div class="wa-chat-selector">
+          <input [(ngModel)]="waChatName" readonly
+                 [placeholder]="waChatId ? waChatName : 'Ninguno seleccionado'"
+                 class="wa-chat-input" />
+          <button class="wa-load-btn" (click)="loadWhatsappChats()" [disabled]="waLoadingChats || waEnabled">
+            <i class="fa" [class.fa-refresh]="!waLoadingChats" [class.fa-spinner]="waLoadingChats"
+               [class.fa-spin]="waLoadingChats"></i>
+            {{ waLoadingChats ? 'Cargando...' : 'Cargar grupos' }}
+          </button>
+        </div>
+
+        <!-- Lista de chats -->
+        <div class="wa-chat-list" *ngIf="waChats.length && !waEnabled">
+          <button *ngFor="let chat of waChats"
+                  class="wa-chat-item"
+                  [class.selected]="chat.id === waChatId"
+                  [class.is-group]="chat.type === 'group'"
+                  (click)="selectWaChat(chat)">
+            <i class="fa" [class.fa-users]="chat.type === 'group'" [class.fa-user]="chat.type !== 'group'"></i>
+            {{ chat.name }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Modo de envío -->
+      <div class="wa-row" *ngIf="!waEnabled">
+        <label>Cuándo enviar</label>
+        <div class="wa-mode-toggle">
+          <button [class.selected]="waMode === 'onChange'" (click)="waMode = 'onChange'">
+            Al cambiar el marcador
+          </button>
+          <button [class.selected]="waMode === 'interval'" (click)="waMode = 'interval'">
+            Cada X minutos
+          </button>
+        </div>
+        <div class="wa-interval-row" *ngIf="waMode === 'interval'">
+          <input type="number" [(ngModel)]="waInterval" min="1" max="60" class="wa-interval-input" />
+          <span>minutos</span>
+        </div>
+      </div>
+
+      <!-- Resumen cuando está activo -->
+      <div class="wa-active-info" *ngIf="waEnabled">
+        <i class="fa fa-check-circle"></i>
+        Enviando a <strong>{{ waChatName }}</strong> ·
+        <span *ngIf="waMode === 'onChange'">al cambiar el marcador</span>
+        <span *ngIf="waMode === 'interval'">cada {{ waInterval }} min</span>
+        <span *ngIf="waLastSent"> · Último envío: {{ waLastSent }}</span>
+      </div>
+
+      <!-- Botón activar / desactivar -->
+      <button class="wa-toggle-btn" [class.stop]="waEnabled" (click)="toggleWaEnabled()">
+        <i class="fa" [class.fa-play]="!waEnabled" [class.fa-stop]="waEnabled"></i>
+        {{ waEnabled ? 'Detener envío' : 'Activar envío' }}
+      </button>
+
+    </ng-container>
+  </div>
 
   <!-- Lista de sets -->
   <div class="games-list" *ngIf="!isFullscreen">
@@ -48,40 +159,50 @@
         <span [class.score-winner]="game.id !== record!.currentGameId && game.rightValue > game.leftValue">{{ game.rightValue }}</span>
       </div>
     </button>
+    <div class="finished-label" *ngIf="record!.isFinished">⚑ Finalizado</div>
   </div>
 
   <!-- Fila superior con resultados de sets anteriores para fullscreen -->
-  <div class="fullscreen-set-results" *ngIf="isFullscreen && record!.games.length > 1">
+  <div class="fullscreen-set-results" *ngIf="isFullscreen && record!.games.length > 0">
     <div class="set-pill"
-         *ngFor="let g of record!.games"
-         [class.current]="g.id === record!.currentGameId"
-         [class.left-won]="g.id !== record!.currentGameId && g.leftValue > g.rightValue"
-         [class.right-won]="g.id !== record!.currentGameId && g.rightValue > g.leftValue">
+        *ngFor="let g of record!.games"
+        [class.current]="g.id === record!.currentGameId"
+        [class.left-won]="g.id !== record!.currentGameId && g.leftValue > g.rightValue"
+        [class.right-won]="g.id !== record!.currentGameId && g.rightValue > g.leftValue">
       <span *ngIf="g.id !== record!.currentGameId">
         {{ g.title }}:
         <b [class.pill-winner]="g.leftValue > g.rightValue">{{ g.leftValue }}</b>
         –
         <b [class.pill-winner]="g.rightValue > g.leftValue">{{ g.rightValue }}</b>
       </span>
-      <span *ngIf="g.id == record!.currentGameId">
-        {{ g.title }}: En juego
+      <span *ngIf="g.id === record!.currentGameId">
+        {{ g.title }}:
+        <ng-container *ngIf="!record!.isFinished; else finishedLabel">
+          En juego
+        </ng-container>
+        <ng-template #finishedLabel>
+          {{ g.leftValue }} - {{ g.rightValue }}
+        </ng-template>
       </span>
+    </div>
+    <div class="fullscreen-finished-label" *ngIf="record!.isFinished">
+      ⚑ Finalizado
     </div>
   </div>
 
   <!-- Marcadores -->
   <div class="score-columns" *ngIf="recordGame">
     <!-- Equipo local -->
-    <div class="team left-team">
+    <div class="team left-team" [class.highlighted]="highlightedTeam === 'left'">
       <input [(ngModel)]="record!.leftName" (ngModelChange)="saveCounter()" class="team-name" [readonly]="isFullscreen" placeholder="Equipo local" />
       <!-- Puntos de sets ganados -->
       <div class="sets-dots" *ngIf="record!.games.length > 1">
         <span *ngFor="let i of range(leftSetsWon)" class="set-dot"></span>
       </div>
       <div class="score-controls" *ngIf="!isFullscreen">
-        <button (click)="changeScore('left', 1)">+</button>
+        <button *ngIf="!record!.isFinished" (click)="changeScore('left', -1)">−</button>
         <div class="score" [@bounce]="recordGame.leftValue">{{ recordGame.leftValue }}</div>
-        <button (click)="changeScore('left', -1)">−</button>
+        <button *ngIf="!record!.isFinished" (click)="changeScore('left', 1)">+</button>
       </div>
       <div class="score fullscreen-score" *ngIf="isFullscreen">{{ recordGame.leftValue }}</div>
     </div>
@@ -90,29 +211,54 @@
     <div class="divider"></div>
 
     <!-- Equipo visitante -->
-    <div class="team right-team">
+    <div class="team right-team" [class.highlighted]="highlightedTeam === 'right'">
       <input [(ngModel)]="record!.rightName" (ngModelChange)="saveCounter()" class="team-name" [readonly]="isFullscreen" placeholder="Equipo visitante" />
       <!-- Puntos de sets ganados -->
       <div class="sets-dots" *ngIf="record!.games.length > 1">
         <span *ngFor="let i of range(rightSetsWon)" class="set-dot"></span>
       </div>
       <div class="score-controls"  *ngIf="!isFullscreen">
-        <button (click)="changeScore('right', 1)">+</button>
+        <button *ngIf="!record!.isFinished" (click)="changeScore('right', -1)">−</button>
         <div class="score" [@bounce]="recordGame.rightValue">{{ recordGame.rightValue }}</div>
-        <button (click)="changeScore('right', -1)">−</button>
+        <button *ngIf="!record!.isFinished" (click)="changeScore('right', 1)">+</button>
       </div>
       <div class="score fullscreen-score" *ngIf="isFullscreen">{{ recordGame.rightValue }}</div>
     </div>
   </div>
 
-  <!-- Botones -->
-  <div class="add-game" *ngIf="!isFullscreen">
+  <!-- Botones Añadir y Eliminar -->
+  <div class="add-game" *ngIf="!isFullscreen && !record!.isFinished">
     <button (click)="addGame()">
-     <i class="fa fa-plus"></i> Añadir set
+      <i class="fa fa-plus"></i> Añadir set
     </button>
     <button (click)="requestDelete()">
       <i class="fa fa-trash"></i> Eliminar set
     </button>
+  </div>
+
+  <!-- Botón Finalizar debajo -->
+  <div class="finish-game" *ngIf="!isFullscreen && !record!.isFinished">
+    <button class="finish-btn" (click)="requestFinish()">
+      <i class="fa fa-flag"></i> Finalizar partido
+    </button>
+  </div>
+
+  <div class="reactivate-game" *ngIf="!isFullscreen && record!.isFinished">
+    <button class="reactivate-btn" (click)="reactivateMatch()">
+      <i class="fa fa-undo"></i> Reactivar partido
+    </button>
+  </div>
+
+  <!-- Título inferior en fullscreen -->
+  <div class="fullscreen-footer" *ngIf="isFullscreen">
+    <span *ngIf="record!.matchStartedAt" class="fullscreen-timer">⏱ {{ timerDisplay }}</span>
+    <h1>{{ title }}</h1>
+  </div>
+
+  <!-- Timer modo normal -->
+  <div class="match-timer" *ngIf="!isFullscreen && record!.matchStartedAt">
+    <i class="fa fa-clock-o"></i> {{ timerDisplay }}
+    <span *ngIf="record!.isFinished" class="timer-finished"> · Finalizado</span>
   </div>
 
   <footer style="font-size:0.8rem; margin-top:1rem;">
@@ -135,6 +281,18 @@
       <div class="modal-actions">
         <button class="cancel" (click)="cancelDelete()">Cancelar</button>
         <button class="confirm" (click)="confirmDelete()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de finalizacion -->
+  <div class="modal-overlay" *ngIf="showFinishConfirm" (click)="showFinishConfirm=false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3>Finalizar partido</h3>
+      <p>¿Seguro que quieres finalizar este partido? Se desactivarán los botones y se marcará como finalizado.</p>
+      <div class="modal-actions">
+        <button class="cancel" (click)="showFinishConfirm=false">Cancelar</button>
+        <button class="confirm" (click)="confirmFinish()">Finalizar</button>
       </div>
     </div>
   </div>

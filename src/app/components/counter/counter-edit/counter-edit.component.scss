@@ -190,7 +190,7 @@ $bg: #f8f9fa;
       .score {
         font-size: clamp(6rem, 10vw, 14rem);
         font-weight: 900;
-        min-width: 200px;
+        min-width: auto;
         text-align: center;
         line-height: 1;
       }
@@ -411,9 +411,18 @@ $bg: #f8f9fa;
     .set-dot {
       width: clamp(10px, 1.8vw, 22px);
       height: clamp(10px, 1.8vw, 22px);
-      background: white;
-      box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+      background: $primary;
+      box-shadow: 0 0 8px rgba($primary, 0.7);
     }
+  }
+
+  .fullscreen-timer {
+    font-size: clamp(0.9rem, 1.5vw, 1.4rem);
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.75);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.2rem;
+    display: block;
   }
 
   .score-columns {
@@ -635,3 +644,374 @@ $bg: #f8f9fa;
   }
 }
 
+
+/* 📱 Ajustes para móviles muy pequeños (menos de 400px) */
+@media (max-width: 400px) {
+  
+  /* Tamaño del número del marcador */
+  .score-controls .score,
+  .fullscreen .fullscreen-score {
+    font-size: clamp(2.5rem, 22vw, 6rem) !important;  // Se adapta mejor
+  }
+
+  /* Botones + y − */
+  .score-controls button {
+    width: 2.2rem !important;
+    height: 2.2rem !important;
+    font-size: 1.4rem !important;
+  }
+
+  /* Iconos del header (copiar, compartir, etc.) */
+  .copya-btn i,
+  .icon-button i,
+  .fullscreen-toggle i,
+  .perm-btn i {
+    font-size: 0.9rem !important;
+  }
+
+  /* Caja del equipo más compacta */
+  .team {
+    padding: 0.8rem !important;
+  }
+
+  /* Títulos más pequeños */
+  .team-name {
+    font-size: 1.1rem !important;
+  }
+}
+
+.team.highlighted {
+  box-shadow: 0 0 20px rgba(255, 136, 0, 0.7) !important;
+  border: 12px solid rgba(255, 136, 0, 0.9) !important;
+  transition: 0.3s ease-in-out;
+}
+
+.finish-btn {
+  background: #ff7f0f; // naranja
+  color: white;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  &:hover { background: darken(#ff7f0f, 7%); }
+}
+
+.reactivate-btn {
+  background: #198754; // verde
+  color: white;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  &:hover { background: darken(#198754, 7%); }
+}
+
+.finished-label {
+  margin-top: 0.5rem;
+  font-weight: 700;
+  color: #dc3545;
+  text-align: center;
+  width: 100%;
+}
+
+.fullscreen-finished-label {
+  margin-top: 0.5rem;
+  font-weight: 700;
+  color: #dc3545;
+  text-align: center;
+  width: 100%;
+  font-size: clamp(1rem, 2vw, 1.3rem);
+}
+
+.fullscreen-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  text-align: center;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  font-weight: 700;
+  padding: 0.75rem 0;
+  z-index: 20;
+}
+
+.match-timer {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #495057;
+  margin-top: 0.5rem;
+
+  .timer-finished {
+    color: $danger;
+    font-weight: 400;
+  }
+}
+
+.finish-game {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+
+  .finish-btn {
+    background: #ff7b00;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: bold;
+  }
+}
+
+.right-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+/* Botón de permisos */
+.perm-btn {
+  background: linear-gradient(135deg, #ffcf78, #ffb347);
+  border: none;
+  padding: 0.6rem 1.1rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: #5a3d00;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: 0.2s;
+  i { font-size: 1rem; }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 174, 0, 0.35);
+  }
+}
+
+/* Indicador público/privado */
+.privacy-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #e9ecef;
+  border: none;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: 0.2s;
+  
+  i {
+    font-size: 1.1rem;
+  }
+
+  &:hover {
+    background: #dce0e3;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.privacy-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+// ─── WhatsApp automático ──────────────────────────────────────────────────────
+
+.wa-auto-btn {
+  position: relative;
+  font-size: 1.1rem;
+  color: $primary;
+  padding: 0.3rem 0.5rem;
+  transition: 0.2s;
+
+  &.wa-active {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+
+  .wa-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #16a34a;
+    color: white;
+    font-size: 0.55rem;
+    font-weight: 700;
+    padding: 1px 3px;
+    border-radius: 4px;
+    line-height: 1.2;
+  }
+}
+
+.wa-panel {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 0.8rem;
+  padding: 1rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  font-size: 0.92rem;
+
+  .wa-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    color: #15803d;
+
+    .fa-whatsapp { font-size: 1.2rem; }
+
+    .wa-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #d1d5db;
+      margin-left: auto;
+      &.active { background: #16a34a; box-shadow: 0 0 6px #16a34a; }
+    }
+  }
+
+  .wa-no-creds {
+    color: #b45309;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    a { color: #0d6efd; font-weight: 600; }
+  }
+
+  .wa-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    label { font-weight: 600; color: #374151; }
+  }
+
+  .wa-chat-selector {
+    display: flex;
+    gap: 0.5rem;
+
+    .wa-chat-input {
+      flex: 1;
+      border: 1px solid #d1d5db;
+      border-radius: 0.4rem;
+      padding: 0.4rem 0.6rem;
+      background: white;
+      font-size: 0.9rem;
+    }
+
+    .wa-load-btn {
+      background: #e5e7eb;
+      border: none;
+      border-radius: 0.4rem;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      transition: 0.2s;
+      &:hover:not(:disabled) { background: #d1d5db; }
+      &:disabled { opacity: 0.5; cursor: not-allowed; }
+    }
+  }
+
+  .wa-chat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    max-height: 180px;
+    overflow-y: auto;
+    border: 1px solid #d1d5db;
+    border-radius: 0.4rem;
+    background: white;
+
+    .wa-chat-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.7rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+      text-align: left;
+      transition: 0.15s;
+      font-size: 0.88rem;
+      &:hover { background: #f3f4f6; }
+      &.selected { background: #dcfce7; font-weight: 600; color: #15803d; }
+      &.is-group .fa-users { color: #6366f1; }
+    }
+  }
+
+  .wa-mode-toggle {
+    display: flex;
+    gap: 0.4rem;
+
+    button {
+      flex: 1;
+      padding: 0.4rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.4rem;
+      background: white;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: 0.2s;
+      &.selected { background: #dcfce7; border-color: #86efac; font-weight: 600; color: #15803d; }
+      &:hover:not(.selected) { background: #f9fafb; }
+    }
+  }
+
+  .wa-interval-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.2rem;
+
+    .wa-interval-input {
+      width: 60px;
+      border: 1px solid #d1d5db;
+      border-radius: 0.4rem;
+      padding: 0.3rem 0.5rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+  }
+
+  .wa-active-info {
+    background: #dcfce7;
+    border-radius: 0.4rem;
+    padding: 0.5rem 0.8rem;
+    color: #15803d;
+    font-size: 0.88rem;
+    i { margin-right: 0.3rem; }
+  }
+
+  .wa-toggle-btn {
+    align-self: flex-start;
+    background: #16a34a;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1.1rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    &:hover { background: #15803d; }
+    &.stop { background: #dc2626; &:hover { background: #b91c1c; } }
+  }
+}
