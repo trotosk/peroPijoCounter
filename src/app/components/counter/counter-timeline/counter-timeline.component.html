@@ -1,0 +1,89 @@
+<div class="timeline-overlay" (click)="close.emit()">
+  <div class="timeline-panel" (click)="$event.stopPropagation()">
+
+    <div class="timeline-header">
+      <div class="timeline-title">
+        <i class="fa fa-area-chart"></i>
+        <span>Timeline del partido</span>
+      </div>
+      <div class="timeline-subtitle">{{ record.leftName }} vs {{ record.rightName }}</div>
+      <button class="timeline-close" (click)="close.emit()" title="Cerrar">
+        <i class="fa fa-times"></i>
+      </button>
+    </div>
+
+    <div class="timeline-body">
+
+      <div class="no-data-msg" *ngIf="!hasAnyPoints()">
+        <i class="fa fa-info-circle"></i>
+        No hay datos de timeline para este partido.<br>
+        El historial de puntos se registra a partir de ahora.
+      </div>
+
+      <div class="sets-scroll" *ngIf="hasAnyPoints()">
+        <div class="set-col" *ngFor="let game of record.games">
+
+          <!-- Cabecera del set -->
+          <div class="set-header">
+            <div class="set-title">{{ game.title }}</div>
+            <div class="set-score">
+              <span [class.winner]="isWinner(game, 'left')">{{ game.leftValue }}</span>
+              <span class="dash">–</span>
+              <span [class.winner]="isWinner(game, 'right')">{{ game.rightValue }}</span>
+            </div>
+            <div class="set-team-labels">
+              <span class="label-left">{{ record.leftName }}</span>
+              <span class="label-right">{{ record.rightName }}</span>
+            </div>
+          </div>
+
+          <!-- Aviso si este set no tiene puntos -->
+          <div class="set-no-data" *ngIf="!game.points || game.points.length === 0">
+            <i class="fa fa-minus"></i> sin datos
+          </div>
+
+          <!-- Timeline del set -->
+          <div class="set-timeline" *ngIf="game.points && game.points.length > 0">
+            <div class="tl-row" *ngFor="let pt of game.points; let i = index">
+
+              <!-- Lado izquierdo (local) -->
+              <div class="tl-side tl-left">
+                <ng-container *ngIf="pt.side === 'left'">
+                  <span class="tl-minute">{{ pt.minute }}'</span>
+                  <span class="tl-dot dot-left"></span>
+                </ng-container>
+              </div>
+
+              <!-- Línea central -->
+              <div class="tl-center">
+                <div class="tl-line"></div>
+              </div>
+
+              <!-- Lado derecho (visitante) -->
+              <div class="tl-side tl-right">
+                <ng-container *ngIf="pt.side === 'right'">
+                  <span class="tl-dot dot-right"></span>
+                  <span class="tl-minute">{{ pt.minute }}'</span>
+                </ng-container>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /sets-scroll -->
+
+    </div><!-- /timeline-body -->
+
+    <!-- Leyenda -->
+    <div class="timeline-legend" *ngIf="hasAnyPoints()">
+      <span class="legend-item">
+        <span class="legend-dot dot-left"></span> {{ record.leftName }}
+      </span>
+      <span class="legend-item">
+        <span class="legend-dot dot-right"></span> {{ record.rightName }}
+      </span>
+    </div>
+
+  </div>
+</div>

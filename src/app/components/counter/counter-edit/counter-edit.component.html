@@ -24,6 +24,13 @@
       <i class="fa fa-whatsapp" style="color: #25D366"></i>
     </a>
 
+    <!-- Botón timeline -->
+    <button class="copya-btn timeline-btn"
+            (click)="showTimeline = true"
+            title="Ver timeline del partido">
+      <i class="fa fa-bar-chart"></i>
+    </button>
+
     <!-- Botón envío automático WhatsApp -->
     <button *ngIf="!readOnly"
             class="copya-btn wa-auto-btn"
@@ -276,6 +283,11 @@
   <div class="fullscreen-footer" *ngIf="isFullscreen">
     <span *ngIf="record!.matchStartedAt" class="fullscreen-timer">⏱ {{ timerDisplay }}</span>
     <h1>{{ title }}</h1>
+    <button class="copya-btn timeline-btn fullscreen-timeline-btn"
+            (click)="showTimeline = true"
+            title="Ver timeline del partido">
+      <i class="fa fa-bar-chart"></i>
+    </button>
   </div>
 
   <!-- Timer modo normal -->
@@ -319,5 +331,12 @@
       </div>
     </div>
   </div>
+
+  <!-- Timeline overlay -->
+  <app-counter-timeline
+    *ngIf="showTimeline && record"
+    [record]="record"
+    (close)="showTimeline = false">
+  </app-counter-timeline>
 
 </div>

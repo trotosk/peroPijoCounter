@@ -828,6 +828,24 @@ $bg: #f8f9fa;
 
 // ─── WhatsApp automático ──────────────────────────────────────────────────────
 
+.timeline-btn {
+  font-size: 1.1rem;
+  color: #f97316;
+  padding: 0.3rem 0.5rem;
+  transition: 0.2s;
+  &:hover { color: darken(#f97316, 10%); }
+}
+
+.fullscreen-timeline-btn {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.5rem;
+  background: rgba(255,255,255,0.15);
+  border-radius: 8px;
+  color: #fff !important;
+  &:hover { background: rgba(255,255,255,0.25); }
+}
+
 .wa-auto-btn {
   position: relative;
   font-size: 1.1rem;
