@@ -72,6 +72,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   waEnabled = false;
   waLoadingChats = false;
   waChats: GreenApiChat[] = [];
+  waChatFilter = '';
   waChatId = '';
   waChatName = '';
   waMode: 'onChange' | 'interval' = 'onChange';
@@ -79,6 +80,22 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   waLastSent = '';
   private greenApiInstanceId = '';
   private greenApiToken = '';
+  private readonly WA_RECENT_KEY = 'wa_recent_chats';
+
+  get filteredWaChats(): GreenApiChat[] {
+    const f = this.waChatFilter.trim().toLowerCase();
+    const recents: string[] = JSON.parse(localStorage.getItem(this.WA_RECENT_KEY) || '[]');
+    const sorted = [...this.waChats].sort((a, b) => {
+      const ai = recents.indexOf(a.id);
+      const bi = recents.indexOf(b.id);
+      if (ai === -1 && bi === -1) return a.name.localeCompare(b.name);
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+    if (!f) return sorted;
+    return sorted.filter(c => c.name.toLowerCase().includes(f));
+  }
   
 
   constructor(
@@ -536,6 +553,10 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   selectWaChat(chat: GreenApiChat) {
     this.waChatId   = chat.id;
     this.waChatName = chat.name;
+    this.waChatFilter = '';
+    const recents: string[] = JSON.parse(localStorage.getItem(this.WA_RECENT_KEY) || '[]');
+    const updated = [chat.id, ...recents.filter(id => id !== chat.id)].slice(0, 20);
+    localStorage.setItem(this.WA_RECENT_KEY, JSON.stringify(updated));
   }
 
   toggleWaEnabled() {
