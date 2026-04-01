@@ -4,60 +4,6 @@
   <div class="table-container">
     <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z3">
 
-      <!-- ID -->
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-        <td mat-cell *matCellDef="let element">
-          <span class="id-text">{{ element.id }} </span>
-          <button class="copy-btn copya-btn" (click)="copyId(element.id); $event.stopPropagation()" title="Copiar ID">
-            <i class="fa fa-copy"></i>
-          </button>
-          <!-- 📋 Copiar URL actual -->
-          <button
-            type="button"
-            class="copy-btn copya-btn"
-            title="Copiar URL"
-            (click)="copyCurrentUrl(element.id); $event.stopPropagation()"
-          >
-            <i class="fa fa-link"></i>
-          </button>
-        </td>
-      </ng-container>
-
-      <!-- Creado -->
-      <ng-container matColumnDef="createdAt">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Creado</th>
-        <td mat-cell *matCellDef="let element">{{ formatDate(element.createdAt) }}</td>
-      </ng-container>
-
-      <!-- Modificado -->
-      <ng-container matColumnDef="updatedAt">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Última Modificación</th>
-        <td mat-cell *matCellDef="let element">{{ formatDate(element.updatedAt) }}</td>
-      </ng-container>
-
-      <!-- Local -->
-      <ng-container matColumnDef="leftName">
-        <th mat-header-cell *matHeaderCellDef>Local (Set Activo)</th>
-        <td mat-cell *matCellDef="let element">
-          <strong>{{ element.leftName }} - {{ element.leftValue }} </strong>
-        </td>
-      </ng-container>
-
-      <!-- Visitante -->
-      <ng-container matColumnDef="rightName">
-        <th mat-header-cell *matHeaderCellDef>Visitante (Set Activo)</th>
-        <td mat-cell *matCellDef="let element">
-          <strong>{{ element.rightName }} - {{ element.rightValue }} </strong>
-        </td>
-      </ng-container>
-
-      <!-- Sets -->
-      <ng-container matColumnDef="sets">
-        <th mat-header-cell *matHeaderCellDef>Sets</th>
-        <td mat-cell *matCellDef="let element">{{ element.gamesCount || 0 }}</td>
-      </ng-container>
-
       <!-- Acciones -->
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>Acciones</th>
@@ -65,9 +11,8 @@
           <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Más acciones">
             <mat-icon>more_vert</mat-icon>
           </button>
-
           <mat-menu #menu="matMenu">
-            <button mat-menu-item *ngFor="let opt of actionOptions" (click)="executeAction(opt, element)">
+            <button mat-menu-item *ngFor="let opt of element.actionOptions" (click)="executeAction(opt, element)">
               <mat-icon>{{ opt.icon }}</mat-icon>
               <span>{{ opt.label }}</span>
             </button>
@@ -75,11 +20,76 @@
         </td>
       </ng-container>
 
-      <!-- Header y body -->
+      <!-- Local -->
+      <ng-container matColumnDef="leftName">
+        <th mat-header-cell *matHeaderCellDef>{{ columnHeaders['leftName'] }}</th>
+        <td mat-cell *matCellDef="let element">
+          <strong>{{ element.leftName }} - {{ element.leftValue }}</strong>
+        </td>
+      </ng-container>
+
+      <!-- Visitante -->
+      <ng-container matColumnDef="rightName">
+        <th mat-header-cell *matHeaderCellDef>{{ columnHeaders['rightName'] }}</th>
+        <td mat-cell *matCellDef="let element">
+          <strong>{{ element.rightName }} - {{ element.rightValue }}</strong>
+        </td>
+      </ng-container>
+
+      <!-- Estado -->
+      <ng-container matColumnDef="state">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['isFinished'] || 'Estado' }}</th>
+        <td mat-cell *matCellDef="let element">
+          <span class="id-text">{{ element.isFinished ? 'Fin' : 'En curso' }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Visibilidad -->
+      <ng-container matColumnDef="isPublic">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['isPublic'] || 'Visibilidad' }}</th>
+        <td mat-cell *matCellDef="let element">
+          <span class="id-text">{{ element.isPublic ? 'Público' : 'Privado' }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Sets -->
+      <ng-container matColumnDef="gamesCount">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['gamesCount'] }}</th>
+        <td mat-cell *matCellDef="let element">
+          <span class="id-text">{{ element.gamesCount }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Creado -->
+      <ng-container matColumnDef="createdAt">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['createdAt'] }}</th>
+        <td mat-cell *matCellDef="let element">{{ formatDate(element.createdAt) }}</td>
+      </ng-container>
+
+      <!-- Última Modificación -->
+      <ng-container matColumnDef="updatedAt">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['updatedAt'] }}</th>
+        <td mat-cell *matCellDef="let element">{{ formatDate(element.updatedAt) }}</td>
+      </ng-container>
+
+      <!-- ID -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['id'] }}</th>
+        <td mat-cell *matCellDef="let element">
+          <span class="id-text">{{ element.id }}</span>
+          <button class="copy-btn copya-btn" (click)="copyId(element.id); $event.stopPropagation()" title="Copiar ID">
+            <i class="fa fa-copy"></i>
+          </button>
+          <button type="button" class="copy-btn copya-btn" title="Copiar URL"
+                  (click)="copyCurrentUrl(element.id); $event.stopPropagation()">
+            <i class="fa fa-link"></i>
+          </button>
+        </td>
+      </ng-container>
+
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="edit(row)" class="clickable-row"></tr>
     </table>
-
 
     <mat-paginator
       [pageSizeOptions]="[5, 10, 20]"
@@ -89,55 +99,11 @@
   </div>
 
 
-
-
   <div class="table-container authorized" *ngIf="authorizedDataSource!.data!.length > 0">
     <h2>✔ Contadores autorizados</h2>
     <table mat-table [dataSource]="authorizedDataSource" matSort class="mat-elevation-z3">
 
-      <!-- ID -->
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>ID</th>
-        <td mat-cell *matCellDef="let element">
-          <span class="id-text">{{ element.id }}</span>
-        </td>
-      </ng-container>
-
-      <!-- Creado -->
-      <ng-container matColumnDef="createdAt">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Creado</th>
-        <td mat-cell *matCellDef="let element">{{ formatDate(element.createdAt) }}</td>
-      </ng-container>
-
-      <!-- Modificado -->
-      <ng-container matColumnDef="updatedAt">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Última Modificación</th>
-        <td mat-cell *matCellDef="let element">{{ formatDate(element.updatedAt) }}</td>
-      </ng-container>
-
-      <!-- Local -->
-      <ng-container matColumnDef="leftName">
-        <th mat-header-cell *matHeaderCellDef>Local (Set Activo)</th>
-        <td mat-cell *matCellDef="let element">
-          <strong>{{ element.leftName }} - {{ element.leftValue }}</strong>
-        </td>
-      </ng-container>
-
-      <!-- Visitante -->
-      <ng-container matColumnDef="rightName">
-        <th mat-header-cell *matHeaderCellDef>Visitante (Set Activo)</th>
-        <td mat-cell *matCellDef="let element">
-          <strong>{{ element.rightName }} - {{ element.rightValue }}</strong>
-        </td>
-      </ng-container>
-
-      <!-- Sets -->
-      <ng-container matColumnDef="sets">
-        <th mat-header-cell *matHeaderCellDef>Sets</th>
-        <td mat-cell *matCellDef="let element">{{ element.gamesCount || 0 }}</td>
-      </ng-container>
-
-      <!-- Solo acción cargar -->
+      <!-- Acciones -->
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>Acciones</th>
         <td mat-cell *matCellDef="let element" (click)="$event.stopPropagation()">
@@ -145,18 +111,77 @@
             <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #authMenu="matMenu">
-            <button mat-menu-item (click)="edit(element)">
-              <mat-icon>edit</mat-icon>
-              <span>Cargar</span>
+            <button mat-menu-item *ngFor="let opt of element.actionOptions" (click)="executeAction(opt, element)">
+              <mat-icon>{{ opt.icon }}</mat-icon>
+              <span>{{ opt.label }}</span>
             </button>
           </mat-menu>
+        </td>
+      </ng-container>
+
+      <!-- Local -->
+      <ng-container matColumnDef="leftName">
+        <th mat-header-cell *matHeaderCellDef>{{ columnHeaders['leftName'] }}</th>
+        <td mat-cell *matCellDef="let element">
+          <strong>{{ element.leftName }} - {{ element.leftValue }}</strong>
+        </td>
+      </ng-container>
+
+      <!-- Visitante -->
+      <ng-container matColumnDef="rightName">
+        <th mat-header-cell *matHeaderCellDef>{{ columnHeaders['rightName'] }}</th>
+        <td mat-cell *matCellDef="let element">
+          <strong>{{ element.rightName }} - {{ element.rightValue }}</strong>
+        </td>
+      </ng-container>
+
+      <!-- Estado -->
+      <ng-container matColumnDef="state">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['isFinished'] || 'Estado' }}</th>
+        <td mat-cell *matCellDef="let element">
+          <span class="id-text">{{ element.isFinished ? 'Fin' : 'En curso' }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Visibilidad -->
+      <ng-container matColumnDef="isPublic">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['isPublic'] || 'Visibilidad' }}</th>
+        <td mat-cell *matCellDef="let element">
+          <span class="id-text">{{ element.isPublic ? 'Público' : 'Privado' }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Sets -->
+      <ng-container matColumnDef="gamesCount">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['gamesCount'] }}</th>
+        <td mat-cell *matCellDef="let element">
+          <span class="id-text">{{ element.gamesCount }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Creado -->
+      <ng-container matColumnDef="createdAt">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['createdAt'] }}</th>
+        <td mat-cell *matCellDef="let element">{{ formatDate(element.createdAt) }}</td>
+      </ng-container>
+
+      <!-- Última Modificación -->
+      <ng-container matColumnDef="updatedAt">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['updatedAt'] }}</th>
+        <td mat-cell *matCellDef="let element">{{ formatDate(element.updatedAt) }}</td>
+      </ng-container>
+
+      <!-- ID -->
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['id'] }}</th>
+        <td mat-cell *matCellDef="let element">
+          <span class="id-text">{{ element.id }}</span>
         </td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="authorizedDisplayed"></tr>
       <tr mat-row *matRowDef="let row; columns: authorizedDisplayed" (click)="edit(row)" class="clickable-row"></tr>
     </table>
-
 
     <mat-paginator [pageSize]="5"></mat-paginator>
   </div>
