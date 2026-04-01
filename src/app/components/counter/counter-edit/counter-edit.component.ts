@@ -482,6 +482,14 @@ export class CounterEditComponent implements OnInit, OnDestroy {
       this.timerDisplay = this.calcElapsed(this.record.matchStartedAt, this.record.matchFinishedAt!, this.record.matchPausedMs ?? 0);
     }
     this.saveCounter();
+
+    if (this.waEnabled && this.record.whatsappConfig && this.greenApiInstanceId && this.greenApiToken) {
+      const finalMsg = this.whatsappSvc.buildFinalMessage(this.record);
+      this.whatsappSvc.sendMessage(this.greenApiInstanceId, this.greenApiToken, this.record.whatsappConfig.groupChatId, finalMsg)
+        .catch(console.error);
+      this.whatsappSvc.stop();
+      this.waEnabled = false;
+    }
   }
 
   // Reactivar partido

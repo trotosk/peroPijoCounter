@@ -123,4 +123,36 @@ export class WhatsappService {
 
     return lines.join('\n');
   }
+
+  buildFinalMessage(record: CounterRecord): string {
+    const lines = [`🏁 *PARTIDO FINALIZADO*`, `🏐 *${record.title}*`, ``];
+
+    if (record.games.length > 1) {
+      record.games.forEach((g, i) => {
+        const setWinner = g.leftValue > g.rightValue ? record.leftName
+                        : g.rightValue > g.leftValue ? record.rightName
+                        : null;
+        lines.push(`   Set ${i + 1}: ${record.leftName} *${g.leftValue}* – *${g.rightValue}* ${record.rightName}${setWinner ? ` → ${setWinner}` : ''}`);
+      });
+      lines.push(``);
+      const leftWins  = record.games.filter(g => g.leftValue  > g.rightValue).length;
+      const rightWins = record.games.filter(g => g.rightValue > g.leftValue).length;
+      const winner = leftWins > rightWins ? record.leftName : rightWins > leftWins ? record.rightName : null;
+      lines.push(`🏆 *${record.leftName} ${leftWins} – ${rightWins} ${record.rightName}*${winner ? `\n🥇 Ganador: *${winner}*` : ''}`);
+    } else {
+      const game = record.games[0];
+      if (game) {
+        const winner = game.leftValue > game.rightValue ? record.leftName
+                     : game.rightValue > game.leftValue ? record.rightName
+                     : null;
+        lines.push(`📊 Marcador final: ${record.leftName} *${game.leftValue}* – *${game.rightValue}* ${record.rightName}`);
+        if (winner) lines.push(`🥇 Ganador: *${winner}*`);
+      }
+    }
+
+    lines.push(``);
+    lines.push(`🔗 https://peropijocounter.web.app/app/create?id=${record.id}`);
+
+    return lines.join('\n');
+  }
 }
