@@ -99,14 +99,29 @@
 
         <!-- Lista de chats -->
         <div class="wa-chat-list" *ngIf="waChats.length && !waEnabled">
-          <button *ngFor="let chat of waChats"
-                  class="wa-chat-item"
-                  [class.selected]="chat.id === waChatId"
-                  [class.is-group]="chat.type === 'group'"
-                  (click)="selectWaChat(chat)">
-            <i class="fa" [class.fa-users]="chat.type === 'group'" [class.fa-user]="chat.type !== 'group'"></i>
-            {{ chat.name }}
-          </button>
+          <div class="wa-chat-filter-row">
+            <i class="fa fa-search wa-filter-icon"></i>
+            <input [(ngModel)]="waChatFilter"
+                   placeholder="Buscar grupo..."
+                   class="wa-chat-filter-input"
+                   autocomplete="off" />
+            <button *ngIf="waChatFilter" class="wa-filter-clear" (click)="waChatFilter = ''">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+          <div class="wa-chat-items">
+            <button *ngFor="let chat of filteredWaChats"
+                    class="wa-chat-item"
+                    [class.selected]="chat.id === waChatId"
+                    [class.is-group]="chat.type === 'group'"
+                    (click)="selectWaChat(chat)">
+              <i class="fa" [class.fa-users]="chat.type === 'group'" [class.fa-user]="chat.type !== 'group'"></i>
+              {{ chat.name }}
+            </button>
+            <div class="wa-no-results" *ngIf="filteredWaChats.length === 0">
+              Sin resultados para "{{ waChatFilter }}"
+            </div>
+          </div>
         </div>
       </div>
 
