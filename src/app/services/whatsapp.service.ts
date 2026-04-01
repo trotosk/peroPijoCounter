@@ -27,8 +27,12 @@ export class WhatsappService {
     const url = `${GREEN_API_BASE}/waInstance${instanceId}/getChats/${token}`;
     const raw = await firstValueFrom(this.http.get<any[]>(url));
     return (raw || [])
-      .filter(c => c.type === 'group' || c.type === 'chat')
-      .map(c => ({ id: c.id, name: c.name || c.id, type: c.type }))
+      .filter(c => c.id)
+      .map(c => ({
+        id:   c.id,
+        name: c.name || c.id,
+        type: (c.id as string).endsWith('@g.us') ? 'group' as const : 'chat' as const,
+      }))
       .sort((a, b) => (a.type === 'group' ? -1 : 1));  // grupos primero
   }
 

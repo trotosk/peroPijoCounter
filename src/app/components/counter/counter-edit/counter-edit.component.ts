@@ -182,7 +182,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
         // Reanudar o mostrar timer según estado del partido
         if (this.record.matchStartedAt && !this.timerInterval) {
           if (this.record.matchFinishedAt) {
-            this.timerDisplay = this.calcElapsed(this.record.matchStartedAt, this.record.matchFinishedAt);
+            this.timerDisplay = this.calcElapsed(this.record.matchStartedAt, this.record.matchFinishedAt, this.record.matchPausedMs ?? 0);
           } else if (!this.record.isFinished) {
             this.startTimer();
           }
@@ -462,7 +462,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     this.showFinishConfirm = false;
     this.stopTimer();
     if (this.record.matchStartedAt) {
-      this.timerDisplay = this.calcElapsed(this.record.matchStartedAt, this.record.matchFinishedAt!);
+      this.timerDisplay = this.calcElapsed(this.record.matchStartedAt, this.record.matchFinishedAt!, this.record.matchPausedMs ?? 0);
     }
     this.saveCounter();
   }
@@ -470,8 +470,15 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   // Reactivar partido
   reactivateMatch() {
     if (!this.record) return;
+    // Acumular el tiempo que estuvo parado para descontarlo del total
+    if (this.record.matchFinishedAt) {
+      const pausedSegment = Date.now() - new Date(this.record.matchFinishedAt).getTime();
+      this.record.matchPausedMs = (this.record.matchPausedMs ?? 0) + pausedSegment;
+      this.record.matchFinishedAt = undefined;
+    }
     this.record.isFinished = false;
     this.saveCounter();
+    if (this.record.matchStartedAt) this.startTimer();
   }
 
   togglePrivacy() {
@@ -565,7 +572,11 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     this.stopTimer();
     this.timerInterval = setInterval(() => {
       if (this.record?.matchStartedAt) {
-        this.timerDisplay = this.calcElapsed(this.record.matchStartedAt, new Date().toISOString());
+        this.timerDisplay = this.calcElapsed(
+          this.record.matchStartedAt,
+          new Date().toISOString(),
+          this.record.matchPausedMs ?? 0,
+        );
       }
     }, 1000);
   }
@@ -577,12 +588,13 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     }
   }
 
-  private calcElapsed(from: string, to: string): string {
-    const ms = new Date(to).getTime() - new Date(from).getTime();
-    const totalSec = Math.max(0, Math.floor(ms / 1000));
-    const min = Math.floor(totalSec / 60).toString().padStart(2, '0');
+  private calcElapsed(from: string, to: string, pausedMs = 0): string {
+    const ms = Math.max(0, new Date(to).getTime() - new Date(from).getTime() - pausedMs);
+    const totalSec = Math.floor(ms / 1000);
+    const h   = Math.floor(totalSec / 3600);
+    const min = Math.floor((totalSec % 3600) / 60).toString().padStart(2, '0');
     const sec = (totalSec % 60).toString().padStart(2, '0');
-    return `${min}:${sec}`;
+    return h > 0 ? `${h}:${min}:${sec}` : `${min}:${sec}`;
   }
 
 }

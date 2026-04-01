@@ -24,13 +24,13 @@
       <i class="fa fa-whatsapp" style="color: #25D366"></i>
     </a>
 
-    <!-- Botón WhatsApp automático -->
+    <!-- Botón envío automático WhatsApp -->
     <button *ngIf="!readOnly"
             class="copya-btn wa-auto-btn"
             [class.wa-active]="waEnabled"
             (click)="showWaPanel = !showWaPanel"
             title="Envío automático por WhatsApp">
-      <i class="fa fa-whatsapp"></i>
+      <i class="fa fa-paper-plane"></i>
       <span class="wa-badge" *ngIf="waEnabled">ON</span>
     </button>
 
@@ -68,7 +68,7 @@
   <div class="wa-panel" *ngIf="showWaPanel && !isFullscreen && !readOnly">
 
     <div class="wa-panel-header">
-      <i class="fa fa-whatsapp"></i>
+      <i class="fa fa-paper-plane"></i>
       <strong>Envío automático por WhatsApp</strong>
       <span class="wa-status-dot" [class.active]="waEnabled"></span>
     </div>

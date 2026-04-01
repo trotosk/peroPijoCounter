@@ -23,8 +23,9 @@ export interface CounterRecord {
   deleted?: boolean; // Marcador eliminado lógicamente
   isFinished?: boolean; // indica si el partido está finalizado
   isPublic: boolean; // indica si el marcador es público
-  matchStartedAt?: string; // ISO timestamp del primer punto marcado
+  matchStartedAt?: string;  // ISO timestamp del primer punto marcado
   matchFinishedAt?: string; // ISO timestamp de cuando se finalizó el partido
+  matchPausedMs?: number;   // ms acumulados en pausa (para soportar reanudar)
   whatsappConfig?: WhatsappConfig; // Configuración de envío automático por WhatsApp
 }
 
