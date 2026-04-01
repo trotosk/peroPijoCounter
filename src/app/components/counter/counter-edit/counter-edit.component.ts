@@ -374,6 +374,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     }));
   }
 
+<<<<<<< HEAD
   // Solicitar confirmación de finalizar partido
   requestFinish() {
     if (!this.record) return;
@@ -409,4 +410,26 @@ export class CounterEditComponent implements OnInit, OnDestroy {
         : 'El marcador ahora es privado'
     );
   }
+=======
+  get leftSetsWon(): number {
+    if (!this.record) return 0;
+    return this.record.games.filter(g =>
+      g.id !== this.record?.currentGameId &&
+      g.leftValue > g.rightValue
+    ).length;
+  }
+
+  get rightSetsWon(): number {
+    if (!this.record) return 0;
+    return this.record.games.filter(g =>
+      g.id !== this.record?.currentGameId &&
+      g.rightValue > g.leftValue
+    ).length;
+  }
+
+  range(n: number): number[] {
+    return Array.from({ length: n }, (_, i) => i);
+  }
+
+>>>>>>> 40021f30a092a47f8d8ca176935a1b47bf25f64d
 }

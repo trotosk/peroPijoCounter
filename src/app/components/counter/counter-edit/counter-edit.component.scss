@@ -89,6 +89,46 @@ $bg: #f8f9fa;
     &:hover:not(.active) {
       background: #ced4da;
     }
+
+    &.left-won {
+      border-left: 3px solid $success;
+    }
+
+    &.right-won {
+      border-right: 3px solid $success;
+    }
+
+    .set-score-pill {
+      font-size: 0.85rem;
+      margin-top: 0.2rem;
+
+      .score-winner {
+        font-weight: 800;
+        color: $success;
+      }
+
+      .score-sep {
+        margin: 0 0.2rem;
+        color: #888;
+      }
+    }
+  }
+}
+
+// 🔹 Puntos de sets ganados
+.sets-dots {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+  min-height: 1rem;
+
+  .set-dot {
+    width: 14px;
+    height: 14px;
+    background: $primary;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 4px rgba($primary, 0.5);
   }
 }
 
@@ -345,14 +385,34 @@ $bg: #f8f9fa;
       }
 
       &.current {
-        //display: none; // ocultamos el set actual
-
         background: var(--vivid-pink);
         color: white;
         font-weight: 700;
         border: none;
         box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
       }
+
+      &.left-won {
+        border-left: 3px solid #4ade80;
+      }
+
+      &.right-won {
+        border-right: 3px solid #4ade80;
+      }
+
+      .pill-winner {
+        color: #4ade80;
+        font-weight: 800;
+      }
+    }
+  }
+
+  .sets-dots {
+    .set-dot {
+      width: clamp(10px, 1.8vw, 22px);
+      height: clamp(10px, 1.8vw, 22px);
+      background: white;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
     }
   }
 
