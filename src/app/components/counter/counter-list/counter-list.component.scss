@@ -168,3 +168,10 @@ h2 {
     }
   }
 }
+
+.clickable-row {
+  cursor: pointer;
+  &:hover {
+    background: #f0f4ff;
+  }
+}
