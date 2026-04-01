@@ -150,7 +150,7 @@ $bg: #f8f9fa;
       .score {
         font-size: clamp(6rem, 10vw, 14rem);
         font-weight: 900;
-        min-width: 200px;
+        min-width: auto;
         text-align: center;
         line-height: 1;
       }
@@ -575,3 +575,171 @@ $bg: #f8f9fa;
   }
 }
 
+
+/* 📱 Ajustes para móviles muy pequeños (menos de 400px) */
+@media (max-width: 400px) {
+  
+  /* Tamaño del número del marcador */
+  .score-controls .score,
+  .fullscreen .fullscreen-score {
+    font-size: clamp(2.5rem, 22vw, 6rem) !important;  // Se adapta mejor
+  }
+
+  /* Botones + y − */
+  .score-controls button {
+    width: 2.2rem !important;
+    height: 2.2rem !important;
+    font-size: 1.4rem !important;
+  }
+
+  /* Iconos del header (copiar, compartir, etc.) */
+  .copya-btn i,
+  .icon-button i,
+  .fullscreen-toggle i,
+  .perm-btn i {
+    font-size: 0.9rem !important;
+  }
+
+  /* Caja del equipo más compacta */
+  .team {
+    padding: 0.8rem !important;
+  }
+
+  /* Títulos más pequeños */
+  .team-name {
+    font-size: 1.1rem !important;
+  }
+}
+
+.team.highlighted {
+  box-shadow: 0 0 20px rgba(255, 136, 0, 0.7) !important;
+  border: 12px solid rgba(255, 136, 0, 0.9) !important;
+  transition: 0.3s ease-in-out;
+}
+
+.finish-btn {
+  background: #ff7f0f; // naranja
+  color: white;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  &:hover { background: darken(#ff7f0f, 7%); }
+}
+
+.reactivate-btn {
+  background: #198754; // verde
+  color: white;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  &:hover { background: darken(#198754, 7%); }
+}
+
+.finished-label {
+  margin-top: 0.5rem;
+  font-weight: 700;
+  color: #dc3545;
+  text-align: center;
+  width: 100%;
+}
+
+.fullscreen-finished-label {
+  margin-top: 0.5rem;
+  font-weight: 700;
+  color: #dc3545;
+  text-align: center;
+  width: 100%;
+  font-size: clamp(1rem, 2vw, 1.3rem);
+}
+
+.fullscreen-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  text-align: center;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  font-weight: 700;
+  padding: 0.75rem 0;
+  z-index: 20;
+}
+
+.finish-game {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+
+  .finish-btn {
+    background: #ff7b00;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: bold;
+  }
+}
+
+.right-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+/* Botón de permisos */
+.perm-btn {
+  background: linear-gradient(135deg, #ffcf78, #ffb347);
+  border: none;
+  padding: 0.6rem 1.1rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: #5a3d00;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: 0.2s;
+  i { font-size: 1rem; }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(255, 174, 0, 0.35);
+  }
+}
+
+/* Indicador público/privado */
+.privacy-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #e9ecef;
+  border: none;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: 0.2s;
+  
+  i {
+    font-size: 1.1rem;
+  }
+
+  &:hover {
+    background: #dce0e3;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.privacy-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
