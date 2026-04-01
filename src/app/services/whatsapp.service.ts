@@ -119,7 +119,7 @@ export class WhatsappService {
       lines.push(`🏆 Sets: ${record.leftName} ${leftDots}  |  ${rightDots} ${record.rightName}`);
     }
 
-    lines.push(`🔗 https://peropijocounter.web.app?id=${record.id}`);
+    lines.push(`🔗 https://peropijocounter.web.app/app/create?id=${record.id}`);
 
     return lines.join('\n');
   }
