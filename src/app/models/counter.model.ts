@@ -1,3 +1,6 @@
+export const COUNTER_CATEGORIES = ['Benjamín', 'Alevín', 'Infantil', 'Cadete', 'Junior', 'Senior'] as const;
+export type CounterCategory = typeof COUNTER_CATEGORIES[number];
+
 export interface PointEvent {
   side: 'left' | 'right';
   minute: number; // minutos enteros desde el inicio del partido (descontando pausas)
@@ -33,6 +36,7 @@ export interface CounterRecord {
   matchFinishedAt?: string; // ISO timestamp de cuando se finalizó el partido
   matchPausedMs?: number;   // ms acumulados en pausa (para soportar reanudar)
   whatsappConfig?: WhatsappConfig; // Configuración de envío automático por WhatsApp
+  category?: CounterCategory;      // Categoría: Benjamín, Alevín, Infantil, Cadete, Junior, Senior
 }
 
 export interface WhatsappConfig {
@@ -57,6 +61,7 @@ export interface CounterRecordList {
   deleted?: boolean; // Marcador eliminado lógicamente
   isFinished?: boolean; // indica si el partido está finalizado
   isPublic: boolean; // indica si el marcador es público
+  category?: CounterCategory;
 }
 
 /**

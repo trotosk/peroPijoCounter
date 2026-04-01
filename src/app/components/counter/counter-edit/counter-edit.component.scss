@@ -828,6 +828,49 @@ $bg: #f8f9fa;
 
 // ─── WhatsApp automático ──────────────────────────────────────────────────────
 
+.category-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0 0.1rem;
+
+  .category-label {
+    font-size: 0.8rem;
+    color: #64748b;
+    white-space: nowrap;
+  }
+
+  .category-select {
+    font-size: 0.82rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 0.2rem 0.5rem;
+    background: #f8fafc;
+    color: #1e293b;
+    cursor: pointer;
+    &:focus { outline: none; border-color: $primary; }
+  }
+
+  .category-badge {
+    font-size: 0.82rem;
+    font-weight: 600;
+    background: #e0e7ff;
+    color: #3730a3;
+    border-radius: 20px;
+    padding: 0.15rem 0.6rem;
+  }
+}
+
+.fullscreen-category {
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(255,255,255,0.2);
+  border-radius: 12px;
+  padding: 0.1rem 0.6rem;
+  color: #fff;
+  margin-left: 0.5rem;
+}
+
 .timeline-btn {
   font-size: 1.1rem;
   color: #f97316;

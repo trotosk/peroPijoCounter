@@ -68,7 +68,8 @@ export class FirestoreCounterService {
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
         isFinished: data.isFinished,
-        isPublic: data.isPublic
+        isPublic: data.isPublic,
+        category: data.category
       };
     });
 
@@ -86,7 +87,7 @@ export class FirestoreCounterService {
     });
   }
 
-  async createCounterForUser(ownerId: string, title = 'Mi contador', type = 'general'): Promise<CounterRecord> {
+  async createCounterForUser(ownerId: string, title = 'Mi contador', type = 'general', category?: string): Promise<CounterRecord> {
     const now = new Date().toISOString();
     const rec: CounterRecord = {
         id: this.generateShortId(),
@@ -100,7 +101,8 @@ export class FirestoreCounterService {
         updatedAt: now,
         deleted: false,
         isFinished: false,
-        isPublic: false
+        isPublic: false,
+        ...(category ? { category: category as any } : {})
       };
 
       //lo guardamos en Firestore
@@ -213,7 +215,8 @@ async createGame(counterId: string, title = 'Set 1') {
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
         isFinished: data.isFinished,
-        isPublic: data.isPublic
+        isPublic: data.isPublic,
+        category: data.category
       };
     });
 
@@ -248,11 +251,12 @@ async createGame(counterId: string, title = 'Set 1') {
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
         isFinished: data.isFinished,
-        isPublic: data.isPublic
+        isPublic: data.isPublic,
+        category: data.category
       };
     });
 
     return list;
-    
+
   }
 }

@@ -1,6 +1,6 @@
 import { Component, inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
-import { CounterGame, CounterRecord, PointEvent, WhatsappConfig } from '../../../models/counter.model';
+import { COUNTER_CATEGORIES, CounterCategory, CounterGame, CounterRecord, PointEvent, WhatsappConfig } from '../../../models/counter.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -51,6 +51,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   idFromRoute: string | null = null;
   readOnly = false;
   type: string | null = null;
+  readonly categories: readonly CounterCategory[] = COUNTER_CATEGORIES;
   toastMessage: string | null = null;
   showDeleteConfirm = false;
   isFullscreen = false;
@@ -119,6 +120,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     const id = this.route.snapshot.queryParamMap.get('id');
     this.type = this.route.snapshot.queryParamMap.get('type');
+    const categoryParam = this.route.snapshot.queryParamMap.get('category');
     const cur = this.auth.currentUser();
     this.currentUserId = cur ? cur.id : null;
 
@@ -138,7 +140,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     if (!id) {
       // Crear uno nuevo
       if (!cur) throw new Error('No user');
-      this.record = await this.fsService.createCounterForUser(cur.id, this.type!, this.type!);
+      this.record = await this.fsService.createCounterForUser(cur.id, this.type!, this.type!, categoryParam ?? undefined);
       // Al crear uno nuevo, seleccionamos el primer juego
       this.record.currentGameId = this.record.games[0].id;
       //lo guardamos en Firestore

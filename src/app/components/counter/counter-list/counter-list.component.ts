@@ -46,6 +46,7 @@ export class CounterListComponent implements OnInit {
     'actions',
     'leftName',
     'rightName',
+    'category',
     'state',
     'isPublic',
     'gamesCount',
@@ -58,6 +59,7 @@ export class CounterListComponent implements OnInit {
     'actions',
     'leftName',
     'rightName',
+    'category',
     'state',
     'isPublic',
     'gamesCount',
@@ -76,6 +78,7 @@ export class CounterListComponent implements OnInit {
     leftName: 'Local (Set Activo)',
     rightName: 'Visitante (Set Activo)',
     gamesCount: 'Sets',
+    category: 'Categoría',
   };
   // ---------------------------------------------------------
   // Para la tabla autorizados mantenemos las mismas columnas

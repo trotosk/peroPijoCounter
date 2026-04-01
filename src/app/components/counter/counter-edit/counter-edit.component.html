@@ -42,6 +42,20 @@
     </button>
 
   </div>
+
+  <!-- Categoría -->
+  <div class="category-row">
+    <span class="category-label">Categoría:</span>
+    <select *ngIf="!readOnly"
+            class="category-select"
+            [ngModel]="record!.category"
+            (ngModelChange)="record!.category = $event; saveCounter()">
+      <option value="" disabled selected>— elige —</option>
+      <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+    </select>
+    <span *ngIf="readOnly" class="category-badge">{{ record!.category || '—' }}</span>
+  </div>
+
   <!-- Botón de permisos + público/privado -->
   <div class="right-controls" *ngIf="!isFullscreen">
 
@@ -283,6 +297,7 @@
   <div class="fullscreen-footer" *ngIf="isFullscreen">
     <span *ngIf="record!.matchStartedAt" class="fullscreen-timer">⏱ {{ timerDisplay }}</span>
     <h1>{{ title }}</h1>
+    <span *ngIf="record!.category" class="fullscreen-category">{{ record!.category }}</span>
     <button class="copya-btn timeline-btn fullscreen-timeline-btn"
             (click)="showTimeline = true"
             title="Ver timeline del partido">
