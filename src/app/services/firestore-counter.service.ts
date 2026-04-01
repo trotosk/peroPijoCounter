@@ -36,7 +36,7 @@ export class FirestoreCounterService {
   // 🧠 NUEVO: Obtener todos los contadores del usuario actual
   getCountersByUser(userId: string): Observable<CounterRecord[]> {
     const colRef = collection(this.firestore, 'counters');
-    const q = query(colRef, where('ownerId', '==', userId));
+    const q = query(colRef, where('ownerId', '==', userId),where('deleted', '!=', true));
     return collectionData(q, { idField: 'id' }) as Observable<CounterRecord[]>;
   }
 
@@ -45,7 +45,8 @@ export class FirestoreCounterService {
     const countersRef = collection(this.firestore, 'counters');
     const q = query(
         countersRef, 
-        where('ownerId', '==', userId)
+        where('ownerId', '==', userId),
+        where('deleted', '!=', true)
        ,orderBy('updatedAt', 'desc')
     );
     const snaps = await getDocs(q);
@@ -64,7 +65,9 @@ export class FirestoreCounterService {
         rightName: data.rightName,
         currentGameId: data.currentGameId,
         createdAt: data.createdAt,
-        updatedAt: data.updatedAt
+        updatedAt: data.updatedAt,
+        isFinished: data.isFinished,
+        isPublic: data.isPublic
       };
     });
 
@@ -74,7 +77,12 @@ export class FirestoreCounterService {
   // 🗑️ NUEVO: Eliminar contador por ID
   async deleteCounter(id: string): Promise<void> {
     const ref = doc(this.firestore, `counters/${id}`);
-    await deleteDoc(ref);
+    //await deleteDoc(ref);
+    // Borrado logico
+    await updateDoc(ref, {
+      deleted: true,
+      updatedAt: new Date().toISOString()
+    });
   }
 
   async createCounterForUser(ownerId: string, title = 'Mi contador', type = 'general'): Promise<CounterRecord> {
@@ -88,7 +96,10 @@ export class FirestoreCounterService {
         leftName: 'Local',
         rightName: 'Visitante',
         createdAt: now,
-        updatedAt: now
+        updatedAt: now,
+        deleted: false,
+        isFinished: false,
+        isPublic: false
       };
 
       //lo guardamos en Firestore
@@ -177,6 +188,7 @@ async createGame(counterId: string, title = 'Set 1') {
     const q = query(
       countersRef,
       where('authorizedUserIds', 'array-contains', userId),
+      where('deleted', '!=', true),
       orderBy('updatedAt', 'desc')
     );
 
@@ -197,12 +209,48 @@ async createGame(counterId: string, title = 'Set 1') {
         rightName: data.rightName,
         currentGameId: data.currentGameId,
         createdAt: data.createdAt,
-        updatedAt: data.updatedAt
+        updatedAt: data.updatedAt,
+        isFinished: data.isFinished,
+        isPublic: data.isPublic
       };
     });
 
     return list;
   }
 
-  
+  async getPublicCounters(): Promise<CounterRecordList[]> {
+    const countersRef = collection(this.firestore, 'counters');
+
+    const q = query(
+      countersRef,
+      where('isPublic', '==', true),
+      where('deleted', '!=', true),
+      orderBy('updatedAt', 'desc')
+    );
+
+    const snaps = await getDocs(q);
+
+    const list: CounterRecordList[] = snaps.docs.map(d => {
+      const data = d.data() as CounterRecord;
+      return {
+        id: d.id,
+        ownerId: data.ownerId,
+        title: data.title,
+        type: data.type,
+        leftValue: data.games?.find(t => t.id === data.currentGameId)?.leftValue ?? 0,
+        rightValue: data.games?.find(t => t.id === data.currentGameId)?.rightValue ?? 0,
+        gamesCount: data.games?.length ?? 0,
+        leftName: data.leftName,
+        rightName: data.rightName,
+        currentGameId: data.currentGameId,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt,
+        isFinished: data.isFinished,
+        isPublic: data.isPublic
+      };
+    });
+
+    return list;
+    
+  }
 }

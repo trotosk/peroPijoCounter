@@ -18,12 +18,11 @@ export interface CounterRecord {
   currentGameId?: string; // ID del juego actualmente activo
   createdAt: string; // fecha de creación
   updatedAt: string; // fecha de última actualización
-  /**
-   * Lista de usuarios autorizados para colaborar.
-   * Puede ser un array vacío si no hay ninguno.
-   */
-  authorizedUsers?: AuthorizedUser[];
+  authorizedUsers?: AuthorizedUser[]; // Lista de usuarios autorizados a ver/editar el marcador
   authorizedUserIds?: string[]; // Lista de IDs de usuarios autorizados para facilitar consultas
+  deleted?: boolean; // Marcador eliminado lógicamente
+  isFinished?: boolean; // indica si el partido está finalizado
+  isPublic: boolean; // indica si el marcador es público
 }
 
 export interface CounterRecordList {
@@ -38,6 +37,9 @@ export interface CounterRecordList {
   currentGameId?: string; // ID del juego actualmente activo
   createdAt: string; // fecha de creación
   updatedAt: string; // fecha de última actualización
+  deleted?: boolean; // Marcador eliminado lógicamente
+  isFinished?: boolean; // indica si el partido está finalizado
+  isPublic: boolean; // indica si el marcador es público
 }
 
 /**

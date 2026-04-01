@@ -42,7 +42,8 @@ export class CounterEditComponent implements OnInit, OnDestroy {
         leftName: 'Local',
         rightName: 'Visitante',
         createdAt: '',
-        updatedAt: ''
+        updatedAt: '',
+        isPublic: false
       };
   recordGame: CounterGame | null = null;
   idFromRoute: string | null = null;
@@ -58,6 +59,10 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   isAuthorized= false;
   private platformId = inject(PLATFORM_ID);
   private analytics: Analytics | null = null;
+  highlightedTeam: 'left' | 'right' | null = null;
+  lastValues = { left: 0, right: 0 };
+  showFinishConfirm = false;
+  title = 'peroPijoCounter';
   
 
   constructor(
@@ -97,6 +102,9 @@ export class CounterEditComponent implements OnInit, OnDestroy {
           console.error('Error guardando nuevo contador en Firestore', err);
             if(this.analytics) logEvent(this.analytics, 'Error guardando nuevo contador en Firestore: ', { err });
           });
+      // 🔥 IMPORTANTE: actualizar URL al nuevo ID sin recargar
+      window.history.replaceState({}, '', `/app/create?id=${this.record.id}`);
+
     } else {
       // Cargar existente
       const rec = await this.fsService.findCounterById(id);//this.counterSvc.findCounterById(id);
@@ -111,9 +119,29 @@ export class CounterEditComponent implements OnInit, OnDestroy {
       this.sub = this.fsService.watchCounter(id).subscribe(c => {
         //console.log('Datos Firestore recibidos:', c);
         if (!c) return;
+        
+        // Para que el modo lectura y fullscreen sepan el ultimo en marcar
+        const prevLeft = this.lastValues.left;
+        const prevRight = this.lastValues.right;
+
+        // Actualizamos los últimos valores
         this.counter = c;
         this.record = JSON.parse(JSON.stringify(c));
         this.getSelectedGame();
+
+        const currentGame = this.record.games.find(g => g.id === this.record.currentGameId);
+        if (!currentGame) return;
+
+        // Detectar lado actualizado
+        if (currentGame.leftValue !== prevLeft) {
+          this.highlightedTeam = 'left';
+        } else if (currentGame.rightValue !== prevRight) {
+          this.highlightedTeam = 'right';
+        }
+
+        // Guardar valores actuales
+        this.lastValues.left = currentGame.leftValue;
+        this.lastValues.right = currentGame.rightValue;
       });
 
       // Determinar modo de lectura
@@ -182,12 +210,15 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     if (!this.record || !this.recordGame ||this.readOnly) return;
     if (side === 'left') {
       this.recordGame.leftValue = this.recordGame.leftValue +1;
+      this.highlightedTeam = 'left';   // ⭐ ILUMINAMOS
     } else {
       this.recordGame.rightValue = this.recordGame.rightValue +1;
+      this.highlightedTeam = 'right';  // ⭐ ILUMINAMOS
     }
    
     this.recordGame.updatedAt = new Date().toISOString();
     this.record.updatedAt = this.recordGame.updatedAt;
+
     this.saveCounter();
   }
 
@@ -201,6 +232,9 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     } else {
       this.recordGame.rightValue = Math.max(0, this.recordGame.rightValue - 1);
     }
+
+    // ⭐ SI SE RESTA → APAGAR ILUMINACIÓN
+    this.highlightedTeam = null;
 
     this.recordGame.updatedAt = new Date().toISOString();
     this.record.updatedAt = this.recordGame.updatedAt;
@@ -340,6 +374,43 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     }));
   }
 
+<<<<<<< HEAD
+  // Solicitar confirmación de finalizar partido
+  requestFinish() {
+    if (!this.record) return;
+    this.showFinishConfirm = true;
+  }
+
+  // Confirmar finalización
+  confirmFinish() {
+    if (!this.record) return;
+    this.record.isFinished = true;
+    this.showFinishConfirm = false;
+    this.saveCounter();
+  }
+
+  // Reactivar partido
+  reactivateMatch() {
+    if (!this.record) return;
+    this.record.isFinished = false;
+    this.saveCounter();
+  }
+
+  togglePrivacy() {
+    if (!this.record) return;
+
+    this.record.isPublic = !this.record.isPublic;
+
+    // Guarda en backend o local según uses:
+    this.saveCounter();
+
+    this.showToast(
+      this.record.isPublic
+        ? 'El marcador ahora es público'
+        : 'El marcador ahora es privado'
+    );
+  }
+=======
   get leftSetsWon(): number {
     if (!this.record) return 0;
     return this.record.games.filter(g =>
@@ -360,4 +431,5 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     return Array.from({ length: n }, (_, i) => i);
   }
 
+>>>>>>> 40021f30a092a47f8d8ca176935a1b47bf25f64d
 }

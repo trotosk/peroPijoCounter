@@ -25,13 +25,33 @@
     </a>
 
   </div>
-  <!-- NUEVA UBICACIÓN DEL BOTÓN -->
+  <!-- Botón de permisos + público/privado -->
+  <div class="right-controls" *ngIf="!isFullscreen">
+
+    <!-- PERMISOS -->
     <button
       class="perm-btn"
       (click)="goToPermissions()"
       *ngIf="!isAuthorized && !readOnly">
-      <i class="bi bi-people"></i> Gestionar permisos
+      <i class="fa fa-users"></i>
+      Gestionar permisos
     </button>
+
+    <!-- PÚBLICO / PRIVADO -->
+    <button class="privacy-toggle"
+            (click)="togglePrivacy()">
+
+      <i class="fa"
+        [class.fa-eye]="record!.isPublic"
+        [class.fa-eye-slash]="!record!.isPublic">
+      </i>
+
+      <span class="privacy-text">
+        {{ record!.isPublic ? 'Marcador público' : 'Marcador privado' }}
+      </span>
+    </button>
+
+  </div>
 </div>
 
   <!-- Lista de sets -->
@@ -48,8 +68,33 @@
         <span [class.score-winner]="game.id !== record!.currentGameId && game.rightValue > game.leftValue">{{ game.rightValue }}</span>
       </div>
     </button>
+    <div class="finished-label" *ngIf="record!.isFinished">⚑ Finalizado</div>
   </div>
 
+<<<<<<< HEAD
+  <!-- Fila superior con resultados de sets anteriores para fullcreen-->
+  <div class="fullscreen-set-results" *ngIf="isFullscreen && record!.games.length > 0">
+    <div class="set-pill" 
+        *ngFor="let g of record!.games"
+        [class.current]="g.id === record!.currentGameId">
+      <span *ngIf="g.id !== record!.currentGameId">
+        {{ g.title }}: {{ g.leftValue }} - {{ g.rightValue }}
+      </span>
+      <span *ngIf="g.id === record!.currentGameId">
+        {{ g.title }}: 
+        <ng-container *ngIf="!record!.isFinished; else finishedLabel">
+          En juego
+        </ng-container>
+        <ng-template #finishedLabel>
+           {{ g.leftValue }} - {{ g.rightValue }}
+        </ng-template>
+      </span>
+    </div>
+    <!-- Mensaje finalizado global si el partido está finalizado -->
+    <div class="fullscreen-finished-label" *ngIf="record!.isFinished">
+      ⚑ Finalizado
+    </div>
+=======
   <!-- Fila superior con resultados de sets anteriores para fullscreen -->
   <div class="fullscreen-set-results" *ngIf="isFullscreen && record!.games.length > 1">
     <div class="set-pill"
@@ -67,21 +112,22 @@
         {{ g.title }}: En juego
       </span>
     </div>
+>>>>>>> 40021f30a092a47f8d8ca176935a1b47bf25f64d
   </div>
 
   <!-- Marcadores -->
   <div class="score-columns" *ngIf="recordGame">
     <!-- Equipo local -->
-    <div class="team left-team">
+    <div class="team left-team" [class.highlighted]="highlightedTeam === 'left'">
       <input [(ngModel)]="record!.leftName" (ngModelChange)="saveCounter()" class="team-name" [readonly]="isFullscreen" placeholder="Equipo local" />
       <!-- Puntos de sets ganados -->
       <div class="sets-dots" *ngIf="record!.games.length > 1">
         <span *ngFor="let i of range(leftSetsWon)" class="set-dot"></span>
       </div>
       <div class="score-controls" *ngIf="!isFullscreen">
-        <button (click)="changeScore('left', 1)">+</button>
+        <button *ngIf="!record!.isFinished" (click)="changeScore('left', -1)">−</button>
         <div class="score" [@bounce]="recordGame.leftValue">{{ recordGame.leftValue }}</div>
-        <button (click)="changeScore('left', -1)">−</button>
+        <button *ngIf="!record!.isFinished" (click)="changeScore('left', 1)">+</button>
       </div>
       <div class="score fullscreen-score" *ngIf="isFullscreen">{{ recordGame.leftValue }}</div>
     </div>
@@ -90,29 +136,47 @@
     <div class="divider"></div>
 
     <!-- Equipo visitante -->
-    <div class="team right-team">
+    <div class="team right-team" [class.highlighted]="highlightedTeam === 'right'">
       <input [(ngModel)]="record!.rightName" (ngModelChange)="saveCounter()" class="team-name" [readonly]="isFullscreen" placeholder="Equipo visitante" />
       <!-- Puntos de sets ganados -->
       <div class="sets-dots" *ngIf="record!.games.length > 1">
         <span *ngFor="let i of range(rightSetsWon)" class="set-dot"></span>
       </div>
       <div class="score-controls"  *ngIf="!isFullscreen">
-        <button (click)="changeScore('right', 1)">+</button>
+        <button *ngIf="!record!.isFinished" (click)="changeScore('right', -1)">−</button>
         <div class="score" [@bounce]="recordGame.rightValue">{{ recordGame.rightValue }}</div>
-        <button (click)="changeScore('right', -1)">−</button>
+        <button *ngIf="!record!.isFinished" (click)="changeScore('right', 1)">+</button>
       </div>
       <div class="score fullscreen-score" *ngIf="isFullscreen">{{ recordGame.rightValue }}</div>
     </div>
   </div>
 
-  <!-- Botones -->
-  <div class="add-game" *ngIf="!isFullscreen">
+  <!-- Botones Añadir y Eliminar -->
+  <div class="add-game" *ngIf="!isFullscreen && !record!.isFinished">
     <button (click)="addGame()">
-     <i class="fa fa-plus"></i> Añadir set
+      <i class="fa fa-plus"></i> Añadir set
     </button>
     <button (click)="requestDelete()">
       <i class="fa fa-trash"></i> Eliminar set
     </button>
+  </div>
+
+  <!-- Botón Finalizar debajo -->
+  <div class="finish-game" *ngIf="!isFullscreen && !record!.isFinished">
+    <button class="finish-btn" (click)="requestFinish()">
+      <i class="fa fa-flag"></i> Finalizar partido
+    </button>
+  </div>
+
+  <div class="reactivate-game" *ngIf="!isFullscreen && record!.isFinished">
+    <button class="reactivate-btn" (click)="reactivateMatch()">
+      <i class="fa fa-undo"></i> Reactivar partido
+    </button>
+  </div>
+
+  <!-- Título inferior en fullscreen -->
+  <div class="fullscreen-footer" *ngIf="isFullscreen">
+    <h1>{{ title }}</h1>
   </div>
 
   <footer style="font-size:0.8rem; margin-top:1rem;">
@@ -139,4 +203,20 @@
     </div>
   </div>
 
+<<<<<<< HEAD
+  <!-- Modal de finalizacion -->
+  <div class="modal-overlay" *ngIf="showFinishConfirm" (click)="showFinishConfirm=false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3>Finalizar partido</h3>
+      <p>¿Seguro que quieres finalizar este partido? Se desactivarán los botones y se marcará como finalizado.</p>
+      <div class="modal-actions">
+        <button class="cancel" (click)="showFinishConfirm=false">Cancelar</button>
+        <button class="confirm" (click)="confirmFinish()">Finalizar</button>
+      </div>
+    </div>
+  </div>
+
 </div>
+=======
+</div>
+>>>>>>> 40021f30a092a47f8d8ca176935a1b47bf25f64d

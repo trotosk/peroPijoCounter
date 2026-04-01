@@ -36,24 +36,63 @@ import { MatMenuModule } from '@angular/material/menu';
     MatFormFieldModule,
     MatInputModule,
     MatNativeDateModule,
-    MatMenuModule 
+    MatMenuModule
   ],
   templateUrl: './counter-list.component.html',
   styleUrls: ['./counter-list.component.scss']
 })
 export class CounterListComponent implements OnInit {
   displayedColumns: string[] = [
-    'id',
-    'createdAt',
-    'updatedAt',
+    'actions',
     'leftName',
     'rightName',
-    'sets',
-    'actions'
+    'state',
+    'isPublic',
+    'gamesCount',
+    'createdAt',
+    'updatedAt',
+    'id'
+  ];
+
+  authorizedDisplayed: string[] = [
+    'actions',
+    'leftName',
+    'rightName',
+    'state',
+    'isPublic',
+    'gamesCount',
+    'createdAt',
+    'updatedAt',
+    'id'
   ];
   dataSource = new MatTableDataSource<CounterRecordList>([]);
   originalData: CounterRecordList[] = [];
+    columnHeaders: { [key: string]: string } = {
+    id: 'ID',
+    isFinished: 'Estado',
+    isPublic: 'Visibilidad',
+    createdAt: 'Creado',
+    updatedAt: 'Última Modificación',
+    leftName: 'Local (Set Activo)',
+    rightName: 'Visitante (Set Activo)',
+    gamesCount: 'Sets',
+  };
+  // ---------------------------------------------------------
+  // Para la tabla autorizados mantenemos las mismas columnas
+  authorizedColumns = [
+    //'actions',
+    'leftName',
+    'rightName',
+    'state',
+    'isPublic',
+    'gamesCount',
+    'createdAt',
+    'updatedAt',
+    'id'
+  ];
 
+  // Guarda el id del usuario actual para condicionar opciones del menú
+  currentUserId: string | null = null;
   searchId = '';
   startDate: Date | null = null;
   endDate: Date | null = null;
@@ -84,8 +123,6 @@ export class CounterListComponent implements OnInit {
 
   // Segunda tabla
   authorizedDataSource = new MatTableDataSource<CounterRecordList>([]);
-  authorizedDisplayed = ['id', 'createdAt', 'updatedAt', 'leftName', 'rightName', 'sets', 'actions'];
-  authorizedColumns = ['id', 'createdAt', 'updatedAt', 'leftName', 'rightName', 'sets'];
   showDeleteConfirm = false;
   rowDelete: CounterRecordList | null = null;
 
@@ -99,14 +136,53 @@ export class CounterListComponent implements OnInit {
   async ngOnInit() {
     const user = this.auth.currentUser();
     if (!user) return;
+    this.currentUserId = user.id;
 
+    await this.loadData();
+  }
+
+  // Carga/recarga los datos para ambas tablas
+  private async loadData() {
+    const user = this.auth.currentUser();
+    if (!user) return;
+
+    // Cargar tus marcadores
     const counters = await this.counterfireStore.getCountersViewByUser(user.id);
-
-    this.dataSource.data = counters;
+    // Asignar las opciones a cada elemento
+    this.dataSource.data = counters.map(c => ({
+      ...c,
+      actionOptions: this.buildActionOptions(c, c.ownerId === user.id)
+    }));
     this.originalData = counters;
 
     // Cargar marcadores autorizados
-    this.authorizedDataSource.data = await this.counterfireStore.getAuthorizedCounters(user.id);
+    const authorized = await this.counterfireStore.getAuthorizedCounters(user.id);
+    this.authorizedDataSource.data = authorized.map(c => ({
+      ...c,
+      actionOptions: this.buildActionOptions(c, false) // no es owner
+    }));
+    // refrescar paginador/orden si ya existen
+    if (this.paginator) this.dataSource.paginator = this.paginator;
+    if (this.sort) this.dataSource.sort = this.sort;
+  }
+
+  async togglePublic(row: CounterRecordList) {
+    try {
+      const newVal = !row.isPublic;
+      await this.counterfireStore.updateCounter(row.id, {
+        isPublic: newVal,
+        updatedAt: new Date().toISOString()
+      });
+      this.snackBar.open(
+        `🔁 Marcador ahora ${newVal ? 'Público' : 'Privado'}`,
+        'Cerrar',
+        { duration: 2000, panelClass: ['success-toast'] }
+      );
+      await this.loadData(); // refrescar tabla
+    } catch (err) {
+      console.error('Error toggling public:', err);
+      alert('No se pudo cambiar la visibilidad.');
+    }
   }
 
   ngAfterViewInit() {
@@ -216,24 +292,58 @@ export class CounterListComponent implements OnInit {
   }
 
   executeAction(action: any, row: CounterRecordList) {
-    if (action.id === 'load') {
-      return this.edit(row);
-    }
-
-    if (action.id === 'delete') {
-      return this.eliminar(row);
-    }
-
+    console.log('Ejecutando acción:', action, 'en fila:', row);
+    if (action.id === 'load') return this.edit(row);
+    if (action.id === 'delete') return this.eliminar(row);
+    if (action.id === 'toggleVisibility') return this.togglePublic(row);
+    if (action.id === 'copyId') return this.copyId(row.id);
+    if (action.id === 'copyUrl') return this.copyCurrentUrl(row.id);
     if (action.internalRoute) {
-      // Navegación interna
-      return this.router.navigate([action.internalRoute], {
-        queryParams: { id: row.id }
-      });
+      return this.router.navigate([action.internalRoute], { queryParams: { id: row.id } });
+    }
+    if (action.externalUrl) return window.open(action.externalUrl, '_blank');
+  }
+/*
+  getActionOptions(row: CounterRecordList, isOwner: boolean) {
+    const options = [];
+
+    // Cargar siempre
+    options.push({ id: 'load', label: 'Cargar', icon: 'upload', internalRoute: '/app/create' });
+
+    if (isOwner) {
+      // Cambiar público/privado
+      options.push({ id: 'togglePublic', label: row.isPublic ? 'Hacer privado' : 'Hacer público', icon: 'visibility' });
+
+      // Eliminar
+      options.push({ id: 'delete', label: 'Eliminar', icon: 'delete' });
+
+      // Gestión de permisos
+      options.push({ id: 'permissions', label: 'Gestión de permisos a terceros', icon: 'admin_panel_settings', internalRoute: '/app/permissions' });
     }
 
-    if (action.externalUrl) {
-      // Navegación externa
-      return window.open(action.externalUrl, '_blank');
+    // Copiar ID y URL siempre al final
+    options.push({ id: 'copyId', label: 'Copiar ID', icon: 'content_copy' });
+    options.push({ id: 'copyUrl', label: 'Copiar URL', icon: 'link' });
+
+    return options;
+  }
+  */
+
+  private buildActionOptions(row: CounterRecordList, isOwner: boolean) {
+  const options = [];
+
+    // Cargar siempre
+    options.push({ id: 'load', label: 'Cargar', icon: 'upload', internalRoute: '/app/create' });
+    if (isOwner) {
+      options.push({ id: 'toggleVisibility', label: row.isPublic ? 'Hacer privado' : 'Hacer público', icon: 'visibility' });
+      options.push({ id: 'delete', label: 'Eliminar', icon: 'delete' });
+      options.push({ id: 'permissions', label: 'Gestión de permisos a terceros', icon: 'admin_panel_settings', internalRoute: '/app/permissions' });
     }
+
+    // Siempre al final
+    options.push({ id: 'copyId', label: 'Copiar ID', icon: 'content_copy' });
+    options.push({ id: 'copyUrl', label: 'Copiar URL', icon: 'link' });
+
+    return options;
   }
 }
