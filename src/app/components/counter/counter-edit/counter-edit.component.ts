@@ -75,7 +75,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   waChatFilter = '';
   waChatId = '';
   waChatName = '';
-  waMode: 'onChange' | 'interval' = 'onChange';
+  waMode: 'onChange' | 'interval' | 'keyMoments' = 'onChange';
   waInterval = 5;
   waLastSent = '';
   private greenApiInstanceId = '';
@@ -279,7 +279,8 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     }
 
     // Arrancar el timer en el primer punto del partido
-    if (!this.record.matchStartedAt) {
+    const isFirstPoint = !this.record.matchStartedAt;
+    if (isFirstPoint) {
       this.record.matchStartedAt = new Date().toISOString();
       this.startTimer();
     }
@@ -289,12 +290,19 @@ export class CounterEditComponent implements OnInit, OnDestroy {
 
     this.saveCounter();
 
-    // WhatsApp: enviar si modo onChange
     if (this.waEnabled && this.greenApiInstanceId && this.greenApiToken && this.record.whatsappConfig) {
-      const msg = this.whatsappSvc.buildMessage(this.record);
-      this.whatsappSvc.triggerOnChange(this.record.whatsappConfig, this.greenApiInstanceId, this.greenApiToken, msg)
-        .then(() => this.waLastSent = new Date().toLocaleTimeString())
-        .catch(console.error);
+      const mode = this.record.whatsappConfig.mode;
+      if (mode === 'onChange') {
+        const msg = this.whatsappSvc.buildMessage(this.record);
+        this.whatsappSvc.triggerOnChange(this.record.whatsappConfig, this.greenApiInstanceId, this.greenApiToken, msg)
+          .then(() => this.waLastSent = new Date().toLocaleTimeString())
+          .catch(console.error);
+      } else if (mode === 'keyMoments' && isFirstPoint) {
+        const msg = this.whatsappSvc.buildMatchStartMessage(this.record);
+        this.whatsappSvc.sendMessage(this.greenApiInstanceId, this.greenApiToken, this.record.whatsappConfig.groupChatId, msg)
+          .then(() => this.waLastSent = new Date().toLocaleTimeString())
+          .catch(console.error);
+      }
     }
   }
 
@@ -357,12 +365,21 @@ export class CounterEditComponent implements OnInit, OnDestroy {
       }
     }
 
+    const finishedGame = this.recordGame;
     const newGame = await this.fsService.createGame(this.record!.id, `Set ${this.record!.games.length + 1}`);
     this.record.games.push(newGame);
     this.record.currentGameId = newGame.id;
     this.changeCurrentGame(newGame.id);
     this.saveCounter();
     this.showToast(`Se añadió ${newGame.title}`);
+
+    if (this.waEnabled && this.greenApiInstanceId && this.greenApiToken && this.record.whatsappConfig
+        && this.record.whatsappConfig.mode === 'keyMoments' && finishedGame) {
+      const msg = this.whatsappSvc.buildSetEndMessage(this.record, finishedGame);
+      this.whatsappSvc.sendMessage(this.greenApiInstanceId, this.greenApiToken, this.record.whatsappConfig.groupChatId, msg)
+        .then(() => this.waLastSent = new Date().toLocaleTimeString())
+        .catch(console.error);
+    }
   }
 
   changeScore(side: 'left' | 'right', delta: number) {
@@ -587,6 +604,8 @@ export class CounterEditComponent implements OnInit, OnDestroy {
         this.whatsappSvc.start(config, this.greenApiInstanceId, this.greenApiToken,
           () => this.whatsappSvc.buildMessage(this.record));
         this.showToast(`Enviando cada ${this.waInterval} min a ${this.waChatName}`);
+      } else if (this.waMode === 'keyMoments') {
+        this.showToast(`Enviando a ${this.waChatName} en momentos clave`);
       } else {
         this.showToast(`Enviando a ${this.waChatName} al cambiar el marcador`);
       }

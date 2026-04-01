@@ -130,11 +130,18 @@
         <label>Cuándo enviar</label>
         <div class="wa-mode-toggle">
           <button [class.selected]="waMode === 'onChange'" (click)="waMode = 'onChange'">
-            Al cambiar el marcador
+            Al cambiar
           </button>
           <button [class.selected]="waMode === 'interval'" (click)="waMode = 'interval'">
-            Cada X minutos
+            Cada X min
           </button>
+          <button [class.selected]="waMode === 'keyMoments'" (click)="waMode = 'keyMoments'">
+            Momentos clave
+          </button>
+        </div>
+        <div class="wa-mode-hint" *ngIf="waMode === 'keyMoments'">
+          <i class="fa fa-info-circle"></i>
+          Envía al iniciar el partido, al finalizar cada set y al terminar el partido.
         </div>
         <div class="wa-interval-row" *ngIf="waMode === 'interval'">
           <input type="number" [(ngModel)]="waInterval" min="1" max="60" class="wa-interval-input" />
@@ -148,6 +155,7 @@
         Enviando a <strong>{{ waChatName }}</strong> ·
         <span *ngIf="waMode === 'onChange'">al cambiar el marcador</span>
         <span *ngIf="waMode === 'interval'">cada {{ waInterval }} min</span>
+        <span *ngIf="waMode === 'keyMoments'">en momentos clave</span>
         <span *ngIf="waLastSent"> · Último envío: {{ waLastSent }}</span>
       </div>
 

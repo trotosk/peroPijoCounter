@@ -32,7 +32,7 @@ export interface CounterRecord {
 export interface WhatsappConfig {
   groupChatId: string;            // ID del chat/grupo de WhatsApp (ej: 34612345678-123456789@g.us)
   groupName: string;              // Nombre visible del grupo (solo para mostrar)
-  mode: 'onChange' | 'interval'; // Enviar al cambiar el marcador o cada X minutos
+  mode: 'onChange' | 'interval' | 'keyMoments'; // Enviar al cambiar, cada X min, o en momentos clave
   intervalMinutes: number;        // Minutos entre envíos (usado si mode === 'interval')
 }
 

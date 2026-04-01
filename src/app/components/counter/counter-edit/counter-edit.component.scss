@@ -1017,6 +1017,16 @@ $bg: #f8f9fa;
     }
   }
 
+  .wa-mode-hint {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 0.3rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.3rem;
+    i { margin-top: 2px; }
+  }
+
   .wa-interval-row {
     display: flex;
     align-items: center;
