@@ -1,6 +1,6 @@
 import { Component, inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
-import { CounterGame, CounterRecord, WhatsappConfig } from '../../../models/counter.model';
+import { CounterGame, CounterRecord, PointEvent, WhatsappConfig } from '../../../models/counter.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,6 +12,7 @@ import { Subscription } from 'rxjs';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Analytics, getAnalytics, logEvent } from '@angular/fire/analytics';
 import { WhatsappService, GreenApiChat } from '../../../services/whatsapp.service';
+import { CounterTimelineComponent } from '../counter-timeline/counter-timeline.component';
 import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 
 @Component({
@@ -30,7 +31,7 @@ import { Firestore, doc, getDoc } from '@angular/fire/firestore';
       ])
     ])
   ],
-  imports: [CommonModule, FormsModule, MatIconModule, RouterModule, MatSnackBarModule]
+  imports: [CommonModule, FormsModule, MatIconModule, RouterModule, MatSnackBarModule, CounterTimelineComponent]
 })
 
 export class CounterEditComponent implements OnInit, OnDestroy {
@@ -69,6 +70,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
 
   // WhatsApp panel
   showWaPanel = false;
+  showTimeline = false;
   waEnabled = false;
   waLoadingChats = false;
   waChats: GreenApiChat[] = [];
@@ -267,6 +269,12 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     this.saveCounter();
   }
 
+  private elapsedMinutes(): number {
+    if (!this.record?.matchStartedAt) return 0;
+    const ms = Date.now() - new Date(this.record.matchStartedAt).getTime() - (this.record.matchPausedMs ?? 0);
+    return Math.floor(ms / 60000);
+  }
+
   // Incrementar el marcador del lado indicado
   inc(side: 'left' | 'right') {
     if (!this.record || !this.recordGame ||this.readOnly) return;
@@ -284,6 +292,10 @@ export class CounterEditComponent implements OnInit, OnDestroy {
       this.record.matchStartedAt = new Date().toISOString();
       this.startTimer();
     }
+
+    // Registrar punto en el timeline
+    if (!this.recordGame.points) this.recordGame.points = [];
+    this.recordGame.points.push({ side, minute: this.elapsedMinutes() });
 
     this.recordGame.updatedAt = new Date().toISOString();
     this.record.updatedAt = this.recordGame.updatedAt;
@@ -310,11 +322,20 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   // Decrementar el marcador del lado indicado
   dec(side: 'left' | 'right') {
     if (!this.record || !this.recordGame ||this.readOnly) return;
-    
+    const currentVal = side === 'left' ? this.recordGame.leftValue : this.recordGame.rightValue;
+    if (currentVal <= 0) return;
+
     if (side === 'left'){
-      this.recordGame.leftValue = Math.max(0, this.recordGame.leftValue - 1);
+      this.recordGame.leftValue = this.recordGame.leftValue - 1;
     } else {
-      this.recordGame.rightValue = Math.max(0, this.recordGame.rightValue - 1);
+      this.recordGame.rightValue = this.recordGame.rightValue - 1;
+    }
+
+    // Eliminar el último punto de ese lado del timeline
+    if (this.recordGame.points?.length) {
+      const lastIdx = [...this.recordGame.points].map((p, i) => ({ p, i }))
+        .reverse().find(({ p }) => p.side === side)?.i;
+      if (lastIdx !== undefined) this.recordGame.points.splice(lastIdx, 1);
     }
 
     // ⭐ SI SE RESTA → APAGAR ILUMINACIÓN

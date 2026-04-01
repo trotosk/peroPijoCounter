@@ -1,3 +1,8 @@
+export interface PointEvent {
+  side: 'left' | 'right';
+  minute: number; // minutos enteros desde el inicio del partido (descontando pausas)
+}
+
 export interface CounterGame {
   id: string; // uuid
   title: string; // Ej: "Set 1", "Juego 2", etc.
@@ -5,6 +10,7 @@ export interface CounterGame {
   rightValue: number; // puntos del equipo visitante
   createdAt: string; // fecha de creación
   updatedAt: string; // fecha de última actualización
+  points?: PointEvent[]; // timeline de puntos marcados
 }
 
 export interface CounterRecord {
