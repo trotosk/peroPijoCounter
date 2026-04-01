@@ -89,16 +89,12 @@ export class AppComponent implements OnInit, OnDestroy {
       width: '400px'
     });
 
-    dialogRef.afterClosed().subscribe((type: any) => {
-      if (!type) return; // Cancelado
+    dialogRef.afterClosed().subscribe((result: { type: string; category: string } | null) => {
+      if (!result) return; // Cancelado
 
-      const userId = this.auth.currentUserId()!;
-
-      //this.router.navigate(['/app/create'], { queryParams: { type: type } }); //Ir a la pantalla de creacion
       this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-        this.router.navigate(['/app/create'], { queryParams: { type: type } });
+        this.router.navigate(['/app/create'], { queryParams: { type: result.type, category: result.category } });
       });
-
     });
   }
 

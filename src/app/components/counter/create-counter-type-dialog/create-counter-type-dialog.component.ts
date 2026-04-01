@@ -6,6 +6,7 @@ import { MatDialogRef, MatDialogContent, MatDialogActions, MatDialogModule } fro
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { COUNTER_CATEGORIES, CounterCategory } from '../../../models/counter.model';
 
 @Component({
   selector: 'app-create-counter-type-dialog',
@@ -22,10 +23,11 @@ import { MatSelectModule } from '@angular/material/select';
   ]
 })
 export class CreateCounterTypeDialogComponent {
-  // Lista de tipos disponibles (puedes ampliarla o parametrizarla)
-  //types: string[] = ['Voley', 'Competitivo', 'Cronómetro', 'Otro'];
   types: string[] = ['Voley'];
+  categories: readonly CounterCategory[] = COUNTER_CATEGORIES;
+
   selectedType: string | null = null;
+  selectedCategory: CounterCategory | null = null;
 
   constructor(
     private dialogRef: MatDialogRef<CreateCounterTypeDialogComponent>
@@ -36,8 +38,8 @@ export class CreateCounterTypeDialogComponent {
   }
 
   continue(): void {
-    if (this.selectedType) {
-      this.dialogRef.close(this.selectedType);
+    if (this.selectedType && this.selectedCategory) {
+      this.dialogRef.close({ type: this.selectedType, category: this.selectedCategory });
     }
   }
 }
