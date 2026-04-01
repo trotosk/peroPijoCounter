@@ -160,7 +160,14 @@
 
   <!-- Título inferior en fullscreen -->
   <div class="fullscreen-footer" *ngIf="isFullscreen">
+    <span *ngIf="record!.matchStartedAt" class="fullscreen-timer">⏱ {{ timerDisplay }}</span>
     <h1>{{ title }}</h1>
+  </div>
+
+  <!-- Timer modo normal -->
+  <div class="match-timer" *ngIf="!isFullscreen && record!.matchStartedAt">
+    <i class="fa fa-clock-o"></i> {{ timerDisplay }}
+    <span *ngIf="record!.isFinished" class="timer-finished"> · Finalizado</span>
   </div>
 
   <footer style="font-size:0.8rem; margin-top:1rem;">

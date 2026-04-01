@@ -23,6 +23,8 @@ export interface CounterRecord {
   deleted?: boolean; // Marcador eliminado lógicamente
   isFinished?: boolean; // indica si el partido está finalizado
   isPublic: boolean; // indica si el marcador es público
+  matchStartedAt?: string; // ISO timestamp del primer punto marcado
+  matchFinishedAt?: string; // ISO timestamp de cuando se finalizó el partido
 }
 
 export interface CounterRecordList {

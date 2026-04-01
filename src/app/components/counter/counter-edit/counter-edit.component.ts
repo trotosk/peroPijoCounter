@@ -63,6 +63,8 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   lastValues = { left: 0, right: 0 };
   showFinishConfirm = false;
   title = 'peroPijoCounter';
+  timerDisplay = '00:00';
+  private timerInterval?: ReturnType<typeof setInterval>;
   
 
   constructor(
@@ -75,6 +77,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
+    this.stopTimer();
   }
 
   async ngOnInit() {
@@ -142,6 +145,15 @@ export class CounterEditComponent implements OnInit, OnDestroy {
         // Guardar valores actuales
         this.lastValues.left = currentGame.leftValue;
         this.lastValues.right = currentGame.rightValue;
+
+        // Reanudar o mostrar timer según estado del partido
+        if (this.record.matchStartedAt && !this.timerInterval) {
+          if (this.record.matchFinishedAt) {
+            this.timerDisplay = this.calcElapsed(this.record.matchStartedAt, this.record.matchFinishedAt);
+          } else if (!this.record.isFinished) {
+            this.startTimer();
+          }
+        }
       });
 
       // Determinar modo de lectura
@@ -210,12 +222,18 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     if (!this.record || !this.recordGame ||this.readOnly) return;
     if (side === 'left') {
       this.recordGame.leftValue = this.recordGame.leftValue +1;
-      this.highlightedTeam = 'left';   // ⭐ ILUMINAMOS
+      this.highlightedTeam = 'left';
     } else {
       this.recordGame.rightValue = this.recordGame.rightValue +1;
-      this.highlightedTeam = 'right';  // ⭐ ILUMINAMOS
+      this.highlightedTeam = 'right';
     }
-   
+
+    // Arrancar el timer en el primer punto del partido
+    if (!this.record.matchStartedAt) {
+      this.record.matchStartedAt = new Date().toISOString();
+      this.startTimer();
+    }
+
     this.recordGame.updatedAt = new Date().toISOString();
     this.record.updatedAt = this.recordGame.updatedAt;
 
@@ -265,7 +283,22 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   }
 
   async addGame() {
-    if (!this.record) return;
+    if (!this.record || !this.recordGame) return;
+
+    // Restricciones de voley
+    if (this.record.type === 'Voley') {
+      const l = this.recordGame.leftValue;
+      const r = this.recordGame.rightValue;
+      if (l === r) {
+        this.showToast('No se puede añadir set: el set actual está empatado');
+        return;
+      }
+      if (Math.abs(l - r) < 2) {
+        this.showToast('No se puede añadir set: el equipo ganador debe tener al menos 2 puntos de ventaja');
+        return;
+      }
+    }
+
     const newGame = await this.fsService.createGame(this.record!.id, `Set ${this.record!.games.length + 1}`);
     this.record.games.push(newGame);
     this.record.currentGameId = newGame.id;
@@ -384,7 +417,12 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   confirmFinish() {
     if (!this.record) return;
     this.record.isFinished = true;
+    this.record.matchFinishedAt = new Date().toISOString();
     this.showFinishConfirm = false;
+    this.stopTimer();
+    if (this.record.matchStartedAt) {
+      this.timerDisplay = this.calcElapsed(this.record.matchStartedAt, this.record.matchFinishedAt!);
+    }
     this.saveCounter();
   }
 
@@ -424,6 +462,30 @@ export class CounterEditComponent implements OnInit, OnDestroy {
 
   range(n: number): number[] {
     return Array.from({ length: n }, (_, i) => i);
+  }
+
+  private startTimer() {
+    this.stopTimer();
+    this.timerInterval = setInterval(() => {
+      if (this.record?.matchStartedAt) {
+        this.timerDisplay = this.calcElapsed(this.record.matchStartedAt, new Date().toISOString());
+      }
+    }, 1000);
+  }
+
+  private stopTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = undefined;
+    }
+  }
+
+  private calcElapsed(from: string, to: string): string {
+    const ms = new Date(to).getTime() - new Date(from).getTime();
+    const totalSec = Math.max(0, Math.floor(ms / 1000));
+    const min = Math.floor(totalSec / 60).toString().padStart(2, '0');
+    const sec = (totalSec % 60).toString().padStart(2, '0');
+    return `${min}:${sec}`;
   }
 
 }
