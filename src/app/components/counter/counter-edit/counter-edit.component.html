@@ -20,9 +20,19 @@
       <i class="fa fa-link"></i>
     </button>
 
-    <a [href]="whatsappShareUrl" target="_blank" rel="noopener" class="icon-button" title="Compartir por WhatsApp">
+    <a [href]="whatsappShareUrl" target="_blank" rel="noopener" class="icon-button" title="Compartir enlace por WhatsApp">
       <i class="fa fa-whatsapp" style="color: #25D366"></i>
     </a>
+
+    <!-- Botón WhatsApp automático -->
+    <button *ngIf="!readOnly"
+            class="copya-btn wa-auto-btn"
+            [class.wa-active]="waEnabled"
+            (click)="showWaPanel = !showWaPanel"
+            title="Envío automático por WhatsApp">
+      <i class="fa fa-whatsapp"></i>
+      <span class="wa-badge" *ngIf="waEnabled">ON</span>
+    </button>
 
   </div>
   <!-- Botón de permisos + público/privado -->
@@ -53,6 +63,87 @@
 
   </div>
 </div>
+
+  <!-- Panel WhatsApp automático -->
+  <div class="wa-panel" *ngIf="showWaPanel && !isFullscreen && !readOnly">
+
+    <div class="wa-panel-header">
+      <i class="fa fa-whatsapp"></i>
+      <strong>Envío automático por WhatsApp</strong>
+      <span class="wa-status-dot" [class.active]="waEnabled"></span>
+    </div>
+
+    <!-- Sin credenciales configuradas -->
+    <div class="wa-no-creds" *ngIf="!hasGreenApiCredentials">
+      <i class="fa fa-exclamation-triangle"></i>
+      Primero configura tu cuenta de Green API en
+      <a routerLink="/app/config">Ajustes <i class="fa fa-external-link"></i></a>
+    </div>
+
+    <!-- Con credenciales -->
+    <ng-container *ngIf="hasGreenApiCredentials">
+
+      <!-- Selección de grupo -->
+      <div class="wa-row">
+        <label>Grupo / Chat destino</label>
+        <div class="wa-chat-selector">
+          <input [(ngModel)]="waChatName" readonly
+                 [placeholder]="waChatId ? waChatName : 'Ninguno seleccionado'"
+                 class="wa-chat-input" />
+          <button class="wa-load-btn" (click)="loadWhatsappChats()" [disabled]="waLoadingChats || waEnabled">
+            <i class="fa" [class.fa-refresh]="!waLoadingChats" [class.fa-spinner]="waLoadingChats"
+               [class.fa-spin]="waLoadingChats"></i>
+            {{ waLoadingChats ? 'Cargando...' : 'Cargar grupos' }}
+          </button>
+        </div>
+
+        <!-- Lista de chats -->
+        <div class="wa-chat-list" *ngIf="waChats.length && !waEnabled">
+          <button *ngFor="let chat of waChats"
+                  class="wa-chat-item"
+                  [class.selected]="chat.id === waChatId"
+                  [class.is-group]="chat.type === 'group'"
+                  (click)="selectWaChat(chat)">
+            <i class="fa" [class.fa-users]="chat.type === 'group'" [class.fa-user]="chat.type !== 'group'"></i>
+            {{ chat.name }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Modo de envío -->
+      <div class="wa-row" *ngIf="!waEnabled">
+        <label>Cuándo enviar</label>
+        <div class="wa-mode-toggle">
+          <button [class.selected]="waMode === 'onChange'" (click)="waMode = 'onChange'">
+            Al cambiar el marcador
+          </button>
+          <button [class.selected]="waMode === 'interval'" (click)="waMode = 'interval'">
+            Cada X minutos
+          </button>
+        </div>
+        <div class="wa-interval-row" *ngIf="waMode === 'interval'">
+          <input type="number" [(ngModel)]="waInterval" min="1" max="60" class="wa-interval-input" />
+          <span>minutos</span>
+        </div>
+      </div>
+
+      <!-- Resumen cuando está activo -->
+      <div class="wa-active-info" *ngIf="waEnabled">
+        <i class="fa fa-check-circle"></i>
+        Enviando a <strong>{{ waChatName }}</strong> ·
+        <span *ngIf="waMode === 'onChange'">al cambiar el marcador</span>
+        <span *ngIf="waMode === 'interval'">cada {{ waInterval }} min</span>
+        <span *ngIf="waLastSent"> · Último envío: {{ waLastSent }}</span>
+      </div>
+
+      <!-- Botón activar / desactivar -->
+      <button class="wa-toggle-btn" [class.stop]="waEnabled" (click)="toggleWaEnabled()">
+        <i class="fa" [class.fa-play]="!waEnabled" [class.fa-stop]="waEnabled"></i>
+        {{ waEnabled ? 'Detener envío' : 'Activar envío' }}
+      </button>
+
+    </ng-container>
+  </div>
 
   <!-- Lista de sets -->
   <div class="games-list" *ngIf="!isFullscreen">

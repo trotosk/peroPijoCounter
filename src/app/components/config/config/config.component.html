@@ -56,10 +56,56 @@
     </div>
   </section>
 
-  <!-- 💡 Sección futura -->
-  <section class="config-section future">
-    <h3>🚧 Más opciones próximamente</h3>
-    <p>En el futuro podrás personalizar más ajustes de la aplicación aquí.</p>
+  <!-- 📱 Green API / WhatsApp -->
+  <section class="config-section">
+    <h3>
+      📱 WhatsApp automático
+      <button class="help-toggle" (click)="showGreenApiHelp = !showGreenApiHelp" title="Cómo configurar">
+        <i class="fa fa-question-circle"></i>
+      </button>
+    </h3>
+
+    <!-- Panel de ayuda paso a paso -->
+    <div class="help-panel" *ngIf="showGreenApiHelp">
+      <p><strong>¿Qué es esto?</strong> Permite que la app mande el marcador automáticamente a un grupo de WhatsApp mientras el partido está en curso.</p>
+      <ol>
+        <li>Ve a <strong>green-api.com</strong> y crea una cuenta gratuita.</li>
+        <li>En el panel, crea una nueva instancia y copia el <strong>Instance ID</strong> y el <strong>API Token</strong>.</li>
+        <li>Escanea el QR que aparece con tu WhatsApp (igual que WhatsApp Web). Solo hay que hacerlo una vez.</li>
+        <li>Pega aquí el Instance ID y el Token y pulsa <em>Guardar</em>.</li>
+        <li>En el marcador, pulsa el botón de WhatsApp <i class="fa fa-whatsapp"></i> para elegir el grupo y activar el envío.</li>
+      </ol>
+      <p class="help-note">💡 El plan gratuito de Green API incluye 3.000 mensajes/mes, más que suficiente para partidos.</p>
+    </div>
+
+    <div class="config-field">
+      <label>
+        Instance ID
+        <span class="field-hint" title="Número de 10 dígitos que aparece en el panel de Green API al crear la instancia">?</span>
+      </label>
+      <input [(ngModel)]="greenApiInstanceId" placeholder="ej: 1101234567" />
+    </div>
+
+    <div class="config-field">
+      <label>
+        API Token
+        <span class="field-hint" title="Token largo que aparece junto al Instance ID en el panel de Green API">?</span>
+      </label>
+      <input type="password" [(ngModel)]="greenApiToken" placeholder="Token de Green API" />
+    </div>
+
+    <div class="config-actions">
+      <button class="save-btn" (click)="saveGreenApi()">
+        <i class="fa fa-save"></i> Guardar
+      </button>
+      <button class="test-btn" (click)="testGreenApi()" [disabled]="greenApiTesting || !greenApiInstanceId || !greenApiToken">
+        <i class="fa fa-plug"></i> {{ greenApiTesting ? 'Probando...' : 'Probar conexión' }}
+      </button>
+    </div>
+
+    <p class="saved-indicator" *ngIf="greenApiSaved">
+      <i class="fa fa-check-circle"></i> Credenciales guardadas — activa el envío desde cada marcador
+    </p>
   </section>
 
   <!-- 🔔 Toast -->

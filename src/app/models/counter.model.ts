@@ -25,6 +25,14 @@ export interface CounterRecord {
   isPublic: boolean; // indica si el marcador es público
   matchStartedAt?: string; // ISO timestamp del primer punto marcado
   matchFinishedAt?: string; // ISO timestamp de cuando se finalizó el partido
+  whatsappConfig?: WhatsappConfig; // Configuración de envío automático por WhatsApp
+}
+
+export interface WhatsappConfig {
+  groupChatId: string;            // ID del chat/grupo de WhatsApp (ej: 34612345678-123456789@g.us)
+  groupName: string;              // Nombre visible del grupo (solo para mostrar)
+  mode: 'onChange' | 'interval'; // Enviar al cambiar el marcador o cada X minutos
+  intervalMinutes: number;        // Minutos entre envíos (usado si mode === 'interval')
 }
 
 export interface CounterRecordList {

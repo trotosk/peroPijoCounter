@@ -1,6 +1,6 @@
 import { Component, inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
-import { CounterGame, CounterRecord } from '../../../models/counter.model';
+import { CounterGame, CounterRecord, WhatsappConfig } from '../../../models/counter.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -11,6 +11,8 @@ import { FirestoreCounterService } from '../../../services/firestore-counter.ser
 import { Subscription } from 'rxjs';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Analytics, getAnalytics, logEvent } from '@angular/fire/analytics';
+import { WhatsappService, GreenApiChat } from '../../../services/whatsapp.service';
+import { Firestore, doc, getDoc } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-counter-edit',
@@ -28,8 +30,7 @@ import { Analytics, getAnalytics, logEvent } from '@angular/fire/analytics';
       ])
     ])
   ],
-  imports: [CommonModule,
-    FormsModule, MatIconModule,RouterModule,MatSnackBarModule,]
+  imports: [CommonModule, FormsModule, MatIconModule, RouterModule, MatSnackBarModule]
 })
 
 export class CounterEditComponent implements OnInit, OnDestroy {
@@ -65,6 +66,19 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   title = 'peroPijoCounter';
   timerDisplay = '00:00';
   private timerInterval?: ReturnType<typeof setInterval>;
+
+  // WhatsApp panel
+  showWaPanel = false;
+  waEnabled = false;
+  waLoadingChats = false;
+  waChats: GreenApiChat[] = [];
+  waChatId = '';
+  waChatName = '';
+  waMode: 'onChange' | 'interval' = 'onChange';
+  waInterval = 5;
+  waLastSent = '';
+  private greenApiInstanceId = '';
+  private greenApiToken = '';
   
 
   constructor(
@@ -73,21 +87,32 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     private router: Router,
     private fsService: FirestoreCounterService,
     private snackBar: MatSnackBar,
+    private whatsappSvc: WhatsappService,
+    private firestore: Firestore,
   ) {}
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
     this.stopTimer();
+    this.whatsappSvc.stop();
   }
 
   async ngOnInit() {
-    // Si viene id por query param -> cargar (editar si es del user)
     const id = this.route.snapshot.queryParamMap.get('id');
     this.type = this.route.snapshot.queryParamMap.get('type');
     const cur = this.auth.currentUser();
     this.currentUserId = cur ? cur.id : null;
 
-    // inicializa Firebase Analytics aquí
+    // Cargar credenciales Green API del usuario
+    if (cur) {
+      const userSnap = await getDoc(doc(this.firestore, `users/${cur.id}`));
+      if (userSnap.exists()) {
+        const d = userSnap.data();
+        this.greenApiInstanceId = d['greenApiInstanceId'] ?? '';
+        this.greenApiToken      = d['greenApiToken']      ?? '';
+      }
+    }
+
     this.analytics = getAnalytics();
 
     // Nuevo o editar existente
@@ -145,6 +170,14 @@ export class CounterEditComponent implements OnInit, OnDestroy {
         // Guardar valores actuales
         this.lastValues.left = currentGame.leftValue;
         this.lastValues.right = currentGame.rightValue;
+
+        // Restaurar config WhatsApp del contador si existe
+        if (this.record.whatsappConfig) {
+          this.waChatId   = this.record.whatsappConfig.groupChatId;
+          this.waChatName = this.record.whatsappConfig.groupName;
+          this.waMode     = this.record.whatsappConfig.mode;
+          this.waInterval = this.record.whatsappConfig.intervalMinutes;
+        }
 
         // Reanudar o mostrar timer según estado del partido
         if (this.record.matchStartedAt && !this.timerInterval) {
@@ -238,6 +271,14 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     this.record.updatedAt = this.recordGame.updatedAt;
 
     this.saveCounter();
+
+    // WhatsApp: enviar si modo onChange
+    if (this.waEnabled && this.greenApiInstanceId && this.greenApiToken && this.record.whatsappConfig) {
+      const msg = this.whatsappSvc.buildMessage(this.record);
+      this.whatsappSvc.triggerOnChange(this.record.whatsappConfig, this.greenApiInstanceId, this.greenApiToken, msg)
+        .then(() => this.waLastSent = new Date().toLocaleTimeString())
+        .catch(console.error);
+    }
   }
 
 
@@ -462,6 +503,62 @@ export class CounterEditComponent implements OnInit, OnDestroy {
 
   range(n: number): number[] {
     return Array.from({ length: n }, (_, i) => i);
+  }
+
+  // ─── WhatsApp panel ───────────────────────────────────────────────────────────
+
+  get hasGreenApiCredentials(): boolean {
+    return !!(this.greenApiInstanceId && this.greenApiToken);
+  }
+
+  async loadWhatsappChats() {
+    if (!this.hasGreenApiCredentials) {
+      this.showToast('Configura las credenciales de Green API en Ajustes');
+      return;
+    }
+    this.waLoadingChats = true;
+    try {
+      this.waChats = await this.whatsappSvc.getChats(this.greenApiInstanceId, this.greenApiToken);
+    } catch {
+      this.showToast('Error al conectar con Green API. Revisa las credenciales en Ajustes.');
+    } finally {
+      this.waLoadingChats = false;
+    }
+  }
+
+  selectWaChat(chat: GreenApiChat) {
+    this.waChatId   = chat.id;
+    this.waChatName = chat.name;
+  }
+
+  toggleWaEnabled() {
+    if (!this.waEnabled) {
+      if (!this.waChatId) { this.showToast('Elige un grupo primero'); return; }
+      if (!this.hasGreenApiCredentials) { this.showToast('Configura Green API en Ajustes'); return; }
+
+      const config: WhatsappConfig = {
+        groupChatId: this.waChatId,
+        groupName:   this.waChatName,
+        mode:        this.waMode,
+        intervalMinutes: this.waInterval,
+      };
+      this.record.whatsappConfig = config;
+      this.saveCounter();
+
+      this.waEnabled = true;
+
+      if (this.waMode === 'interval') {
+        this.whatsappSvc.start(config, this.greenApiInstanceId, this.greenApiToken,
+          () => this.whatsappSvc.buildMessage(this.record));
+        this.showToast(`Enviando cada ${this.waInterval} min a ${this.waChatName}`);
+      } else {
+        this.showToast(`Enviando a ${this.waChatName} al cambiar el marcador`);
+      }
+    } else {
+      this.waEnabled = false;
+      this.whatsappSvc.stop();
+      this.showToast('Envío por WhatsApp desactivado');
+    }
   }
 
   private startTimer() {

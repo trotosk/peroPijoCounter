@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { updateProfile, updatePassword, User as FirebaseUser } from '@angular/fire/auth';
 import { Firestore, doc, getDoc, setDoc, updateDoc } from '@angular/fire/firestore';
+import { WhatsappService } from '../../../services/whatsapp.service';
 
 @Component({
   selector: 'app-config',
@@ -21,7 +22,18 @@ export class ConfigComponent implements OnInit {
   toastType: 'success' | 'error' | '' = '';
   showPassword = false;
 
-  constructor(private authSvc: AuthService, private firestore: Firestore) {}
+  // Green API
+  greenApiInstanceId = '';
+  greenApiToken = '';
+  greenApiSaved = false;
+  showGreenApiHelp = false;
+  greenApiTesting = false;
+
+  constructor(
+    private authSvc: AuthService,
+    private firestore: Firestore,
+    private whatsappSvc: WhatsappService,
+  ) {}
 
   async ngOnInit() {
     const u = this.authSvc.currentUser();
@@ -30,14 +42,14 @@ export class ConfigComponent implements OnInit {
     this.user = this.authSvc['auth'].currentUser;
     this.displayName = this.user?.displayName ?? u.email ?? '';
 
-    // Si quieres recuperar info extendida desde Firestore:
     const userDocRef = doc(this.firestore, `users/${u.id}`);
     const snap = await getDoc(userDocRef);
     if (snap.exists()) {
       const data = snap.data();
-      if (data && data['displayName']) {
-        this.displayName = data['displayName'];
-      }
+      if (data['displayName'])        this.displayName        = data['displayName'];
+      if (data['greenApiInstanceId']) this.greenApiInstanceId = data['greenApiInstanceId'];
+      if (data['greenApiToken'])      this.greenApiToken      = data['greenApiToken'];
+      this.greenApiSaved = !!(this.greenApiInstanceId && this.greenApiToken);
     }
   }
 
@@ -104,5 +116,36 @@ export class ConfigComponent implements OnInit {
 
   togglePassword() {
     this.showPassword = !this.showPassword;
+  }
+
+  // ─── Green API ────────────────────────────────────────────────────────────────
+
+  async saveGreenApi() {
+    const u = this.authSvc.currentUser();
+    if (!u) return;
+    if (!this.greenApiInstanceId.trim() || !this.greenApiToken.trim()) {
+      this.showToast('Introduce el Instance ID y el Token', 'error');
+      return;
+    }
+    const ref = doc(this.firestore, `users/${u.id}`);
+    await setDoc(ref, {
+      greenApiInstanceId: this.greenApiInstanceId.trim(),
+      greenApiToken: this.greenApiToken.trim(),
+    }, { merge: true });
+    this.greenApiSaved = true;
+    this.showToast('Credenciales de WhatsApp guardadas', 'success');
+  }
+
+  async testGreenApi() {
+    if (!this.greenApiInstanceId || !this.greenApiToken) return;
+    this.greenApiTesting = true;
+    try {
+      const chats = await this.whatsappSvc.getChats(this.greenApiInstanceId, this.greenApiToken);
+      this.showToast(`✅ Conexión OK — ${chats.length} chats encontrados`, 'success');
+    } catch {
+      this.showToast('❌ Error de conexión. Revisa el Instance ID y el Token', 'error');
+    } finally {
+      this.greenApiTesting = false;
+    }
   }
 }
