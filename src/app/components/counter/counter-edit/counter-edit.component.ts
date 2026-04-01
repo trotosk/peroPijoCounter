@@ -505,7 +505,22 @@ export class CounterEditComponent implements OnInit, OnDestroy {
 
   // Solicitar confirmación de finalizar partido
   requestFinish() {
-    if (!this.record) return;
+    if (!this.record || !this.recordGame) return;
+
+    // Mismas restricciones que al añadir set
+    if (this.record.type === 'Voley') {
+      const l = this.recordGame.leftValue;
+      const r = this.recordGame.rightValue;
+      if (l === r) {
+        this.showToast('No se puede finalizar: el set activo está empatado');
+        return;
+      }
+      if (Math.abs(l - r) < 2) {
+        this.showToast('No se puede finalizar: el equipo ganador debe tener al menos 2 puntos de ventaja');
+        return;
+      }
+    }
+
     this.showFinishConfirm = true;
   }
 
@@ -558,7 +573,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   get leftSetsWon(): number {
     if (!this.record) return 0;
     return this.record.games.filter(g =>
-      g.id !== this.record?.currentGameId &&
+      (this.record!.isFinished || g.id !== this.record?.currentGameId) &&
       g.leftValue > g.rightValue
     ).length;
   }
@@ -566,7 +581,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   get rightSetsWon(): number {
     if (!this.record) return 0;
     return this.record.games.filter(g =>
-      g.id !== this.record?.currentGameId &&
+      (this.record!.isFinished || g.id !== this.record?.currentGameId) &&
       g.rightValue > g.leftValue
     ).length;
   }
