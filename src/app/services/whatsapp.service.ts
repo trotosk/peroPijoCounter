@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { CounterRecord, WhatsappConfig } from '../models/counter.model';
+import { CounterGame, CounterRecord, WhatsappConfig } from '../models/counter.model';
 
 const GREEN_API_BASE = 'https://api.green-api.com';
 
@@ -121,6 +121,37 @@ export class WhatsappService {
 
     lines.push(`🔗 https://peropijocounter.web.app/app/create?id=${record.id}`);
 
+    return lines.join('\n');
+  }
+
+  buildMatchStartMessage(record: CounterRecord): string {
+    const lines = [
+      `🟢 *INICIO DEL PARTIDO*`,
+      `🏐 *${record.title}*`,
+      ``,
+      `${record.leftName} 🆚 ${record.rightName}`,
+      ``,
+      `🔗 https://peropijocounter.web.app/app/create?id=${record.id}`,
+    ];
+    return lines.join('\n');
+  }
+
+  buildSetEndMessage(record: CounterRecord, finishedGame: CounterGame): string {
+    const leftWins  = record.games.filter(g => g.leftValue  > g.rightValue).length;
+    const rightWins = record.games.filter(g => g.rightValue > g.leftValue).length;
+    const setWinner = finishedGame.leftValue > finishedGame.rightValue ? record.leftName
+                    : finishedGame.rightValue > finishedGame.leftValue ? record.rightName
+                    : null;
+    const lines = [
+      `🔔 *FIN DEL ${finishedGame.title.toUpperCase()}*`,
+      `📊 ${record.leftName} *${finishedGame.leftValue}* – *${finishedGame.rightValue}* ${record.rightName}${setWinner ? ` → ${setWinner}` : ''}`,
+    ];
+    if (record.games.length > 1) {
+      const leftDots  = '●'.repeat(leftWins)  || '–';
+      const rightDots = '●'.repeat(rightWins) || '–';
+      lines.push(`🏆 Sets: ${record.leftName} ${leftDots}  |  ${rightDots} ${record.rightName}`);
+    }
+    lines.push(``, `🔗 https://peropijocounter.web.app/app/create?id=${record.id}`);
     return lines.join('\n');
   }
 
