@@ -501,50 +501,82 @@ $bg: #f8f9fa;
   }
 }
 
-/* 📱 Ajustes fullscreen en móviles */
+/* 📱 Fullscreen en móvil: siempre ocupa exactamente la pantalla */
 @media (max-width: 900px) {
   .fullscreen {
+    height: 100dvh;
+    overflow: hidden;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 1rem;
+    align-items: stretch;
+    justify-content: stretch;
+    padding: 0.25rem;
 
+    // Barra de sets: una sola línea con scroll horizontal
     .fullscreen-set-results {
       position: relative;
-      top: 0.5rem;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      font-size: 0.9rem;
-      padding: 0.5rem;
+      top: 0;
+      flex: 0 0 auto;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+      &::-webkit-scrollbar { display: none; }
+      gap: 0.3rem;
+      padding: 0.3rem 0.5rem;
+
+      .set-pill {
+        font-size: 0.78rem;
+        padding: 0.25rem 0.6rem;
+        white-space: nowrap;
+      }
     }
 
+    // Marcador: ocupa todo el espacio restante, equipos siempre lado a lado
     .score-columns {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto auto;
+      flex: 1 1 0;
+      min-height: 0;
+      grid-template-columns: 1fr 8px 1fr;
+      grid-template-rows: 1fr;
       height: auto;
-      gap: 0.5rem;
-      justify-items: center;
-      margin-top: 2rem;
+      margin-top: 0;
 
-      .divider {
-        display: none;
-      }
+      .divider { display: block; height: 80%; }
     }
 
     .team {
       width: 100%;
-      max-width: 90vw;
-      height: auto;
-      padding: 0.5rem;
+      max-width: 100%;
+      height: 100%;
+      padding: 0.25rem;
 
       .fullscreen-score {
-        font-size: min(30vw, 25vh);
+        font-size: min(25vw, 42vh);
         text-shadow: 0 0 25px rgba(255, 255, 255, 0.25);
       }
 
       .team-name {
-        font-size: clamp(1.5rem, 5vw, 3rem);
+        font-size: clamp(0.85rem, 4vw, 2rem);
       }
+
+      .sets-dots .set-dot {
+        width: 10px;
+        height: 10px;
+      }
+    }
+
+    // Categoría + timer: compacto
+    .category-row-fullscreen {
+      flex: 0 0 auto;
+      padding: 0.2rem 0;
+    }
+
+    // Footer: relativo (no absolute) para participar en el flex
+    .fullscreen-footer {
+      position: relative;
+      bottom: auto;
+      width: auto;
+      flex: 0 0 auto;
+      padding: 0.2rem 0;
+      font-size: 0.85rem;
     }
 
     .fullscreen-toggle {
@@ -552,35 +584,6 @@ $bg: #f8f9fa;
       right: 0.5rem;
       font-size: 1.1rem;
       padding: 0.4rem 0.6rem;
-    }
-  }
-}
-
-/* 📱 Fullscreen apaisado en móvil: forzar equipos lado a lado */
-@media (max-width: 900px) and (orientation: landscape) {
-  .fullscreen {
-    .score-columns {
-      grid-template-columns: 1fr 8px 1fr !important;
-      grid-template-rows: 1fr !important;
-      height: 100vh;
-
-      .divider { display: block !important; }
-    }
-
-    .team {
-      height: 100%;
-
-      .fullscreen-score {
-        font-size: min(22vw, 55vh) !important;
-      }
-
-      .team-name {
-        font-size: clamp(1rem, 3.5vw, 3rem) !important;
-      }
-    }
-
-    .fullscreen-set-results {
-      font-size: 0.75rem;
     }
   }
 }
@@ -894,6 +897,17 @@ $bg: #f8f9fa;
     color: #3730a3;
     border-radius: 20px;
     padding: 0.15rem 0.6rem;
+  }
+}
+
+.normal-timer {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #495057;
+
+  .timer-finished {
+    color: $danger;
+    font-weight: 400;
   }
 }
 

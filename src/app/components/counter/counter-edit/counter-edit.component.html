@@ -269,9 +269,13 @@
       <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
     </select>
     <span class="category-badge" [class.category-badge-fullscreen]="isFullscreen">{{ record!.category || '—' }}</span>
-    <ng-container *ngIf="isFullscreen && record!.matchStartedAt">
+    <ng-container *ngIf="record!.matchStartedAt">
       <span class="fs-timer-sep">–</span>
-      <span class="fullscreen-timer">⏱ {{ timerDisplay }}</span>
+      <span [class.fullscreen-timer]="isFullscreen" [class.normal-timer]="!isFullscreen">
+        <i class="fa fa-clock-o" *ngIf="!isFullscreen"></i>
+        ⏱ {{ timerDisplay }}
+        <span *ngIf="!isFullscreen && record!.isFinished" class="timer-finished"> · Finalizado</span>
+      </span>
     </ng-container>
   </div>
 
@@ -306,12 +310,6 @@
             title="Ver timeline del partido">
       <i class="fa fa-bar-chart"></i>
     </button>
-  </div>
-
-  <!-- Timer modo normal -->
-  <div class="match-timer" *ngIf="!isFullscreen && record!.matchStartedAt">
-    <i class="fa fa-clock-o"></i> {{ timerDisplay }}
-    <span *ngIf="record!.isFinished" class="timer-finished"> · Finalizado</span>
   </div>
 
   <footer style="font-size:0.8rem; margin-top:1rem;">
