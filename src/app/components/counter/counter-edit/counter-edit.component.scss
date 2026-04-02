@@ -558,6 +558,35 @@ $bg: #f8f9fa;
   }
 }
 
+/* 📱 Fullscreen apaisado en móvil: forzar equipos lado a lado */
+@media (max-width: 900px) and (orientation: landscape) {
+  .fullscreen {
+    .score-columns {
+      grid-template-columns: 1fr 8px 1fr !important;
+      grid-template-rows: 1fr !important;
+      height: 100vh;
+
+      .divider { display: block !important; }
+    }
+
+    .team {
+      height: 100%;
+
+      .fullscreen-score {
+        font-size: min(22vw, 55vh) !important;
+      }
+
+      .team-name {
+        font-size: clamp(1rem, 3.5vw, 3rem) !important;
+      }
+    }
+
+    .fullscreen-set-results {
+      font-size: 0.75rem;
+    }
+  }
+}
+
 .title {
   display: flex;
   align-items: center;

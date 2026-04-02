@@ -43,19 +43,6 @@
 
   </div>
 
-  <!-- Categoría -->
-  <div class="category-row">
-    <span class="category-label">Categoría:</span>
-    <select *ngIf="!readOnly"
-            class="category-select"
-            [ngModel]="record!.category"
-            (ngModelChange)="record!.category = $event; saveCounter()">
-      <option value="" disabled selected>— elige —</option>
-      <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-    </select>
-    <span *ngIf="readOnly" class="category-badge">{{ record!.category || '—' }}</span>
-  </div>
-
   <!-- Botón de permisos + público/privado -->
   <div class="right-controls" *ngIf="!isFullscreen">
 
@@ -268,6 +255,19 @@
       </div>
       <div class="score fullscreen-score" *ngIf="isFullscreen">{{ recordGame.rightValue }}</div>
     </div>
+  </div>
+
+  <!-- Categoría -->
+  <div class="category-row" *ngIf="!isFullscreen">
+    <span class="category-label">Categoría:</span>
+    <select *ngIf="!readOnly"
+            class="category-select"
+            [ngModel]="record!.category"
+            (ngModelChange)="record!.category = $event; saveCounter()">
+      <option value="" disabled selected>— elige —</option>
+      <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+    </select>
+    <span *ngIf="readOnly" class="category-badge">{{ record!.category || '—' }}</span>
   </div>
 
   <!-- Botones Añadir y Eliminar -->
