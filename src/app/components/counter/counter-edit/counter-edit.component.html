@@ -225,7 +225,8 @@
   <!-- Marcadores -->
   <div class="score-columns" *ngIf="recordGame">
     <!-- Equipo local -->
-    <div class="team left-team" [class.highlighted]="highlightedTeam === 'left'">
+    <div class="team left-team" [class.highlighted]="highlightedTeam === 'left'" [class.serving]="isFullscreen && highlightedTeam === 'left'">
+      <div class="fs-serve-badge" *ngIf="isFullscreen && highlightedTeam === 'left'">🏐 SAQUE</div>
       <input [(ngModel)]="record!.leftName" (ngModelChange)="saveCounter()" class="team-name" [readonly]="isFullscreen" placeholder="Equipo local" />
       <!-- Puntos de sets ganados -->
       <div class="sets-dots" *ngIf="record!.games.length > 1">
@@ -243,7 +244,8 @@
     <div class="divider"></div>
 
     <!-- Equipo visitante -->
-    <div class="team right-team" [class.highlighted]="highlightedTeam === 'right'">
+    <div class="team right-team" [class.highlighted]="highlightedTeam === 'right'" [class.serving]="isFullscreen && highlightedTeam === 'right'">
+      <div class="fs-serve-badge" *ngIf="isFullscreen && highlightedTeam === 'right'">🏐 SAQUE</div>
       <input [(ngModel)]="record!.rightName" (ngModelChange)="saveCounter()" class="team-name" [readonly]="isFullscreen" placeholder="Equipo visitante" />
       <!-- Puntos de sets ganados -->
       <div class="sets-dots" *ngIf="record!.games.length > 1">
