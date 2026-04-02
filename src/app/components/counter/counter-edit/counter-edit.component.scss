@@ -446,7 +446,6 @@ $bg: #f8f9fa;
     background: rgba(255, 255, 255, 0.06) !important;
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 1rem;
-    box-shadow: none !important;
   }
 
   .team-name {
@@ -465,7 +464,7 @@ $bg: #f8f9fa;
     justify-content: center;
     font-weight: 900;
     line-height: 1;
-    color: black;
+    color: white;
     width: 100%;
     height: 100%;
     text-shadow: 0 0 50px rgba(255, 255, 255, 0.35),
