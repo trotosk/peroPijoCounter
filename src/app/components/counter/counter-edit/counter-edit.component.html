@@ -257,17 +257,17 @@
     </div>
   </div>
 
-  <!-- Categoría -->
-  <div class="category-row" *ngIf="!isFullscreen">
-    <span class="category-label">Categoría:</span>
-    <select *ngIf="!readOnly"
+  <!-- Categoría (normal y fullscreen) -->
+  <div class="category-row" [class.category-row-fullscreen]="isFullscreen">
+    <span class="category-label" *ngIf="!isFullscreen">Categoría:</span>
+    <select *ngIf="!readOnly && !isFullscreen"
             class="category-select"
             [ngModel]="record!.category"
             (ngModelChange)="record!.category = $event; saveCounter()">
       <option value="" disabled selected>— elige —</option>
       <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
     </select>
-    <span *ngIf="readOnly" class="category-badge">{{ record!.category || '—' }}</span>
+    <span class="category-badge" [class.category-badge-fullscreen]="isFullscreen">{{ record!.category || '—' }}</span>
   </div>
 
   <!-- Botones Añadir y Eliminar -->
@@ -297,7 +297,6 @@
   <div class="fullscreen-footer" *ngIf="isFullscreen">
     <span *ngIf="record!.matchStartedAt" class="fullscreen-timer">⏱ {{ timerDisplay }}</span>
     <h1>{{ title }}</h1>
-    <span *ngIf="record!.category" class="fullscreen-category">{{ record!.category }}</span>
     <button class="copya-btn timeline-btn fullscreen-timeline-btn"
             (click)="showTimeline = true"
             title="Ver timeline del partido">
