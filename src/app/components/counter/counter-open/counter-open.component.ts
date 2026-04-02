@@ -33,7 +33,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class CounterOpenComponent {
 
   displayedColumns: string[] = [
-    'actions', 'leftName', 'rightName', 'state', 'gamesCount', 'createdAt', 'updatedAt', 'id'
+    'actions', 'leftName', 'rightName', 'type', 'category', 'state', 'gamesCount', 'createdAt', 'updatedAt', 'id'
   ];
 
   columnHeaders: { [key: string]: string } = {
@@ -44,7 +44,9 @@ export class CounterOpenComponent {
     updatedAt: 'Última Modificación',
     leftName: 'Local',
     rightName: 'Visitante',
-    gamesCount: 'Partes'
+    gamesCount: 'Partes',
+    type: 'Tipo',
+    category: 'Categoría'
   };
 
   dataSource = new MatTableDataSource<CounterRecordList>([]);

@@ -46,6 +46,7 @@ export class CounterListComponent implements OnInit {
     'actions',
     'leftName',
     'rightName',
+    'type',
     'category',
     'state',
     'isPublic',
@@ -59,6 +60,7 @@ export class CounterListComponent implements OnInit {
     'actions',
     'leftName',
     'rightName',
+    'type',
     'category',
     'state',
     'isPublic',
@@ -78,6 +80,7 @@ export class CounterListComponent implements OnInit {
     leftName: 'Local',
     rightName: 'Visitante',
     gamesCount: 'Sets',
+    type: 'Tipo',
     category: 'Categoría',
   };
   // ---------------------------------------------------------

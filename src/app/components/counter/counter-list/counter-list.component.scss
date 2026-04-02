@@ -209,6 +209,16 @@ h2 {
 .dot-left  { background: #0d6efd; box-shadow: 0 0 3px rgba(13,110,253,0.5); }
 .dot-right { background: #f97316; box-shadow: 0 0 3px rgba(249,115,22,0.5); }
 
+.type-chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #dcfce7;
+  color: #166534;
+  border-radius: 20px;
+  padding: 0.15rem 0.55rem;
+  white-space: nowrap;
+}
+
 .category-chip {
   font-size: 0.75rem;
   font-weight: 600;
