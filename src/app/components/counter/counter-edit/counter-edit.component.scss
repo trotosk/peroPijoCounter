@@ -442,6 +442,11 @@ $bg: #f8f9fa;
     width: 85%;
     height: 100%;
     padding: 1rem;
+    // Fondo oscuro translúcido para que el borde naranja y el glow sean visibles
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 1rem;
+    box-shadow: none !important;
   }
 
   .team-name {
@@ -586,9 +591,18 @@ $bg: #f8f9fa;
   }
 }
 
-/* 📱 Fullscreen apaisado: equipos lado a lado */
+/* 📱 Fullscreen apaisado: equipos lado a lado, footer oculto */
 @media (max-width: 900px) and (orientation: landscape) {
   .fullscreen {
+    // Barra de sets: una línea con scroll (la pantalla es ancha)
+    .fullscreen-set-results {
+      flex-wrap: nowrap !important;
+      overflow-x: auto;
+      scrollbar-width: none;
+      &::-webkit-scrollbar { display: none; }
+    }
+
+    // Marcadores lado a lado
     .score-columns {
       grid-template-columns: 1fr 8px 1fr !important;
       grid-template-rows: 1fr !important;
@@ -597,8 +611,17 @@ $bg: #f8f9fa;
     }
 
     .team {
-      .fullscreen-score { font-size: min(22vw, 55vh) !important; }
-      .team-name { font-size: clamp(1rem, 3.5vw, 3rem) !important; }
+      .fullscreen-score { font-size: min(22vw, 52vh) !important; }
+      .team-name { font-size: clamp(0.85rem, 3vw, 2rem) !important; }
+    }
+
+    // Footer oculto en landscape (sin espacio)
+    .fullscreen-footer { display: none !important; }
+
+    // Categoría + timer compacto
+    .category-row-fullscreen {
+      padding: 0.1rem 0 !important;
+      font-size: 0.78rem;
     }
   }
 }
