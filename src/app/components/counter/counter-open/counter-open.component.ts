@@ -42,8 +42,8 @@ export class CounterOpenComponent {
     isFinished: 'Estado',
     createdAt: 'Creado',
     updatedAt: 'Última Modificación',
-    leftName: 'Local (Set Activo)',
-    rightName: 'Visitante (Set Activo)',
+    leftName: 'Local',
+    rightName: 'Visitante',
     gamesCount: 'Partes'
   };
 
@@ -140,6 +140,10 @@ export class CounterOpenComponent {
       }
       this.router.navigate(['/app/create'], { queryParams: { id: rec.id } });
     });
+  }
+
+  range(n: number): number[] {
+    return Array(n || 0).fill(0);
   }
 
   formatDate(dateStr: string): string {
