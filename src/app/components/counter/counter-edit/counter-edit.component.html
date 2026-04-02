@@ -9,6 +9,7 @@
   <div class="title">
 
     <h2>{{ record!.title }}</h2>
+    <span *ngIf="record!.category" class="category-badge title-category-badge">{{ record!.category }}</span>
     <span class="id">ID para compartir: {{ record!.id }} </span>
 
     <!-- ICONOS -->
@@ -268,6 +269,10 @@
       <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
     </select>
     <span class="category-badge" [class.category-badge-fullscreen]="isFullscreen">{{ record!.category || '—' }}</span>
+    <ng-container *ngIf="isFullscreen && record!.matchStartedAt">
+      <span class="fs-timer-sep">–</span>
+      <span class="fullscreen-timer">⏱ {{ timerDisplay }}</span>
+    </ng-container>
   </div>
 
   <!-- Botones Añadir y Eliminar -->
@@ -295,7 +300,6 @@
 
   <!-- Título inferior en fullscreen -->
   <div class="fullscreen-footer" *ngIf="isFullscreen">
-    <span *ngIf="record!.matchStartedAt" class="fullscreen-timer">⏱ {{ timerDisplay }}</span>
     <h1>{{ title }}</h1>
     <button class="copya-btn timeline-btn fullscreen-timeline-btn"
             (click)="showTimeline = true"

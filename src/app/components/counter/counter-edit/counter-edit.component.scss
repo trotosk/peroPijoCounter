@@ -421,8 +421,6 @@ $bg: #f8f9fa;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.75);
     letter-spacing: 0.05em;
-    margin-bottom: 0.2rem;
-    display: block;
   }
 
   .score-columns {
@@ -639,8 +637,17 @@ $bg: #f8f9fa;
     gap: 0.5rem;
 
     h2 {
-      width: 100%;
       margin: 0;
+    }
+
+    .title-category-badge {
+      font-size: 0.82rem;
+      font-weight: 600;
+      background: #e0e7ff;
+      color: #3730a3;
+      border-radius: 20px;
+      padding: 0.15rem 0.6rem;
+      vertical-align: middle;
     }
   }
 
@@ -902,6 +909,19 @@ $bg: #f8f9fa;
     border-radius: 20px;
     padding: 0.2rem 1rem;
     letter-spacing: 0.03em;
+  }
+
+  .fs-timer-sep {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1rem;
+    margin: 0 0.25rem;
+  }
+
+  .fullscreen-timer {
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.75);
+    letter-spacing: 0.05em;
   }
 }
 
