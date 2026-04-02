@@ -1,41 +1,55 @@
 <ng-container *ngIf="!(auth.isLoading$ | async); else loading">
-  <main class="main">
-    <div class="content">
-      <div class="left-side">
-        <h1>{{ title }}</h1>
-      </div>
-      <div class="divider" role="separator" aria-label="Divider"></div>
-      <div class="right-side menu">
-        <div class="pill-group">
-          @for (item of menuItems; track item.title) {
-            <a
-              *ngIf="item.link"
-              class="pill"
-              [href]="item.link"
-              rel="noopener"
-            >
-              <span>{{ item.icon }} {{ item.title }}</span>
-            </a>
 
-            <a
-              *ngIf="item.action"
-              class="pill"
-              (click)="item?.action()"
-            >
-              <span>{{ item.icon }} {{ item.title }}</span>
-            </a>
-          }
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <!-- Logo -->
+    <a class="navbar-brand" routerLink="/">
+      <span class="brand-icon">🏐</span>
+      <span class="brand-name">peroPijoCounter</span>
+    </a>
+
+    <!-- Nav links (desktop) -->
+    <div class="navbar-links" [class.open]="menuOpen">
+      <a class="nav-link nav-cta" (click)="createCounter(); menuOpen = false" *ngIf="auth.isAuthenticated()">
+        + Crear
+      </a>
+      <a class="nav-link" routerLink="/app/list" routerLinkActive="active" (click)="menuOpen = false" *ngIf="auth.isAuthenticated()">
+        Tus marcadores
+      </a>
+      <a class="nav-link" routerLink="/open" routerLinkActive="active" (click)="menuOpen = false">
+        Marcadores
+      </a>
+      <a class="nav-link" routerLink="/login" routerLinkActive="active" (click)="menuOpen = false" *ngIf="!auth.isAuthenticated()">
+        Iniciar sesión
+      </a>
+
+      <!-- User submenu (mobile: inline; desktop: dropdown) -->
+      <div class="nav-user-menu" *ngIf="auth.isAuthenticated()">
+        <button class="nav-user-btn" (click)="userMenuOpen = !userMenuOpen" [class.open]="userMenuOpen">
+          <span class="user-icon">👤</span>
+          <span class="chevron">▾</span>
+        </button>
+        <div class="user-dropdown" [class.open]="userMenuOpen">
+          <a class="dropdown-item" routerLink="/app/config" (click)="userMenuOpen = false; menuOpen = false">
+            ⚙️ Configuración
+          </a>
+          <button class="dropdown-item dropdown-logout" (click)="logout(); userMenuOpen = false; menuOpen = false">
+            🚪 Cerrar sesión
+          </button>
         </div>
       </div>
     </div>
-  </main>
-  <p class="subtitle">
-      Crea tu marcador deportivo en la nube. Compártelo con todo el mundo y síguelo. Accede desde cualquier dispositivo. Gratis. Voley, Futbol...
-  </p>
+
+    <!-- Hamburger (mobile) -->
+    <button class="hamburger" (click)="menuOpen = !menuOpen" [class.open]="menuOpen" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
   <router-outlet />
 
-  <footer style="font-size:0.8rem; margin-top:1rem;">
-    para cualquier duda o sugerencia, <a href="mailto:trotosk@gmail.com">📧 Contacto</a>
+  <footer class="app-footer">
+    Para cualquier duda o sugerencia, <a href="mailto:trotosk@gmail.com">📧 Contacto</a>
   </footer>
 </ng-container>
 

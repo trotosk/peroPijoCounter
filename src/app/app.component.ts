@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { CreateCounterTypeDialogComponent } from './components/counter/create-counter-type-dialog/create-counter-type-dialog.component';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from './services/auth.service';
@@ -11,13 +11,15 @@ import { Meta, Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MatDialogModule, CommonModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatDialogModule, CommonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'peroPijoCounter';
   menuItems: MenuItem[] = [];
+  menuOpen = false;
+  userMenuOpen = false;
   private authSub?: Subscription;
   private analytics = inject(RouterAnalyticsService);
 

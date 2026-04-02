@@ -1,4 +1,4 @@
-export const COUNTER_CATEGORIES = ['Benjamín', 'Alevín', 'Infantil', 'Cadete', 'Junior', 'Senior'] as const;
+export const COUNTER_CATEGORIES = ['Benjamín', 'Alevín', 'Infantil', 'Cadete', 'Juvenil', 'Junior', 'Senior'] as const;
 export type CounterCategory = typeof COUNTER_CATEGORIES[number];
 
 export interface PointEvent {
