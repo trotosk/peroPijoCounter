@@ -24,7 +24,12 @@
       <ng-container matColumnDef="leftName">
         <th mat-header-cell *matHeaderCellDef>{{ columnHeaders['leftName'] }}</th>
         <td mat-cell *matCellDef="let element">
-          <strong>{{ element.leftName }} - {{ element.leftValue }}</strong>
+          <div class="team-cell">
+            <strong>{{ element.leftName }}</strong>
+            <span class="set-dots">
+              <span *ngFor="let i of range(element.leftSetsWon)" class="set-dot dot-left"></span>
+            </span>
+          </div>
         </td>
       </ng-container>
 
@@ -32,7 +37,12 @@
       <ng-container matColumnDef="rightName">
         <th mat-header-cell *matHeaderCellDef>{{ columnHeaders['rightName'] }}</th>
         <td mat-cell *matCellDef="let element">
-          <strong>{{ element.rightName }} - {{ element.rightValue }}</strong>
+          <div class="team-cell">
+            <strong>{{ element.rightName }}</strong>
+            <span class="set-dots">
+              <span *ngFor="let i of range(element.rightSetsWon)" class="set-dot dot-right"></span>
+            </span>
+          </div>
         </td>
       </ng-container>
 
@@ -132,7 +142,12 @@
       <ng-container matColumnDef="leftName">
         <th mat-header-cell *matHeaderCellDef>{{ columnHeaders['leftName'] }}</th>
         <td mat-cell *matCellDef="let element">
-          <strong>{{ element.leftName }} - {{ element.leftValue }}</strong>
+          <div class="team-cell">
+            <strong>{{ element.leftName }}</strong>
+            <span class="set-dots">
+              <span *ngFor="let i of range(element.leftSetsWon)" class="set-dot dot-left"></span>
+            </span>
+          </div>
         </td>
       </ng-container>
 
@@ -140,7 +155,12 @@
       <ng-container matColumnDef="rightName">
         <th mat-header-cell *matHeaderCellDef>{{ columnHeaders['rightName'] }}</th>
         <td mat-cell *matCellDef="let element">
-          <strong>{{ element.rightName }} - {{ element.rightValue }}</strong>
+          <div class="team-cell">
+            <strong>{{ element.rightName }}</strong>
+            <span class="set-dots">
+              <span *ngFor="let i of range(element.rightSetsWon)" class="set-dot dot-right"></span>
+            </span>
+          </div>
         </td>
       </ng-container>
 

@@ -53,6 +53,8 @@ export interface CounterRecordList {
   type: string; // tipo de contador
   leftValue: number; // puntos del equipo local
   rightValue: number; // puntos del equipo visitante
+  leftSetsWon?: number;
+  rightSetsWon?: number;
   leftName: string; // nombre del equipo
   rightName: string; // nombre del equipo
   currentGameId?: string; // ID del juego actualmente activo

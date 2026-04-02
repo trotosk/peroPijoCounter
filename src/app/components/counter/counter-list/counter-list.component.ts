@@ -75,8 +75,8 @@ export class CounterListComponent implements OnInit {
     isPublic: 'Visibilidad',
     createdAt: 'Creado',
     updatedAt: 'Última Modificación',
-    leftName: 'Local (Set Activo)',
-    rightName: 'Visitante (Set Activo)',
+    leftName: 'Local',
+    rightName: 'Visitante',
     gamesCount: 'Sets',
     category: 'Categoría',
   };
@@ -287,6 +287,10 @@ export class CounterListComponent implements OnInit {
 
   cancelDelete() {
     this.showDeleteConfirm = false;
+  }
+
+  range(n: number): number[] {
+    return Array(n || 0).fill(0);
   }
 
   formatDate(dateStr: string): string {
