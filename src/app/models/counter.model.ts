@@ -37,6 +37,7 @@ export interface CounterRecord {
   matchPausedMs?: number;   // ms acumulados en pausa (para soportar reanudar)
   whatsappConfig?: WhatsappConfig; // Configuración de envío automático por WhatsApp
   category?: CounterCategory;      // Categoría: Benjamín, Alevín, Infantil, Cadete, Junior, Senior
+  peakViewers?: number;            // Máximo de espectadores simultáneos registrado
 }
 
 export interface WhatsappConfig {

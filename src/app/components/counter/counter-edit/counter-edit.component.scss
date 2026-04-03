@@ -1316,3 +1316,23 @@ $bg: #f8f9fa;
     &.stop { background: #dc2626; &:hover { background: #b91c1c; } }
   }
 }
+
+/* 👁 Espectadores en directo */
+.live-viewers {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: 1rem;
+  padding: 0.2rem 0.6rem;
+  vertical-align: middle;
+
+  &.live-viewers-fs {
+    font-size: 1rem;
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.15);
+  }
+}
