@@ -447,13 +447,14 @@ $bg: #f8f9fa;
   }
 
   .team-name {
-    font-size: clamp(1.3rem, 4.2vw, 6.2rem);
+    font-size: clamp(1.6rem, 5.5vw, 7.5rem);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: white;
     background: transparent;
     border: none;
+    margin-top: 0.6rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.25);
     text-align: center;
     width: 100%;
