@@ -1,4 +1,5 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, PLATFORM_ID, inject } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import {
   Firestore,
   collection,
@@ -18,6 +19,7 @@ export class PresenceService implements OnDestroy {
   /** Current number of live viewers (updated in real-time). */
   liveViewers = 0;
 
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private sessionId: string = this.getOrCreateSessionId();
   private counterId: string | null = null;
   private pingTimer?: ReturnType<typeof setInterval>;
@@ -27,6 +29,7 @@ export class PresenceService implements OnDestroy {
 
   /** Call when the user opens a counter. */
   join(counterId: string): void {
+    if (!this.isBrowser) return; // no hacer nada en SSR
     if (this.counterId === counterId) return; // already joined
     this.leave(); // clean up any previous session
     this.counterId = counterId;
@@ -101,6 +104,9 @@ export class PresenceService implements OnDestroy {
   }
 
   private getOrCreateSessionId(): string {
+    if (!this.isBrowser) {
+      return Math.random().toString(36).slice(2) + Date.now().toString(36);
+    }
     const KEY = 'ppc_session_id';
     let id = sessionStorage.getItem(KEY);
     if (!id) {
