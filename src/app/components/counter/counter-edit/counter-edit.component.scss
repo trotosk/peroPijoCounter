@@ -482,6 +482,42 @@ $bg: #f8f9fa;
     }
   }
 
+  .fs-controls {
+    display: flex;
+    width: 100%;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .fs-btn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.6rem;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0.3rem 0;
+    transition: background 0.15s;
+    line-height: 1;
+    touch-action: manipulation;
+
+    &:hover  { background: rgba(255, 255, 255, 0.22); }
+    &:active { background: rgba(255, 255, 255, 0.35); }
+  }
+
+  .fs-minus { background: rgba(220, 38, 38, 0.25); border-color: rgba(220,38,38,0.4);
+    &:hover  { background: rgba(220, 38, 38, 0.4); }
+    &:active { background: rgba(220, 38, 38, 0.6); }
+  }
+
+  .fs-plus  { background: rgba(22, 163, 74, 0.25); border-color: rgba(22,163,74,0.4);
+    &:hover  { background: rgba(22, 163, 74, 0.4); }
+    &:active { background: rgba(22, 163, 74, 0.6); }
+  }
+
   .divider {
     height: 90%;
     width: 10px;

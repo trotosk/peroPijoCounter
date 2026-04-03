@@ -237,7 +237,13 @@
         <div class="score" [@bounce]="recordGame.leftValue">{{ recordGame.leftValue }}</div>
         <button *ngIf="!record!.isFinished" (click)="changeScore('left', 1)">+</button>
       </div>
-      <div class="score fullscreen-score" *ngIf="isFullscreen">{{ recordGame.leftValue }}</div>
+      <ng-container *ngIf="isFullscreen">
+        <div class="score fullscreen-score">{{ recordGame.leftValue }}</div>
+        <div class="fs-controls" *ngIf="!readOnly && !record!.isFinished">
+          <button class="fs-btn fs-minus" (click)="changeScore('left', -1)">−</button>
+          <button class="fs-btn fs-plus"  (click)="changeScore('left', 1)">+</button>
+        </div>
+      </ng-container>
     </div>
 
     <!-- Separador -->
@@ -256,7 +262,13 @@
         <div class="score" [@bounce]="recordGame.rightValue">{{ recordGame.rightValue }}</div>
         <button *ngIf="!record!.isFinished" (click)="changeScore('right', 1)">+</button>
       </div>
-      <div class="score fullscreen-score" *ngIf="isFullscreen">{{ recordGame.rightValue }}</div>
+      <ng-container *ngIf="isFullscreen">
+        <div class="score fullscreen-score">{{ recordGame.rightValue }}</div>
+        <div class="fs-controls" *ngIf="!readOnly && !record!.isFinished">
+          <button class="fs-btn fs-minus" (click)="changeScore('right', -1)">−</button>
+          <button class="fs-btn fs-plus"  (click)="changeScore('right', 1)">+</button>
+        </div>
+      </ng-container>
     </div>
   </div>
 
