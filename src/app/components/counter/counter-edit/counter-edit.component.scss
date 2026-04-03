@@ -1347,6 +1347,14 @@ $bg: #f8f9fa;
   }
 }
 
+/* Grupo derecho del footer fullscreen: ojo + timeline */
+.fs-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
 /* Acciones rápidas en el footer de fullscreen */
 .fs-footer-actions {
   display: flex;
