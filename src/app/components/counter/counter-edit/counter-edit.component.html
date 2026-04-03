@@ -25,6 +25,11 @@
       <i class="fa fa-whatsapp" style="color: #25D366"></i>
     </a>
 
+    <!-- Espectadores en directo -->
+    <span class="live-viewers" *ngIf="presenceSvc.liveViewers > 0" title="Espectadores en directo">
+      👁 {{ presenceSvc.liveViewers }}
+    </span>
+
     <!-- Botón timeline -->
     <button class="copya-btn timeline-btn"
             (click)="showTimeline = true"
@@ -301,6 +306,9 @@
   <!-- Título inferior en fullscreen -->
   <div class="fullscreen-footer" *ngIf="isFullscreen">
     <h1>{{ title }}</h1>
+    <span class="live-viewers live-viewers-fs" *ngIf="presenceSvc.liveViewers > 0" title="Espectadores en directo">
+      👁 {{ presenceSvc.liveViewers }}
+    </span>
     <button class="copya-btn timeline-btn fullscreen-timeline-btn"
             (click)="showTimeline = true"
             title="Ver timeline del partido">

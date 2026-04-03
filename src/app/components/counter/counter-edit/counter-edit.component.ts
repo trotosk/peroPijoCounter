@@ -13,7 +13,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Analytics, getAnalytics, logEvent } from '@angular/fire/analytics';
 import { WhatsappService, GreenApiChat } from '../../../services/whatsapp.service';
 import { CounterTimelineComponent } from '../counter-timeline/counter-timeline.component';
-import { Firestore, doc, getDoc } from '@angular/fire/firestore';
+import { Firestore, doc, getDoc, updateDoc } from '@angular/fire/firestore';
+import { PresenceService } from '../../../services/presence.service';
 
 @Component({
   selector: 'app-counter-edit',
@@ -109,12 +110,14 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private whatsappSvc: WhatsappService,
     private firestore: Firestore,
+    public presenceSvc: PresenceService,
   ) {}
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
     this.stopTimer();
     this.whatsappSvc.stop();
+    this.presenceSvc.leave();
   }
 
   async ngOnInit() {
@@ -164,7 +167,10 @@ export class CounterEditComponent implements OnInit, OnDestroy {
         return;
       }
 */
-       // Escucha Firestore en tiempo real
+       // Registrar presencia como espectador
+      this.presenceSvc.join(id);
+
+      // Escucha Firestore en tiempo real
       this.sub = this.fsService.watchCounter(id).subscribe(c => {
         //console.log('Datos Firestore recibidos:', c);
         if (!c) return;
@@ -177,6 +183,14 @@ export class CounterEditComponent implements OnInit, OnDestroy {
         this.counter = c;
         this.record = JSON.parse(JSON.stringify(c));
         this.getSelectedGame();
+
+        // Actualizar pico de espectadores si se supera
+        const current = this.presenceSvc.liveViewers;
+        const peak = this.record.peakViewers ?? 0;
+        if (current > peak) {
+          this.record.peakViewers = current;
+          this.fsService.updateCounter(this.record.id, { peakViewers: current }).catch(() => {});
+        }
 
         const currentGame = this.record.games.find(g => g.id === this.record.currentGameId);
         if (!currentGame) return;
