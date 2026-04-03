@@ -1356,13 +1356,12 @@ $bg: #f8f9fa;
 
 /* Grupo derecho del footer fullscreen: ojo + timeline */
 .fs-footer-right {
-  display: flex;
+  display: inline-flex;
+  flex-direction: row;
   align-items: center;
   gap: 0.4rem;
-  margin-left: auto; // empuja al extremo derecho
-
-  // En el footer el h1 no debe crecer y ocupar todo el espacio
-  ~ & { flex-shrink: 0; }
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .fullscreen-footer h1 {

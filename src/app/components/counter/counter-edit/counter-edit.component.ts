@@ -156,6 +156,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
           });
       // 🔥 IMPORTANTE: actualizar URL al nuevo ID sin recargar
       window.history.replaceState({}, '', `/app/create?id=${this.record.id}`);
+      this.presenceSvc.join(this.record.id);
 
     } else {
       // Cargar existente
