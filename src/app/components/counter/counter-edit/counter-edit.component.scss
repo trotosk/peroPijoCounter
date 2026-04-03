@@ -623,11 +623,13 @@ $bg: #f8f9fa;
     .fullscreen-footer {
       position: relative;
       bottom: auto;
-      width: auto;
+      width: 100%;
       flex: 0 0 auto;
       padding: 0.3rem 0.75rem;
       font-size: 0.85rem;
       display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
       align-items: center;
       gap: 0.4rem;
       box-sizing: border-box;
@@ -908,6 +910,8 @@ $bg: #f8f9fa;
   padding: 0.5rem 1rem;
   z-index: 20;
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 0.5rem;
   box-sizing: border-box;
@@ -1364,9 +1368,9 @@ $bg: #f8f9fa;
   flex-shrink: 0;
 }
 
-.fullscreen-footer h1 {
-  margin: 0;
+.fs-footer-title {
   font-size: clamp(0.8rem, 2vw, 1.3rem);
+  font-weight: 700;
   white-space: nowrap;
   flex-shrink: 0;
 }

@@ -327,7 +327,7 @@
 
   <!-- Título inferior en fullscreen -->
   <div class="fullscreen-footer" *ngIf="isFullscreen">
-    <h1>{{ title }}</h1>
+    <span class="fs-footer-title">{{ title }}</span>
 
     <!-- Acciones rápidas para propietario/autorizado en fullscreen -->
     <ng-container *ngIf="!readOnly">
