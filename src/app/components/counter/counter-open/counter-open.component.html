@@ -84,6 +84,14 @@
           </td>
         </ng-container>
 
+        <!-- Duración -->
+        <ng-container matColumnDef="duration">
+          <th mat-header-cell *matHeaderCellDef>{{ columnHeaders['duration'] }}</th>
+          <td mat-cell *matCellDef="let element" (click)="rowClick(element)">
+            <span class="id-text">{{ formatMatchDuration(element) }}</span>
+          </td>
+        </ng-container>
+
         <!-- Estado -->
         <ng-container matColumnDef="state">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ columnHeaders['isFinished'] || 'Estado' }}</th>

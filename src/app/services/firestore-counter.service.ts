@@ -71,7 +71,10 @@ export class FirestoreCounterService {
         updatedAt: data.updatedAt,
         isFinished: data.isFinished,
         isPublic: data.isPublic,
-        category: data.category
+        category: data.category,
+        matchStartedAt: data.matchStartedAt,
+        matchFinishedAt: data.matchFinishedAt,
+        matchPausedMs: data.matchPausedMs
       };
     });
 
@@ -220,7 +223,10 @@ async createGame(counterId: string, title = 'Set 1') {
         updatedAt: data.updatedAt,
         isFinished: data.isFinished,
         isPublic: data.isPublic,
-        category: data.category
+        category: data.category,
+        matchStartedAt: data.matchStartedAt,
+        matchFinishedAt: data.matchFinishedAt,
+        matchPausedMs: data.matchPausedMs
       };
     });
 
@@ -258,7 +264,10 @@ async createGame(counterId: string, title = 'Set 1') {
         updatedAt: data.updatedAt,
         isFinished: data.isFinished,
         isPublic: data.isPublic,
-        category: data.category
+        category: data.category,
+        matchStartedAt: data.matchStartedAt,
+        matchFinishedAt: data.matchFinishedAt,
+        matchPausedMs: data.matchPausedMs
       };
     });
 

@@ -64,6 +64,9 @@ export interface CounterRecordList {
   isFinished?: boolean; // indica si el partido está finalizado
   isPublic: boolean; // indica si el marcador es público
   category?: CounterCategory;
+  matchStartedAt?: string;
+  matchFinishedAt?: string;
+  matchPausedMs?: number;
 }
 
 /**

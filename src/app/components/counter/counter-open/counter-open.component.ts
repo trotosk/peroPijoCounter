@@ -33,7 +33,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class CounterOpenComponent {
 
   displayedColumns: string[] = [
-    'actions', 'leftName', 'rightName', 'type', 'category', 'state', 'gamesCount', 'createdAt', 'updatedAt', 'id'
+    'actions', 'leftName', 'rightName', 'type', 'category', 'duration', 'state', 'gamesCount', 'createdAt', 'updatedAt', 'id'
   ];
 
   columnHeaders: { [key: string]: string } = {
@@ -46,7 +46,8 @@ export class CounterOpenComponent {
     rightName: 'Visitante',
     gamesCount: 'Partes',
     type: 'Tipo',
-    category: 'Categoría'
+    category: 'Categoría',
+    duration: 'Duración'
   };
 
   dataSource = new MatTableDataSource<CounterRecordList>([]);
@@ -146,6 +147,18 @@ export class CounterOpenComponent {
 
   range(n: number): number[] {
     return Array(n || 0).fill(0);
+  }
+
+  formatMatchDuration(element: any): string {
+    if (!element.matchStartedAt) return '—';
+    const end = element.matchFinishedAt
+      ?? (element.isFinished ? element.updatedAt : null);
+    if (!end) return 'En curso';
+    const ms = Math.max(0, new Date(end).getTime() - new Date(element.matchStartedAt).getTime() - (element.matchPausedMs ?? 0));
+    const totalMin = Math.floor(ms / 60000);
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    return h > 0 ? `${h}h ${m}m` : `${totalMin}m`;
   }
 
   formatDate(dateStr: string): string {

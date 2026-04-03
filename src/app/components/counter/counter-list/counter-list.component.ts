@@ -48,6 +48,7 @@ export class CounterListComponent implements OnInit {
     'rightName',
     'type',
     'category',
+    'duration',
     'state',
     'isPublic',
     'gamesCount',
@@ -62,6 +63,7 @@ export class CounterListComponent implements OnInit {
     'rightName',
     'type',
     'category',
+    'duration',
     'state',
     'isPublic',
     'gamesCount',
@@ -82,6 +84,7 @@ export class CounterListComponent implements OnInit {
     gamesCount: 'Sets',
     type: 'Tipo',
     category: 'Categoría',
+    duration: 'Duración',
   };
   // ---------------------------------------------------------
   // Para la tabla autorizados mantenemos las mismas columnas
@@ -294,6 +297,18 @@ export class CounterListComponent implements OnInit {
 
   range(n: number): number[] {
     return Array(n || 0).fill(0);
+  }
+
+  formatMatchDuration(element: any): string {
+    if (!element.matchStartedAt) return '—';
+    const end = element.matchFinishedAt
+      ?? (element.isFinished ? element.updatedAt : null);
+    if (!end) return 'En curso';
+    const ms = Math.max(0, new Date(end).getTime() - new Date(element.matchStartedAt).getTime() - (element.matchPausedMs ?? 0));
+    const totalMin = Math.floor(ms / 60000);
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    return h > 0 ? `${h}h ${m}m` : `${totalMin}m`;
   }
 
   formatDate(dateStr: string): string {
