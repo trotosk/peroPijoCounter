@@ -1358,11 +1358,6 @@ $bg: #f8f9fa;
   }
 }
 
-/* Ojo de espectadores: empujado al extremo derecho del footer */
-.live-viewers-fs {
-  margin-left: auto;
-  flex-shrink: 0;
-}
 
 .fs-footer-title {
   font-size: clamp(0.8rem, 2vw, 1.3rem);

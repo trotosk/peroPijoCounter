@@ -299,6 +299,10 @@
         ⏱ {{ timerDisplay }}
         <span *ngIf="!isFullscreen && record!.isFinished" class="timer-finished"> · Finalizado</span>
       </span>
+      <ng-container *ngIf="isFullscreen && presenceSvc.liveViewers > 0">
+        <span class="fs-timer-sep">–</span>
+        <span class="live-viewers live-viewers-fs" title="Espectadores en directo">👁 {{ presenceSvc.liveViewers }}</span>
+      </ng-container>
     </ng-container>
   </div>
 
@@ -354,9 +358,6 @@
       </div>
     </ng-container>
 
-    <span class="live-viewers live-viewers-fs" *ngIf="presenceSvc.liveViewers > 0" title="Espectadores en directo">
-      👁 {{ presenceSvc.liveViewers }}
-    </span>
   </div>
 
   <footer style="font-size:0.8rem; margin-top:1rem;">
