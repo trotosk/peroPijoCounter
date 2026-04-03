@@ -625,8 +625,12 @@ $bg: #f8f9fa;
       bottom: auto;
       width: auto;
       flex: 0 0 auto;
-      padding: 0.2rem 0;
+      padding: 0.3rem 0.75rem;
       font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      box-sizing: border-box;
     }
 
     .fullscreen-toggle {
@@ -899,11 +903,14 @@ $bg: #f8f9fa;
   width: 100%;
   background: rgba(0,0,0,0.6);
   color: white;
-  text-align: center;
   font-size: clamp(1rem, 2vw, 1.5rem);
   font-weight: 700;
-  padding: 0.75rem 0;
+  padding: 0.5rem 1rem;
   z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
 }
 
 .match-timer {
@@ -1352,7 +1359,17 @@ $bg: #f8f9fa;
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  margin-left: auto;
+  margin-left: auto; // empuja al extremo derecho
+
+  // En el footer el h1 no debe crecer y ocupar todo el espacio
+  ~ & { flex-shrink: 0; }
+}
+
+.fullscreen-footer h1 {
+  margin: 0;
+  font-size: clamp(0.8rem, 2vw, 1.3rem);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Acciones rápidas en el footer de fullscreen */
