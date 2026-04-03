@@ -1358,12 +1358,8 @@ $bg: #f8f9fa;
   }
 }
 
-/* Grupo derecho del footer fullscreen: ojo + timeline */
-.fs-footer-right {
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.4rem;
+/* Ojo de espectadores: empujado al extremo derecho del footer */
+.live-viewers-fs {
   margin-left: auto;
   flex-shrink: 0;
 }

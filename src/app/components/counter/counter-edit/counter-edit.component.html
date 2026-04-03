@@ -327,6 +327,11 @@
 
   <!-- Título inferior en fullscreen -->
   <div class="fullscreen-footer" *ngIf="isFullscreen">
+    <button class="copya-btn timeline-btn fullscreen-timeline-btn"
+            (click)="showTimeline = true"
+            title="Ver timeline del partido">
+      <i class="fa fa-bar-chart"></i>
+    </button>
     <span class="fs-footer-title">{{ title }}</span>
 
     <!-- Acciones rápidas para propietario/autorizado en fullscreen -->
@@ -349,16 +354,9 @@
       </div>
     </ng-container>
 
-    <div class="fs-footer-right">
-      <span class="live-viewers live-viewers-fs" *ngIf="presenceSvc.liveViewers > 0" title="Espectadores en directo">
-        👁 {{ presenceSvc.liveViewers }}
-      </span>
-      <button class="copya-btn timeline-btn fullscreen-timeline-btn"
-              (click)="showTimeline = true"
-              title="Ver timeline del partido">
-        <i class="fa fa-bar-chart"></i>
-      </button>
-    </div>
+    <span class="live-viewers live-viewers-fs" *ngIf="presenceSvc.liveViewers > 0" title="Espectadores en directo">
+      👁 {{ presenceSvc.liveViewers }}
+    </span>
   </div>
 
   <footer style="font-size:0.8rem; margin-top:1rem;">
