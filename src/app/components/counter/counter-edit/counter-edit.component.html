@@ -331,6 +331,27 @@
     <span class="live-viewers live-viewers-fs" *ngIf="presenceSvc.liveViewers > 0" title="Espectadores en directo">
       👁 {{ presenceSvc.liveViewers }}
     </span>
+
+    <!-- Acciones rápidas para propietario/autorizado en fullscreen -->
+    <ng-container *ngIf="!readOnly">
+      <div class="fs-footer-actions">
+        <ng-container *ngIf="!record!.isFinished">
+          <button class="fs-footer-btn" (click)="addGame()" title="Añadir set">
+            <i class="fa fa-plus"></i>
+          </button>
+          <button class="fs-footer-btn fs-footer-btn--danger" (click)="requestDelete()" [disabled]="record!.games.length <= 1" title="Eliminar set actual">
+            <i class="fa fa-trash"></i>
+          </button>
+          <button class="fs-footer-btn fs-footer-btn--warn" (click)="requestFinish()" title="Finalizar partido">
+            <i class="fa fa-flag"></i>
+          </button>
+        </ng-container>
+        <button *ngIf="record!.isFinished" class="fs-footer-btn" (click)="reactivateMatch()" title="Reactivar partido">
+          <i class="fa fa-undo"></i>
+        </button>
+      </div>
+    </ng-container>
+
     <button class="copya-btn timeline-btn fullscreen-timeline-btn"
             (click)="showTimeline = true"
             title="Ver timeline del partido">
