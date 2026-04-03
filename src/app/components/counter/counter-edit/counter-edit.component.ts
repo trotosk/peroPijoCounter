@@ -439,7 +439,10 @@ export class CounterEditComponent implements OnInit, OnDestroy {
 
   get whatsappShareUrl(): string {
     const url = encodeURIComponent(window.location.href);
-    const text = encodeURIComponent('¡Mira este marcador en vivo!');
+    const left = this.record?.leftName || '';
+    const right = this.record?.rightName || '';
+    const teams = left && right ? ` ${left} vs ${right}` : '';
+    const text = encodeURIComponent(`¡Mira este marcador en vivo!${teams}`);
     return `https://wa.me/?text=${text}%20${url}`;
   }
 
