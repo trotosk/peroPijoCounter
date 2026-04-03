@@ -38,6 +38,7 @@ jobs:
 
       - name: Deploy Firestore Rules
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        continue-on-error: true
         run: |
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/sa.json
           GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa.json npx firebase-tools deploy --only firestore:rules --project peropijocounter
