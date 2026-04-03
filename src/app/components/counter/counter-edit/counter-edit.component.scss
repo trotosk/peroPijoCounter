@@ -447,7 +447,7 @@ $bg: #f8f9fa;
   }
 
   .team-name {
-    font-size: clamp(1.3rem, 4.2vw, 6.2rem);
+    font-size: clamp(1.2rem, 4vw, 6rem);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -597,7 +597,7 @@ $bg: #f8f9fa;
       }
 
       .team-name {
-        font-size: clamp(0.95rem, 4.2vw, 2.2rem);
+        font-size: clamp(0.85rem, 4vw, 2rem);
       }
 
       .sets-dots .set-dot {
@@ -609,7 +609,7 @@ $bg: #f8f9fa;
     // Con botones +/−: reducir número para que quepa todo sin desbordar
     .score-columns.fs-edit .team {
       .fullscreen-score { font-size: min(28vw, 12vh) !important; }
-      .team-name        { font-size: clamp(0.85rem, 3.7vw, 1.65rem) !important; }
+      .team-name        { font-size: clamp(0.75rem, 3.5vw, 1.5rem) !important; }
     }
 
     // Categoría + timer: separado de las cajas
@@ -665,7 +665,7 @@ $bg: #f8f9fa;
 
     .team {
       .fullscreen-score { font-size: min(22vw, 52vh) !important; }
-      .team-name { font-size: clamp(0.95rem, 3.2vw, 2.2rem) !important; }
+      .team-name { font-size: clamp(0.85rem, 3vw, 2rem) !important; }
     }
 
     // Footer oculto en landscape (sin espacio)
