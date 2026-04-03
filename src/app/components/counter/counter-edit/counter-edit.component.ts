@@ -442,7 +442,8 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     const left = this.record?.leftName || '';
     const right = this.record?.rightName || '';
     const teams = left && right ? ` ${left} vs ${right}` : '';
-    const text = encodeURIComponent(`¡Mira este marcador en vivo!${teams}`);
+    const category = this.record?.category ? ` · ${this.record.category}` : '';
+    const text = encodeURIComponent(`¡Mira este marcador en vivo!${teams}${category}`);
     return `https://wa.me/?text=${text}%20${url}`;
   }
 
