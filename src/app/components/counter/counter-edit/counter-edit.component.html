@@ -223,7 +223,7 @@
   </div>
 
   <!-- Marcadores -->
-  <div class="score-columns" *ngIf="recordGame">
+  <div class="score-columns" *ngIf="recordGame" [class.fs-edit]="isFullscreen && !readOnly && !record!.isFinished">
     <!-- Equipo local -->
     <div class="team left-team" [class.highlighted]="highlightedTeam === 'left'" [class.serving]="isFullscreen && highlightedTeam === 'left'">
       <div class="fs-serve-badge" *ngIf="isFullscreen && highlightedTeam === 'left'">🏐 SAQUE</div>

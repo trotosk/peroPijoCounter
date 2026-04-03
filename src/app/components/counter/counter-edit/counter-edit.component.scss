@@ -588,6 +588,7 @@ $bg: #f8f9fa;
       width: calc(100% - 1.5rem);
       max-width: calc(100% - 1.5rem);
       height: calc(100% - 0.5rem);
+      overflow: hidden;
       padding: 0.25rem 0.5rem;
 
       .fullscreen-score {
@@ -603,6 +604,12 @@ $bg: #f8f9fa;
         width: 10px;
         height: 10px;
       }
+    }
+
+    // Con botones +/−: reducir número para que quepa todo sin desbordar
+    .score-columns.fs-edit .team {
+      .fullscreen-score { font-size: min(28vw, 12vh) !important; }
+      .team-name        { font-size: clamp(0.75rem, 3.5vw, 1.5rem) !important; }
     }
 
     // Categoría + timer: compacto
