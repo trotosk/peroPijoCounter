@@ -4,6 +4,8 @@ export type CounterCategory = typeof COUNTER_CATEGORIES[number];
 export interface PointEvent {
   side: 'left' | 'right';
   minute: number; // minutos enteros desde el inicio del partido (descontando pausas)
+  scorer?: string;  // dorsal de quien hizo el punto (opcional, 'error' si fue fallo rival)
+  server?: string;  // dorsal de quien sacaba en ese momento (capturado automáticamente)
 }
 
 export interface CounterGame {

@@ -413,6 +413,40 @@
     </div>
   </div>
 
+  <!-- Scorer picker -->
+  <div class="scorer-picker" *ngIf="pendingScorer && !readOnly">
+    <div class="scorer-picker-header">
+      <span>¿Quién anotó?</span>
+      <button class="scorer-close" (click)="dismissScorerPicker()" title="Saltar">✕</button>
+    </div>
+    <div class="scorer-picker-body">
+      <!-- Botones de dorsales si hay rotación activa -->
+      <ng-container *ngIf="scorerPlayers.length > 0">
+        <button *ngFor="let p of scorerPlayers"
+                class="scorer-dorsal-btn"
+                (click)="setScorerForPending(p)">
+          #{{ p }}
+        </button>
+      </ng-container>
+      <!-- Input manual -->
+      <div class="scorer-manual">
+        <input type="text" [(ngModel)]="scorerInput"
+               placeholder="Dorsal..."
+               class="scorer-input"
+               maxlength="4"
+               (keyup.enter)="scorerInput.trim() && setScorerForPending(scorerInput.trim())" />
+        <button class="scorer-confirm-btn"
+                [disabled]="!scorerInput.trim()"
+                (click)="setScorerForPending(scorerInput.trim())">
+          ✓
+        </button>
+      </div>
+      <button class="scorer-error-btn" (click)="setScorerForPending('error')">
+        Fallo rival
+      </button>
+    </div>
+  </div>
+
   <!-- Timeline overlay -->
   <app-counter-timeline
     *ngIf="showTimeline && record"
