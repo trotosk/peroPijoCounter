@@ -1,6 +1,12 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CounterRecord, CounterGame, PointEvent } from '../../../models/counter.model';
+import { CounterRecord, CounterGame, PointEvent, RotationState } from '../../../models/counter.model';
+
+export interface PlayerMinuteStat {
+  dorsal: string;
+  minutes: number;
+  isOnCourt: boolean; // sigue en pista al final
+}
 
 export interface ServerStat {
   dorsal: string;
@@ -164,5 +170,69 @@ export class CounterTimelineComponent {
 
   get hasStats(): boolean {
     return this.allPoints.some(p => p.scorer || p.server);
+  }
+
+  // ── Tiempo de juego ────────────────────────────────────────────────────────
+
+  get leftPlayerMinutes(): PlayerMinuteStat[] {
+    return this.buildPlayerMinutes('left');
+  }
+
+  get rightPlayerMinutes(): PlayerMinuteStat[] {
+    return this.buildPlayerMinutes('right');
+  }
+
+  get hasSubstitutions(): boolean {
+    return !!(
+      (this.record.rotationLeft?.substitutions?.length ?? 0) > 0 ||
+      (this.record.rotationRight?.substitutions?.length ?? 0) > 0
+    );
+  }
+
+  private buildPlayerMinutes(side: 'left' | 'right'): PlayerMinuteStat[] {
+    const rotKey = side === 'left' ? 'rotationLeft' : 'rotationRight';
+    const rotation: RotationState | undefined = this.record[rotKey];
+    if (!rotation?.positions || !this.record.matchStartedAt) return [];
+    if (!rotation.substitutions?.length) return []; // sin sustituciones, nada que mostrar
+
+    const currentMinute = this.currentMatchMinute();
+    const onCourt = new Map<string, number>(); // dorsal -> minuto de entrada
+    const totalMin = new Map<string, number>(); // dorsal -> minutos acumulados
+
+    // Todos los jugadores iniciales entran al minuto 0
+    rotation.positions.forEach(d => { if (d) onCourt.set(d, 0); });
+
+    // Procesar sustituciones en orden cronológico
+    const subs = [...(rotation.substitutions ?? [])].sort((a, b) => a.minute - b.minute);
+    for (const sub of subs) {
+      if (onCourt.has(sub.outDorsal)) {
+        const entry = onCourt.get(sub.outDorsal)!;
+        totalMin.set(sub.outDorsal, (totalMin.get(sub.outDorsal) ?? 0) + (sub.minute - entry));
+        onCourt.delete(sub.outDorsal);
+      }
+      onCourt.set(sub.inDorsal, sub.minute);
+    }
+
+    // Tiempo restante para quienes siguen en pista
+    onCourt.forEach((entry, dorsal) => {
+      totalMin.set(dorsal, (totalMin.get(dorsal) ?? 0) + (currentMinute - entry));
+    });
+
+    return Array.from(totalMin.entries())
+      .map(([dorsal, minutes]) => ({
+        dorsal,
+        minutes: Math.max(0, minutes),
+        isOnCourt: onCourt.has(dorsal),
+      }))
+      .sort((a, b) => b.minutes - a.minutes);
+  }
+
+  private currentMatchMinute(): number {
+    if (!this.record.matchStartedAt) return 0;
+    const end = this.record.matchFinishedAt
+      ? new Date(this.record.matchFinishedAt).getTime()
+      : Date.now();
+    const ms = Math.max(0, end - new Date(this.record.matchStartedAt).getTime() - (this.record.matchPausedMs ?? 0));
+    return Math.floor(ms / 60000);
   }
 }

@@ -63,6 +63,16 @@ export interface RotationState {
    * Cuando está en zonas 2/3/4, la titular vuelve.
    */
   liberoReplaces?: string;
+  /** Sustituciones registradas durante el partido */
+  substitutions?: SubstitutionEvent[];
+}
+
+/** Evento de sustitución durante el partido */
+export interface SubstitutionEvent {
+  minute: number;       // minuto del partido en que se produce
+  outDorsal: string;    // dorsal que sale
+  inDorsal: string;     // dorsal que entra
+  timestamp: string;    // ISO timestamp
 }
 
 export interface WhatsappConfig {

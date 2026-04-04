@@ -43,13 +43,20 @@
     <div class="court-wrap">
       <div class="net-label">← Red →</div>
       <div class="court">
+
         <!-- Fila delantera: zonas 4, 3, 2 -->
         <div class="zone zone-front"
              *ngFor="let z of [4,3,2]"
+             cdkDropList
+             [id]="zoneId(z)"
+             [cdkDropListData]="z"
+             [cdkDropListConnectedTo]="zoneIds"
+             (cdkDropListDropped)="onDrop($event)"
              [class.zone-serve]="z === 1"
              [class.zone-libero]="isLiberoZone(z)"
              [class.zone-replaced]="replacedPlayerZone === z && !isLiberoZone(z)"
              [class.editing]="editingZone === z"
+             [class.cdk-drop-list--over]="false"
              (click)="startEdit(z)">
           <span class="zone-num">Z{{ z }}</span>
           <ng-container *ngIf="editingZone === z; else showFront">
@@ -59,15 +66,33 @@
                    (click)="$event.stopPropagation()">
           </ng-container>
           <ng-template #showFront>
-            <span class="dorsal">{{ playerAt(z) }}</span>
-            <span class="libero-tag" *ngIf="isLiberoZone(z)">L</span>
-            <span class="edit-hint" *ngIf="!readOnly && !isLiberoZone(z)"><i class="fa fa-pencil"></i></span>
+            <div class="dorsal-drag-wrap"
+                 cdkDrag
+                 [cdkDragData]="z"
+                 [cdkDragDisabled]="readOnly || isLiberoZone(z)"
+                 (cdkDragStarted)="onDragStart()"
+                 (cdkDragEnded)="onDragEnd()"
+                 (click)="$event.stopPropagation()">
+              <span class="dorsal">{{ playerAt(z) }}</span>
+              <span class="libero-tag" *ngIf="isLiberoZone(z)">L</span>
+              <span class="drag-hint" *ngIf="!readOnly && !isLiberoZone(z)">
+                <i class="fa fa-arrows"></i>
+              </span>
+              <!-- Preview mientras arrastra -->
+              <div *cdkDragPlaceholder class="drag-placeholder"></div>
+              <div *cdkDragPreview class="drag-preview">#{{ playerAt(z) }}</div>
+            </div>
           </ng-template>
         </div>
 
         <!-- Fila trasera: zonas 5, 6, 1 -->
         <div class="zone zone-back"
              *ngFor="let z of [5,6,1]"
+             cdkDropList
+             [id]="zoneId(z)"
+             [cdkDropListData]="z"
+             [cdkDropListConnectedTo]="zoneIds"
+             (cdkDropListDropped)="onDrop($event)"
              [class.zone-serve]="z === 1"
              [class.zone-libero]="isLiberoZone(z)"
              [class.zone-replaced]="replacedPlayerZone === z && !isLiberoZone(z)"
@@ -81,11 +106,24 @@
                    (click)="$event.stopPropagation()">
           </ng-container>
           <ng-template #showBack>
-            <span class="dorsal">{{ playerAt(z) }}</span>
-            <span class="libero-tag" *ngIf="isLiberoZone(z)">L</span>
-            <span class="edit-hint" *ngIf="!readOnly && !isLiberoZone(z)"><i class="fa fa-pencil"></i></span>
+            <div class="dorsal-drag-wrap"
+                 cdkDrag
+                 [cdkDragData]="z"
+                 [cdkDragDisabled]="readOnly || isLiberoZone(z)"
+                 (cdkDragStarted)="onDragStart()"
+                 (cdkDragEnded)="onDragEnd()"
+                 (click)="$event.stopPropagation()">
+              <span class="dorsal">{{ playerAt(z) }}</span>
+              <span class="libero-tag" *ngIf="isLiberoZone(z)">L</span>
+              <span class="drag-hint" *ngIf="!readOnly && !isLiberoZone(z)">
+                <i class="fa fa-arrows"></i>
+              </span>
+              <div *cdkDragPlaceholder class="drag-placeholder"></div>
+              <div *cdkDragPreview class="drag-preview">#{{ playerAt(z) }}</div>
+            </div>
           </ng-template>
         </div>
+
       </div>
       <div class="baseline-label">← Línea de fondo →</div>
 
@@ -96,6 +134,28 @@
         <span *ngIf="replacedPlayerZone">
           · reemplaza a #{{ rotation.liberoReplaces }} (Z{{ replacedPlayerZone }})
         </span>
+      </div>
+    </div>
+
+    <!-- Diálogo de confirmación de sustitución -->
+    <div class="sub-dialog" *ngIf="pendingSwap">
+      <div class="sub-dialog-title">¿Es una sustitución?</div>
+      <div class="sub-dialog-desc">
+        <span class="sub-out">#{{ pendingSwap.fromDorsal }}</span>
+        <span class="sub-arrow"> ⇄ </span>
+        <span class="sub-in">#{{ pendingSwap.toDorsal }}</span>
+      </div>
+      <div class="sub-dialog-hint">
+        Confirma si es una sustitución oficial para registrar el tiempo de juego.<br>
+        Si fue un error al introducir posiciones, elige "Solo corregir".
+      </div>
+      <div class="sub-dialog-actions">
+        <button class="sub-btn sub-btn--confirm" (click)="confirmSubstitution(true)">
+          <i class="fa fa-check"></i> Sustitución
+        </button>
+        <button class="sub-btn sub-btn--correct" (click)="confirmSubstitution(false)">
+          <i class="fa fa-pencil"></i> Solo corregir
+        </button>
       </div>
     </div>
 
@@ -157,6 +217,17 @@
       </div>
     </div>
 
+    <!-- Sustituciones registradas -->
+    <div class="subs-history" *ngIf="rotation.substitutions && rotation.substitutions.length > 0">
+      <div class="subs-history-title">Sustituciones</div>
+      <div class="sub-event" *ngFor="let s of rotation.substitutions">
+        <span class="sub-event-min">{{ s.minute }}'</span>
+        <span class="sub-out">#{{ s.outDorsal }}</span>
+        <span class="sub-arrow">→</span>
+        <span class="sub-in">#{{ s.inDorsal }}</span>
+      </div>
+    </div>
+
     <!-- Acciones -->
     <div class="rotation-actions" *ngIf="!readOnly">
       <button class="action-btn action-btn--rotate" (click)="manualRotate()">
@@ -168,7 +239,7 @@
     </div>
 
     <p class="rotation-hint" *ngIf="!readOnly">
-      Toca una zona para editar el dorsal. La rotación automática se activa al recuperar el saque.
+      Toca para editar dorsal · Arrastra para cambiar de posición
     </p>
 
   </div>

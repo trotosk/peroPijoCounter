@@ -1,7 +1,8 @@
 import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CounterRecord, RotationState } from '../../../models/counter.model';
+import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
+import { CounterRecord, RotationState, SubstitutionEvent } from '../../../models/counter.model';
 import { FirestoreCounterService } from '../../../services/firestore-counter.service';
 
 export function rotatePositions(p: string[]): string[] {
@@ -16,7 +17,7 @@ const BACK_ZONES = [1, 5, 6];
   selector: 'app-counter-rotation',
   templateUrl: './counter-rotation.component.html',
   styleUrls: ['./counter-rotation.component.scss'],
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DragDropModule],
 })
 export class CounterRotationComponent implements OnChanges {
   @Input() record!: CounterRecord;
@@ -26,6 +27,11 @@ export class CounterRotationComponent implements OnChanges {
   activeSide: 'left' | 'right' = 'left';
   editingZone: number | null = null;
   editingValue = '';
+
+  // Drag & drop state
+  isDragging = false;
+  pendingSwap: { fromZone: number; toZone: number; fromDorsal: string; toDorsal: string } | null = null;
+  private _pendingPositions: string[] | null = null;
 
   constructor(private fsService: FirestoreCounterService) {}
 
@@ -50,6 +56,15 @@ export class CounterRotationComponent implements OnChanges {
     return this.record[key] ?? { enabled: false, positions: [...DEFAULT_POSITIONS] };
   }
 
+  /** IDs de los drop lists para conectarlos entre sí */
+  zoneId(z: number): string {
+    return `${this.activeSide}-zone-${z}`;
+  }
+
+  get zoneIds(): string[] {
+    return [1, 2, 3, 4, 5, 6].map(z => this.zoneId(z));
+  }
+
   /** Zona (1-6) donde el líbero está actualmente en pista, o null si no aplica */
   get liberoActiveZone(): number | null {
     const r = this.rotation;
@@ -70,7 +85,6 @@ export class CounterRotationComponent implements OnChanges {
     return this.liberoActiveZone === zone;
   }
 
-  /** Zona donde está la jugadora que el líbero reemplaza (aunque no esté en pista) */
   get replacedPlayerZone(): number | null {
     const r = this.rotation;
     if (!r.hasLibero || !r.liberoReplaces) return null;
@@ -83,11 +97,68 @@ export class CounterRotationComponent implements OnChanges {
   get currentServer(): string { return this.playerAt(1); }
   get nextServer(): string    { return this.playerAt(2); }
 
-  // ── Acciones ───────────────────────────────────────────────────────────────
+  get matchStarted(): boolean { return !!this.record.matchStartedAt; }
+
+  // ── Drag & drop ────────────────────────────────────────────────────────────
+
+  onDragStart(): void { this.isDragging = true; }
+
+  onDragEnd(): void {
+    // pequeño delay para que el click posterior no abra el editor
+    setTimeout(() => { this.isDragging = false; }, 50);
+  }
+
+  onDrop(event: CdkDragDrop<number>): void {
+    if (this.readOnly) return;
+    const fromZone: number = event.previousContainer.data;
+    const toZone: number   = event.container.data;
+    if (fromZone === toZone) return;
+
+    // No mover zona líbero (es virtual)
+    if (this.isLiberoZone(fromZone) || this.isLiberoZone(toZone)) return;
+
+    const positions = [...this.rotation.positions];
+    const fromDorsal = positions[fromZone - 1];
+    const toDorsal   = positions[toZone - 1];
+
+    // Intercambio de posiciones
+    positions[fromZone - 1] = toDorsal;
+    positions[toZone - 1]   = fromDorsal;
+
+    if (this.matchStarted) {
+      // Preguntar si es sustitución
+      this.pendingSwap     = { fromZone, toZone, fromDorsal, toDorsal };
+      this._pendingPositions = positions;
+    } else {
+      this.save({ ...this.rotation, positions });
+    }
+  }
+
+  confirmSubstitution(isSubstitution: boolean): void {
+    if (!this.pendingSwap || !this._pendingPositions) return;
+    const rotation: RotationState = { ...this.rotation, positions: this._pendingPositions };
+
+    if (isSubstitution) {
+      const sub: SubstitutionEvent = {
+        minute:    this.elapsedMinutes(),
+        outDorsal: this.pendingSwap.fromDorsal,
+        inDorsal:  this.pendingSwap.toDorsal,
+        timestamp: new Date().toISOString(),
+      };
+      rotation.substitutions = [...(rotation.substitutions ?? []), sub];
+    }
+
+    this.save(rotation);
+    this.pendingSwap     = null;
+    this._pendingPositions = null;
+  }
+
+  // ── Edición inline ─────────────────────────────────────────────────────────
 
   switchSide(side: 'left' | 'right'): void {
     this.activeSide = side;
     this.editingZone = null;
+    this.pendingSwap = null;
   }
 
   toggleEnabled(): void {
@@ -101,9 +172,8 @@ export class CounterRotationComponent implements OnChanges {
   }
 
   startEdit(zone: number): void {
-    if (this.readOnly) return;
-    this.editingZone = zone;
-    // Show original dorsal (not libero) when editing
+    if (this.readOnly || this.isDragging) return;
+    this.editingZone  = zone;
     this.editingValue = this.rotation.positions[zone - 1] ?? '';
   }
 
@@ -134,10 +204,16 @@ export class CounterRotationComponent implements OnChanges {
 
   resetPositions(): void {
     if (this.readOnly) return;
-    this.save({ ...this.rotation, positions: [...DEFAULT_POSITIONS], hasLibero: false, liberoNumber: undefined, liberoReplaces: undefined });
+    this.save({ ...this.rotation, positions: [...DEFAULT_POSITIONS], hasLibero: false, liberoNumber: undefined, liberoReplaces: undefined, substitutions: [] });
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
+
+  private elapsedMinutes(): number {
+    if (!this.record?.matchStartedAt) return 0;
+    const ms = Date.now() - new Date(this.record.matchStartedAt).getTime() - (this.record.matchPausedMs ?? 0);
+    return Math.floor(ms / 60000);
+  }
 
   private save(rotation: RotationState): void {
     const key = this.activeSide === 'left' ? 'rotationLeft' : 'rotationRight';

@@ -205,6 +205,46 @@
             </div>
           </section>
 
+        <!-- Tiempo de juego local -->
+        <ng-container *ngIf="hasSubstitutions">
+          <section class="stats-section" *ngIf="leftPlayerMinutes.length > 0">
+            <div class="stats-section-title">
+              <span class="dot-left-inline"></span> Tiempo de juego · {{ record.leftName }}
+            </div>
+            <div class="stats-bar-list">
+              <div class="stats-bar-row" *ngFor="let s of leftPlayerMinutes; let i = index">
+                <span class="stats-rank">{{ i + 1 }}</span>
+                <span class="stats-dorsal" [class.dorsal-oncourt]="s.isOnCourt">#{{ s.dorsal }}</span>
+                <div class="stats-bar-wrap">
+                  <div class="stats-bar stats-bar--left"
+                       [style.width.%]="leftPlayerMinutes[0].minutes > 0 ? (s.minutes / leftPlayerMinutes[0].minutes * 100) : 0">
+                  </div>
+                </div>
+                <span class="stats-value">{{ s.minutes }} min<span class="oncourt-badge" *ngIf="s.isOnCourt"> ●</span></span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Tiempo de juego visitante -->
+          <section class="stats-section" *ngIf="rightPlayerMinutes.length > 0">
+            <div class="stats-section-title">
+              <span class="dot-right-inline"></span> Tiempo de juego · {{ record.rightName }}
+            </div>
+            <div class="stats-bar-list">
+              <div class="stats-bar-row" *ngFor="let s of rightPlayerMinutes; let i = index">
+                <span class="stats-rank">{{ i + 1 }}</span>
+                <span class="stats-dorsal" [class.dorsal-oncourt]="s.isOnCourt">#{{ s.dorsal }}</span>
+                <div class="stats-bar-wrap">
+                  <div class="stats-bar stats-bar--right"
+                       [style.width.%]="rightPlayerMinutes[0].minutes > 0 ? (s.minutes / rightPlayerMinutes[0].minutes * 100) : 0">
+                  </div>
+                </div>
+                <span class="stats-value">{{ s.minutes }} min<span class="oncourt-badge" *ngIf="s.isOnCourt"> ●</span></span>
+              </div>
+            </div>
+          </section>
+        </ng-container>
+
         </ng-container>
 
       </div><!-- /stats-scroll -->
