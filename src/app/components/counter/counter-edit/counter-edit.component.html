@@ -37,6 +37,16 @@
       <i class="fa fa-bar-chart"></i>
     </button>
 
+    <!-- Botón rotación (solo voley) -->
+    <button class="copya-btn rotation-btn"
+            *ngIf="record!.type === 'Voley'"
+            [class.rotation-active]="record!.rotation?.enabled"
+            (click)="showRotation = true"
+            title="Control de rotaciones">
+      🔄
+      <span class="rotation-dot" *ngIf="record!.rotation?.enabled"></span>
+    </button>
+
     <!-- Botón envío automático WhatsApp -->
     <button *ngIf="!readOnly"
             class="copya-btn wa-auto-btn"
@@ -336,6 +346,13 @@
             title="Ver timeline del partido">
       <i class="fa fa-bar-chart"></i>
     </button>
+    <button class="fs-footer-btn"
+            *ngIf="record!.type === 'Voley'"
+            [class.rotation-active]="record!.rotation?.enabled"
+            (click)="showRotation = true"
+            title="Control de rotaciones">
+      🔄
+    </button>
     <span class="fs-footer-title">{{ title }}</span>
 
     <!-- Acciones rápidas para propietario/autorizado en fullscreen -->
@@ -402,5 +419,13 @@
     [record]="record"
     (close)="showTimeline = false">
   </app-counter-timeline>
+
+  <!-- Rotation overlay -->
+  <app-counter-rotation
+    *ngIf="showRotation && record"
+    [record]="record"
+    [readOnly]="readOnly"
+    (close)="showRotation = false">
+  </app-counter-rotation>
 
 </div>

@@ -1,0 +1,106 @@
+<div class="rotation-overlay" (click)="close.emit()">
+  <div class="rotation-panel" (click)="$event.stopPropagation()">
+
+    <!-- Header -->
+    <div class="rotation-header">
+      <span class="rotation-title">🔄 Control de Rotación</span>
+      <label class="toggle-wrap" *ngIf="!readOnly" title="Activar seguimiento automático de rotaciones">
+        <input type="checkbox" [checked]="rotation.enabled" (change)="toggleEnabled()">
+        <span>Activar</span>
+      </label>
+      <span class="toggle-readonly" *ngIf="readOnly">
+        <i class="fa" [class.fa-check-circle]="rotation.enabled" [class.fa-circle-o]="!rotation.enabled"></i>
+        {{ rotation.enabled ? 'Activo' : 'Inactivo' }}
+      </span>
+      <button class="close-btn" (click)="close.emit()">✕</button>
+    </div>
+
+    <!-- Aviso si desactivado -->
+    <div class="disabled-notice" *ngIf="!rotation.enabled">
+      <i class="fa fa-info-circle"></i>
+      La rotación está desactivada. Los dorsales se muestran como referencia pero no se actualizan automáticamente.
+    </div>
+
+    <!-- Campo de juego -->
+    <div class="court-wrap">
+      <div class="net-label">← Red / Cancha contraria →</div>
+      <div class="court">
+
+        <!-- Fila delantera: zonas 4, 3, 2 -->
+        <div class="zone zone-front"
+             *ngFor="let z of [4,3,2]"
+             [class.editing]="editingZone === z"
+             (click)="startEdit(z)">
+          <span class="zone-num">Z{{ z }}</span>
+          <ng-container *ngIf="editingZone === z; else showDorsal">
+            <input class="dorsal-input"
+                   [(ngModel)]="editingValue"
+                   (blur)="confirmEdit()"
+                   (keyup.enter)="confirmEdit()"
+                   (keyup.escape)="cancelEdit()"
+                   maxlength="3"
+                   autofocus
+                   (click)="$event.stopPropagation()">
+          </ng-container>
+          <ng-template #showDorsal>
+            <span class="dorsal">{{ playerAt(z) }}</span>
+            <span class="edit-hint" *ngIf="!readOnly"><i class="fa fa-pencil"></i></span>
+          </ng-template>
+        </div>
+
+        <!-- Fila trasera: zonas 5, 6, 1 -->
+        <div class="zone zone-back"
+             *ngFor="let z of [5,6,1]"
+             [class.zone-serve]="z === 1"
+             [class.editing]="editingZone === z"
+             (click)="startEdit(z)">
+          <span class="zone-num">Z{{ z }}<span *ngIf="z === 1"> 🏐</span></span>
+          <ng-container *ngIf="editingZone === z; else showDorsalBack">
+            <input class="dorsal-input"
+                   [(ngModel)]="editingValue"
+                   (blur)="confirmEdit()"
+                   (keyup.enter)="confirmEdit()"
+                   (keyup.escape)="cancelEdit()"
+                   maxlength="3"
+                   autofocus
+                   (click)="$event.stopPropagation()">
+          </ng-container>
+          <ng-template #showDorsalBack>
+            <span class="dorsal">{{ playerAt(z) }}</span>
+            <span class="edit-hint" *ngIf="!readOnly"><i class="fa fa-pencil"></i></span>
+          </ng-template>
+        </div>
+
+      </div>
+      <div class="baseline-label">← Línea de fondo →</div>
+    </div>
+
+    <!-- Info servicio -->
+    <div class="serve-info">
+      <div class="serve-current">
+        <span class="serve-label">Saca ahora</span>
+        <span class="serve-dorsal">{{ currentServer }}</span>
+      </div>
+      <div class="serve-divider">→</div>
+      <div class="serve-next">
+        <span class="serve-label">Próxima si se pierde</span>
+        <span class="serve-dorsal serve-dorsal--next">{{ nextServer }}</span>
+      </div>
+    </div>
+
+    <!-- Acciones (solo propietario/autorizado) -->
+    <div class="rotation-actions" *ngIf="!readOnly">
+      <button class="action-btn action-btn--rotate" (click)="manualRotate()" title="Rotar manualmente una posición">
+        <i class="fa fa-rotate-right"></i> Rotar manualmente
+      </button>
+      <button class="action-btn action-btn--reset" (click)="resetPositions()" title="Restablecer dorsales por defecto">
+        <i class="fa fa-refresh"></i> Restablecer
+      </button>
+    </div>
+
+    <p class="rotation-hint" *ngIf="!readOnly">
+      Toca cualquier zona para cambiar el dorsal. La rotación automática se activa al recuperar el saque.
+    </p>
+
+  </div>
+</div>

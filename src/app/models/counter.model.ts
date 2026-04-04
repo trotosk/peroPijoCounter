@@ -38,6 +38,18 @@ export interface CounterRecord {
   whatsappConfig?: WhatsappConfig; // Configuración de envío automático por WhatsApp
   category?: CounterCategory;      // Categoría: Benjamín, Alevín, Infantil, Cadete, Junior, Senior
   peakViewers?: number;            // Máximo de espectadores simultáneos registrado
+  rotation?: RotationState;        // Estado del control de rotaciones (voley)
+}
+
+/**
+ * Posiciones 1-6 del campo de voleibol.
+ * Índice 0 = zona 1 (saque/derecha atrás), ..., índice 5 = zona 6 (centro atrás).
+ * Rotación horaria: zona 2 → 1 → 6 → 5 → 4 → 3 → 2
+ */
+export interface RotationState {
+  enabled: boolean;
+  /** Dorsal de la jugadora en cada zona. positions[0] = zona 1 … positions[5] = zona 6 */
+  positions: string[];
 }
 
 export interface WhatsappConfig {

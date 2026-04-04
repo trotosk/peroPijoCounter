@@ -13,6 +13,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Analytics, getAnalytics, logEvent } from '@angular/fire/analytics';
 import { WhatsappService, GreenApiChat } from '../../../services/whatsapp.service';
 import { CounterTimelineComponent } from '../counter-timeline/counter-timeline.component';
+import { CounterRotationComponent } from '../counter-rotation/counter-rotation.component';
 import { Firestore, doc, getDoc, updateDoc } from '@angular/fire/firestore';
 import { PresenceService } from '../../../services/presence.service';
 
@@ -32,7 +33,7 @@ import { PresenceService } from '../../../services/presence.service';
       ])
     ])
   ],
-  imports: [CommonModule, FormsModule, MatIconModule, RouterModule, MatSnackBarModule, CounterTimelineComponent]
+  imports: [CommonModule, FormsModule, MatIconModule, RouterModule, MatSnackBarModule, CounterTimelineComponent, CounterRotationComponent]
 })
 
 export class CounterEditComponent implements OnInit, OnDestroy {
@@ -73,6 +74,7 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   // WhatsApp panel
   showWaPanel = false;
   showTimeline = false;
+  showRotation = false;
   waEnabled = false;
   waLoadingChats = false;
   waChats: GreenApiChat[] = [];
@@ -295,12 +297,17 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   // Incrementar el marcador del lado indicado
   inc(side: 'left' | 'right') {
     if (!this.record || !this.recordGame ||this.readOnly) return;
+    const prevHighlighted = this.highlightedTeam;
     if (side === 'left') {
       this.recordGame.leftValue = this.recordGame.leftValue +1;
       this.highlightedTeam = 'left';
     } else {
       this.recordGame.rightValue = this.recordGame.rightValue +1;
       this.highlightedTeam = 'right';
+    }
+    // Auto-rotación: el equipo local recupera el saque
+    if (side === 'left' && prevHighlighted === 'right') {
+      this.autoRotate();
     }
 
     // Arrancar el timer en el primer punto del partido
@@ -691,6 +698,13 @@ export class CounterEditComponent implements OnInit, OnDestroy {
       clearInterval(this.timerInterval);
       this.timerInterval = undefined;
     }
+  }
+
+  private autoRotate(): void {
+    if (!this.record.rotation?.enabled) return;
+    const p = this.record.rotation.positions;
+    this.record.rotation.positions = [p[1], p[2], p[3], p[4], p[5], p[0]];
+    // Se persiste en Firestore junto con el punto via saveCounter()
   }
 
   private calcElapsed(from: string, to: string, pausedMs = 0): string {
