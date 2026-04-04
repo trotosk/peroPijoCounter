@@ -1429,3 +1429,116 @@ $bg: #f8f9fa;
     }
   }
 }
+
+// ─── Scorer picker ───────────────────────────────────────────────────────────
+.scorer-picker {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3000;
+  background: #1e293b;
+  color: #fff;
+  border-radius: 1rem;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  min-width: min(90vw, 320px);
+  max-width: min(95vw, 420px);
+  animation: scorer-slide-up 0.2s ease;
+}
+
+@keyframes scorer-slide-up {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.scorer-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.scorer-close {
+  border: none;
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border-radius: 50%;
+  width: 1.6rem;
+  height: 1.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover { background: rgba(255,255,255,0.25); }
+}
+
+.scorer-picker-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.scorer-dorsal-btn {
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.22);
+  color: #fff;
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  &:hover { background: rgba(249,115,22,0.6); border-color: #f97316; }
+}
+
+.scorer-manual {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+
+  .scorer-input {
+    width: 4rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 0.4rem;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+    &::placeholder { color: rgba(255,255,255,0.4); }
+    &:focus { outline: none; border-color: #f97316; }
+  }
+
+  .scorer-confirm-btn {
+    background: #f97316;
+    border: none;
+    border-radius: 0.4rem;
+    color: #fff;
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:disabled { opacity: 0.35; cursor: not-allowed; }
+    &:hover:not(:disabled) { background: darken(#f97316, 8%); }
+  }
+}
+
+.scorer-error-btn {
+  background: rgba(220,53,69,0.3);
+  border: 1px solid rgba(220,53,69,0.5);
+  color: #fca5a5;
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s;
+  &:hover { background: rgba(220,53,69,0.55); }
+}

@@ -75,6 +75,9 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   showWaPanel = false;
   showTimeline = false;
   showRotation = false;
+  pendingScorer: { side: 'left' | 'right'; gameId: string; pointIdx: number } | null = null;
+  scorerInput = '';
+  private pendingScorerTimeout?: ReturnType<typeof setTimeout>;
   waEnabled = false;
   waLoadingChats = false;
   waChats: GreenApiChat[] = [];
@@ -319,9 +322,14 @@ export class CounterEditComponent implements OnInit, OnDestroy {
       this.startTimer();
     }
 
-    // Registrar punto en el timeline
+    // Registrar punto en el timeline (capturando servidor automáticamente)
     if (!this.recordGame.points) this.recordGame.points = [];
-    this.recordGame.points.push({ side, minute: this.elapsedMinutes() });
+    const rotKey = side === 'left' ? 'rotationLeft' : 'rotationRight';
+    const server = this.record[rotKey]?.enabled ? (this.record[rotKey]!.positions[0] || undefined) : undefined;
+    const newPoint: PointEvent = { side, minute: this.elapsedMinutes() };
+    if (server) newPoint.server = server;
+    this.recordGame.points.push(newPoint);
+    this.openScorerPicker(side, this.recordGame.points.length - 1);
 
     this.recordGame.updatedAt = new Date().toISOString();
     this.record.updatedAt = this.recordGame.updatedAt;
@@ -700,6 +708,51 @@ export class CounterEditComponent implements OnInit, OnDestroy {
       clearInterval(this.timerInterval);
       this.timerInterval = undefined;
     }
+  }
+
+  // ─── Scorer picker ───────────────────────────────────────────────────────────
+
+  openScorerPicker(side: 'left' | 'right', pointIdx: number) {
+    if (!this.recordGame) return;
+    // Cancel any previous pending timeout
+    if (this.pendingScorerTimeout) {
+      clearTimeout(this.pendingScorerTimeout);
+      this.pendingScorerTimeout = undefined;
+    }
+    this.pendingScorer = { side, gameId: this.recordGame.id, pointIdx };
+    this.scorerInput = '';
+    // Auto-dismiss after 10 seconds
+    this.pendingScorerTimeout = setTimeout(() => this.dismissScorerPicker(), 10000);
+  }
+
+  dismissScorerPicker() {
+    if (this.pendingScorerTimeout) {
+      clearTimeout(this.pendingScorerTimeout);
+      this.pendingScorerTimeout = undefined;
+    }
+    this.pendingScorer = null;
+    this.scorerInput = '';
+  }
+
+  setScorerForPending(scorer: string) {
+    if (!this.pendingScorer || !this.record) return;
+    const { gameId, pointIdx } = this.pendingScorer;
+    const game = this.record.games.find(g => g.id === gameId);
+    if (game?.points?.[pointIdx] !== undefined) {
+      game.points[pointIdx].scorer = scorer;
+      this.saveCounter();
+    }
+    this.dismissScorerPicker();
+  }
+
+  get scorerPlayers(): string[] {
+    if (!this.pendingScorer) return [];
+    const rotKey = this.pendingScorer.side === 'left' ? 'rotationLeft' : 'rotationRight';
+    const rotation = this.record[rotKey];
+    if (rotation?.enabled && rotation.positions?.length) {
+      return rotation.positions.filter(p => p && p.trim() !== '');
+    }
+    return [];
   }
 
   private autoRotate(team: 'left' | 'right'): void {

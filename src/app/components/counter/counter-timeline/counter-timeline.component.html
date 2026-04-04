@@ -4,15 +4,24 @@
     <div class="timeline-header">
       <div class="timeline-title">
         <i class="fa fa-area-chart"></i>
-        <span>Timeline del partido</span>
+        <span>Partido: {{ record.leftName }} vs {{ record.rightName }}</span>
       </div>
-      <div class="timeline-subtitle">{{ record.leftName }} vs {{ record.rightName }}</div>
+      <!-- Tab switcher -->
+      <div class="tl-tabs">
+        <button class="tl-tab" [class.active]="activeTab === 'timeline'" (click)="activeTab = 'timeline'">
+          <i class="fa fa-list"></i> Timeline
+        </button>
+        <button class="tl-tab" [class.active]="activeTab === 'stats'" (click)="activeTab = 'stats'">
+          <i class="fa fa-bar-chart"></i> Estadísticas
+        </button>
+      </div>
       <button class="timeline-close" (click)="close.emit()" title="Cerrar">
         <i class="fa fa-times"></i>
       </button>
     </div>
 
-    <div class="timeline-body">
+    <!-- ── TIMELINE TAB ─────────────────────────────────────────────────── -->
+    <div class="timeline-body" *ngIf="activeTab === 'timeline'">
 
       <div class="no-data-msg" *ngIf="!hasAnyPoints()">
         <i class="fa fa-info-circle"></i>
@@ -50,6 +59,8 @@
               <div class="tl-side tl-left">
                 <ng-container *ngIf="pt.side === 'left'">
                   <span class="tl-minute">{{ pt.minute }}'</span>
+                  <span class="tl-scorer" *ngIf="pt.scorer && pt.scorer !== 'error'">#{{ pt.scorer }}</span>
+                  <span class="tl-scorer tl-scorer--error" *ngIf="pt.scorer === 'error'" title="Fallo rival">✕</span>
                   <span class="tl-dot dot-left"></span>
                 </ng-container>
               </div>
@@ -63,6 +74,8 @@
               <div class="tl-side tl-right">
                 <ng-container *ngIf="pt.side === 'right'">
                   <span class="tl-dot dot-right"></span>
+                  <span class="tl-scorer tl-scorer--error" *ngIf="pt.scorer === 'error'" title="Fallo rival">✕</span>
+                  <span class="tl-scorer" *ngIf="pt.scorer && pt.scorer !== 'error'">#{{ pt.scorer }}</span>
                   <span class="tl-minute">{{ pt.minute }}'</span>
                 </ng-container>
               </div>
@@ -75,8 +88,130 @@
 
     </div><!-- /timeline-body -->
 
-    <!-- Leyenda -->
-    <div class="timeline-legend" *ngIf="hasAnyPoints()">
+    <!-- ── STATS TAB ────────────────────────────────────────────────────── -->
+    <div class="timeline-body stats-body" *ngIf="activeTab === 'stats'">
+
+      <div class="no-data-msg" *ngIf="!hasAnyPoints()">
+        <i class="fa fa-info-circle"></i>
+        No hay datos aún. Los puntos se registran durante el partido.
+      </div>
+
+      <div class="stats-scroll" *ngIf="hasAnyPoints()">
+
+        <!-- Resumen por sets -->
+        <section class="stats-section">
+          <div class="stats-section-title">Resumen por sets</div>
+          <table class="stats-table">
+            <thead>
+              <tr>
+                <th>Set</th>
+                <th class="th-team">{{ record.leftName }}</th>
+                <th class="th-sep">–</th>
+                <th class="th-team">{{ record.rightName }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of setSummaries">
+                <td class="td-set">{{ s.title }}</td>
+                <td class="td-score" [class.td-winner]="s.winner === 'left'">{{ s.leftScore }}</td>
+                <td class="td-sep">–</td>
+                <td class="td-score" [class.td-winner]="s.winner === 'right'">{{ s.rightScore }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Aviso si no hay datos de scorer/server -->
+        <div class="stats-hint" *ngIf="!hasStats">
+          <i class="fa fa-lightbulb-o"></i>
+          Asigna dorsales a los puntos para ver estadísticas de goleadores y servicio.
+        </div>
+
+        <ng-container *ngIf="hasStats">
+
+          <!-- Top anotadores local -->
+          <section class="stats-section" *ngIf="leftScorerStats.length > 0">
+            <div class="stats-section-title">
+              <span class="dot-left-inline"></span> Anotadores · {{ record.leftName }}
+            </div>
+            <div class="stats-bar-list">
+              <div class="stats-bar-row" *ngFor="let s of leftScorerStats; let i = index">
+                <span class="stats-rank">{{ i + 1 }}</span>
+                <span class="stats-dorsal">#{{ s.dorsal }}</span>
+                <div class="stats-bar-wrap">
+                  <div class="stats-bar stats-bar--left"
+                       [style.width.%]="leftScorerStats[0].points > 0 ? (s.points / leftScorerStats[0].points * 100) : 0">
+                  </div>
+                </div>
+                <span class="stats-value">{{ s.points }} pts</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Top anotadores visitante -->
+          <section class="stats-section" *ngIf="rightScorerStats.length > 0">
+            <div class="stats-section-title">
+              <span class="dot-right-inline"></span> Anotadores · {{ record.rightName }}
+            </div>
+            <div class="stats-bar-list">
+              <div class="stats-bar-row" *ngFor="let s of rightScorerStats; let i = index">
+                <span class="stats-rank">{{ i + 1 }}</span>
+                <span class="stats-dorsal">#{{ s.dorsal }}</span>
+                <div class="stats-bar-wrap">
+                  <div class="stats-bar stats-bar--right"
+                       [style.width.%]="rightScorerStats[0].points > 0 ? (s.points / rightScorerStats[0].points * 100) : 0">
+                  </div>
+                </div>
+                <span class="stats-value">{{ s.points }} pts</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Eficiencia de saque local -->
+          <section class="stats-section" *ngIf="leftServerStats.length > 0">
+            <div class="stats-section-title">
+              <span class="dot-left-inline"></span> Eficiencia saque · {{ record.leftName }}
+            </div>
+            <div class="stats-bar-list">
+              <div class="stats-bar-row" *ngFor="let s of leftServerStats; let i = index">
+                <span class="stats-rank">{{ i + 1 }}</span>
+                <span class="stats-dorsal">#{{ s.dorsal }}</span>
+                <div class="stats-bar-wrap">
+                  <div class="stats-bar stats-bar--left"
+                       [style.width.%]="leftServerStats[0].points > 0 ? (s.points / leftServerStats[0].points * 100) : 0">
+                  </div>
+                </div>
+                <span class="stats-value">{{ s.points }} pts / {{ s.serves }} serv.</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Eficiencia de saque visitante -->
+          <section class="stats-section" *ngIf="rightServerStats.length > 0">
+            <div class="stats-section-title">
+              <span class="dot-right-inline"></span> Eficiencia saque · {{ record.rightName }}
+            </div>
+            <div class="stats-bar-list">
+              <div class="stats-bar-row" *ngFor="let s of rightServerStats; let i = index">
+                <span class="stats-rank">{{ i + 1 }}</span>
+                <span class="stats-dorsal">#{{ s.dorsal }}</span>
+                <div class="stats-bar-wrap">
+                  <div class="stats-bar stats-bar--right"
+                       [style.width.%]="rightServerStats[0].points > 0 ? (s.points / rightServerStats[0].points * 100) : 0">
+                  </div>
+                </div>
+                <span class="stats-value">{{ s.points }} pts / {{ s.serves }} serv.</span>
+              </div>
+            </div>
+          </section>
+
+        </ng-container>
+
+      </div><!-- /stats-scroll -->
+    </div>
+
+    <!-- Leyenda (solo en timeline) -->
+    <div class="timeline-legend" *ngIf="activeTab === 'timeline' && hasAnyPoints()">
       <span class="legend-item">
         <span class="legend-dot dot-left"></span> {{ record.leftName }}
       </span>
