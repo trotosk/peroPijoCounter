@@ -10,6 +10,8 @@ export function rotatePositions(p: string[]): string[] {
 
 export const DEFAULT_POSITIONS: string[] = ['1', '2', '3', '4', '5', '6'];
 
+const BACK_ZONES = [1, 5, 6];
+
 @Component({
   selector: 'app-counter-rotation',
   templateUrl: './counter-rotation.component.html',
@@ -28,7 +30,6 @@ export class CounterRotationComponent implements OnChanges {
   constructor(private fsService: FirestoreCounterService) {}
 
   ngOnChanges(): void {
-    // Ensure positions arrays are always 6 elements
     for (const key of ['rotationLeft', 'rotationRight'] as const) {
       if (this.record[key] && this.record[key]!.positions.length < 6) {
         this.record[key]!.positions = [...DEFAULT_POSITIONS];
@@ -49,13 +50,35 @@ export class CounterRotationComponent implements OnChanges {
     return this.record[key] ?? { enabled: false, positions: [...DEFAULT_POSITIONS] };
   }
 
-  get eitherEnabled(): boolean {
-    return !!(this.record.rotationLeft?.enabled || this.record.rotationRight?.enabled);
+  /** Zona (1-6) donde el líbero está actualmente en pista, o null si no aplica */
+  get liberoActiveZone(): number | null {
+    const r = this.rotation;
+    if (!r.hasLibero || !r.liberoReplaces || !r.liberoNumber) return null;
+    const idx = r.positions.indexOf(r.liberoReplaces);
+    if (idx === -1) return null;
+    const zone = idx + 1;
+    return BACK_ZONES.includes(zone) ? zone : null;
   }
 
+  /** Dorsal real a mostrar en cada zona (líbero si corresponde) */
   playerAt(zone: number): string {
+    if (this.liberoActiveZone === zone) return this.rotation.liberoNumber ?? 'L';
     return this.rotation.positions[zone - 1] ?? '?';
   }
+
+  isLiberoZone(zone: number): boolean {
+    return this.liberoActiveZone === zone;
+  }
+
+  /** Zona donde está la jugadora que el líbero reemplaza (aunque no esté en pista) */
+  get replacedPlayerZone(): number | null {
+    const r = this.rotation;
+    if (!r.hasLibero || !r.liberoReplaces) return null;
+    const idx = r.positions.indexOf(r.liberoReplaces);
+    return idx === -1 ? null : idx + 1;
+  }
+
+  get liberoOnCourt(): boolean { return this.liberoActiveZone !== null; }
 
   get currentServer(): string { return this.playerAt(1); }
   get nextServer(): string    { return this.playerAt(2); }
@@ -72,10 +95,16 @@ export class CounterRotationComponent implements OnChanges {
     this.save({ ...this.rotation, enabled: !this.rotation.enabled });
   }
 
+  toggleLibero(): void {
+    if (this.readOnly) return;
+    this.save({ ...this.rotation, hasLibero: !this.rotation.hasLibero });
+  }
+
   startEdit(zone: number): void {
     if (this.readOnly) return;
     this.editingZone = zone;
-    this.editingValue = this.playerAt(zone);
+    // Show original dorsal (not libero) when editing
+    this.editingValue = this.rotation.positions[zone - 1] ?? '';
   }
 
   confirmEdit(): void {
@@ -88,6 +117,16 @@ export class CounterRotationComponent implements OnChanges {
 
   cancelEdit(): void { this.editingZone = null; }
 
+  updateLiberoNumber(value: string): void {
+    if (this.readOnly) return;
+    this.save({ ...this.rotation, liberoNumber: value.trim() });
+  }
+
+  updateLiberoReplaces(dorsal: string): void {
+    if (this.readOnly) return;
+    this.save({ ...this.rotation, liberoReplaces: dorsal });
+  }
+
   manualRotate(): void {
     if (this.readOnly) return;
     this.save({ ...this.rotation, positions: rotatePositions(this.rotation.positions) });
@@ -95,7 +134,7 @@ export class CounterRotationComponent implements OnChanges {
 
   resetPositions(): void {
     if (this.readOnly) return;
-    this.save({ ...this.rotation, positions: [...DEFAULT_POSITIONS] });
+    this.save({ ...this.rotation, positions: [...DEFAULT_POSITIONS], hasLibero: false, liberoNumber: undefined, liberoReplaces: undefined });
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────────

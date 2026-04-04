@@ -51,6 +51,16 @@ export interface RotationState {
   enabled: boolean;
   /** Dorsal de la jugadora en cada zona. positions[0] = zona 1 … positions[5] = zona 6 */
   positions: string[];
+  /** Si el equipo juega con líbero */
+  hasLibero?: boolean;
+  /** Dorsal del líbero */
+  liberoNumber?: string;
+  /**
+   * Dorsal de la jugadora a la que el líbero sigue (normalmente la central).
+   * Cuando esa jugadora está en zonas 1/5/6, el líbero la reemplaza.
+   * Cuando está en zonas 2/3/4, la titular vuelve.
+   */
+  liberoReplaces?: string;
 }
 
 export interface WhatsappConfig {

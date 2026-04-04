@@ -25,7 +25,7 @@
     <div class="toggle-row">
       <label class="toggle-wrap" *ngIf="!readOnly">
         <input type="checkbox" [checked]="rotation.enabled" (change)="toggleEnabled()">
-        <span>Activar rotación para {{ teamName }}</span>
+        <span>Activar rotación</span>
       </label>
       <span class="toggle-readonly" *ngIf="readOnly">
         <i class="fa" [class.fa-check-circle]="rotation.enabled" [class.fa-circle-o]="!rotation.enabled"></i>
@@ -36,7 +36,7 @@
     <!-- Aviso si desactivado -->
     <div class="disabled-notice" *ngIf="!rotation.enabled">
       <i class="fa fa-info-circle"></i>
-      Desactivado. Puedes editar los dorsales como referencia, pero no se rotará automáticamente.
+      Desactivado. Puedes ver los dorsales como referencia pero no se rotará automáticamente.
     </div>
 
     <!-- Campo de juego -->
@@ -46,6 +46,9 @@
         <!-- Fila delantera: zonas 4, 3, 2 -->
         <div class="zone zone-front"
              *ngFor="let z of [4,3,2]"
+             [class.zone-serve]="z === 1"
+             [class.zone-libero]="isLiberoZone(z)"
+             [class.zone-replaced]="replacedPlayerZone === z && !isLiberoZone(z)"
              [class.editing]="editingZone === z"
              (click)="startEdit(z)">
           <span class="zone-num">Z{{ z }}</span>
@@ -57,7 +60,8 @@
           </ng-container>
           <ng-template #showFront>
             <span class="dorsal">{{ playerAt(z) }}</span>
-            <span class="edit-hint" *ngIf="!readOnly"><i class="fa fa-pencil"></i></span>
+            <span class="libero-tag" *ngIf="isLiberoZone(z)">L</span>
+            <span class="edit-hint" *ngIf="!readOnly && !isLiberoZone(z)"><i class="fa fa-pencil"></i></span>
           </ng-template>
         </div>
 
@@ -65,6 +69,8 @@
         <div class="zone zone-back"
              *ngFor="let z of [5,6,1]"
              [class.zone-serve]="z === 1"
+             [class.zone-libero]="isLiberoZone(z)"
+             [class.zone-replaced]="replacedPlayerZone === z && !isLiberoZone(z)"
              [class.editing]="editingZone === z"
              (click)="startEdit(z)">
           <span class="zone-num">Z{{ z }}<span *ngIf="z === 1"> 🏐</span></span>
@@ -76,11 +82,21 @@
           </ng-container>
           <ng-template #showBack>
             <span class="dorsal">{{ playerAt(z) }}</span>
-            <span class="edit-hint" *ngIf="!readOnly"><i class="fa fa-pencil"></i></span>
+            <span class="libero-tag" *ngIf="isLiberoZone(z)">L</span>
+            <span class="edit-hint" *ngIf="!readOnly && !isLiberoZone(z)"><i class="fa fa-pencil"></i></span>
           </ng-template>
         </div>
       </div>
       <div class="baseline-label">← Línea de fondo →</div>
+
+      <!-- Leyenda líbero -->
+      <div class="libero-legend" *ngIf="rotation.hasLibero && rotation.liberoNumber">
+        <span class="legend-dot legend-dot--libero"></span>
+        Líbero #{{ rotation.liberoNumber }} {{ liberoOnCourt ? '(en pista)' : '(fuera)' }}
+        <span *ngIf="replacedPlayerZone">
+          · reemplaza a #{{ rotation.liberoReplaces }} (Z{{ replacedPlayerZone }})
+        </span>
+      </div>
     </div>
 
     <!-- Info servicio -->
@@ -93,6 +109,51 @@
       <div class="serve-next">
         <span class="serve-label">Próxima tras rotación</span>
         <span class="serve-dorsal serve-dorsal--next">#{{ nextServer }}</span>
+      </div>
+    </div>
+
+    <!-- Sección líbero -->
+    <div class="libero-section">
+      <div class="libero-header">
+        <label class="toggle-wrap" *ngIf="!readOnly">
+          <input type="checkbox" [checked]="!!rotation.hasLibero" (change)="toggleLibero()">
+          <span>Con líbero</span>
+        </label>
+        <span class="toggle-readonly" *ngIf="readOnly && rotation.hasLibero">
+          <i class="fa fa-check-circle"></i> Con líbero
+        </span>
+      </div>
+
+      <div class="libero-fields" *ngIf="rotation.hasLibero">
+        <div class="libero-field-row">
+          <label>Dorsal líbero</label>
+          <input class="libero-number-input"
+                 [ngModel]="rotation.liberoNumber ?? ''"
+                 (ngModelChange)="updateLiberoNumber($event)"
+                 [readonly]="readOnly"
+                 maxlength="3"
+                 placeholder="Ej: 12">
+        </div>
+
+        <div class="libero-field-row">
+          <label>Reemplaza a</label>
+          <select class="libero-select"
+                  [ngModel]="rotation.liberoReplaces ?? ''"
+                  (ngModelChange)="updateLiberoReplaces($event)"
+                  [disabled]="readOnly">
+            <option value="" disabled>— elige jugadora —</option>
+            <option *ngFor="let d of rotation.positions; let i = index"
+                    [value]="d">
+              #{{ d }} (Z{{ i + 1 }})
+            </option>
+          </select>
+        </div>
+
+        <div class="libero-info" *ngIf="rotation.liberoReplaces">
+          <i class="fa fa-info-circle"></i>
+          El líbero entra cuando <strong>#{{ rotation.liberoReplaces }}</strong> está en zona trasera
+          (Z1, Z5 o Z6). Sale cuando rota a delantera.
+        </div>
       </div>
     </div>
 
