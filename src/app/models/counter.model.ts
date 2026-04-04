@@ -65,6 +65,8 @@ export interface RotationState {
   liberoReplaces?: string;
   /** Sustituciones registradas durante el partido */
   substitutions?: SubstitutionEvent[];
+  /** Entradas/salidas del líbero (se registran automáticamente con cada rotación) */
+  liberoEvents?: LiberoEvent[];
 }
 
 /** Evento de sustitución durante el partido */
@@ -73,6 +75,13 @@ export interface SubstitutionEvent {
   outDorsal: string;    // dorsal que sale
   inDorsal: string;     // dorsal que entra
   timestamp: string;    // ISO timestamp
+}
+
+/** Evento de entrada/salida del líbero (automático con cada rotación) */
+export interface LiberoEvent {
+  minute: number;       // minuto del partido
+  entering: boolean;    // true = entra al campo, false = sale
+  timestamp: string;
 }
 
 export interface WhatsappConfig {

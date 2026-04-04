@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CounterRecord, CounterGame, PointEvent, RotationState } from '../../../models/counter.model';
+import { CounterRecord, CounterGame, PointEvent, RotationState, LiberoEvent } from '../../../models/counter.model';
 
 export interface PlayerMinuteStat {
   dorsal: string;
@@ -183,9 +183,11 @@ export class CounterTimelineComponent {
   }
 
   get hasSubstitutions(): boolean {
-    return !!(
+    return (
       (this.record.rotationLeft?.substitutions?.length ?? 0) > 0 ||
-      (this.record.rotationRight?.substitutions?.length ?? 0) > 0
+      (this.record.rotationRight?.substitutions?.length ?? 0) > 0 ||
+      (this.record.rotationLeft?.liberoEvents?.length ?? 0) > 0 ||
+      (this.record.rotationRight?.liberoEvents?.length ?? 0) > 0
     );
   }
 
@@ -193,13 +195,16 @@ export class CounterTimelineComponent {
     const rotKey = side === 'left' ? 'rotationLeft' : 'rotationRight';
     const rotation: RotationState | undefined = this.record[rotKey];
     if (!rotation?.positions || !this.record.matchStartedAt) return [];
-    if (!rotation.substitutions?.length) return []; // sin sustituciones, nada que mostrar
+
+    const hasSubs   = (rotation.substitutions?.length ?? 0) > 0;
+    const hasLibero = (rotation.liberoEvents?.length ?? 0) > 0;
+    if (!hasSubs && !hasLibero) return [];
 
     const currentMinute = this.currentMatchMinute();
-    const onCourt = new Map<string, number>(); // dorsal -> minuto de entrada
+    const onCourt  = new Map<string, number>(); // dorsal -> minuto de entrada
     const totalMin = new Map<string, number>(); // dorsal -> minutos acumulados
 
-    // Todos los jugadores iniciales entran al minuto 0
+    // Todos los jugadores de campo iniciales entran al minuto 0
     rotation.positions.forEach(d => { if (d) onCourt.set(d, 0); });
 
     // Procesar sustituciones en orden cronológico
@@ -218,6 +223,14 @@ export class CounterTimelineComponent {
       totalMin.set(dorsal, (totalMin.get(dorsal) ?? 0) + (currentMinute - entry));
     });
 
+    // Añadir líbero si tiene eventos registrados
+    if (rotation.hasLibero && rotation.liberoNumber && hasLibero) {
+      const liberoMinutes = this.calcLiberoMinutes(rotation.liberoEvents!, currentMinute);
+      const liberoStillOn = this.isLiberoCurrentlyOnCourt(rotation.liberoEvents!);
+      totalMin.set(rotation.liberoNumber, liberoMinutes);
+      if (liberoStillOn) onCourt.set(rotation.liberoNumber, currentMinute); // marca como en pista
+    }
+
     return Array.from(totalMin.entries())
       .map(([dorsal, minutes]) => ({
         dorsal,
@@ -225,6 +238,36 @@ export class CounterTimelineComponent {
         isOnCourt: onCourt.has(dorsal),
       }))
       .sort((a, b) => b.minutes - a.minutes);
+  }
+
+  /** Calcula los minutos totales que el líbero ha estado en pista */
+  private calcLiberoMinutes(events: LiberoEvent[], currentMinute: number): number {
+    const sorted = [...events].sort((a, b) => a.minute - b.minute);
+    let total = 0;
+    let onSince: number | null = null;
+
+    // Si el primer evento es "sale", asumimos que estaba en pista desde el minuto 0
+    if (sorted.length > 0 && !sorted[0].entering) onSince = 0;
+
+    for (const ev of sorted) {
+      if (ev.entering && onSince === null) {
+        onSince = ev.minute;
+      } else if (!ev.entering && onSince !== null) {
+        total += ev.minute - onSince;
+        onSince = null;
+      }
+    }
+
+    // Sigue en pista al terminar
+    if (onSince !== null) total += currentMinute - onSince;
+
+    return Math.max(0, total);
+  }
+
+  private isLiberoCurrentlyOnCourt(events: LiberoEvent[]): boolean {
+    if (!events.length) return false;
+    const last = [...events].sort((a, b) => b.minute - a.minute)[0];
+    return last.entering;
   }
 
   private currentMatchMinute(): number {

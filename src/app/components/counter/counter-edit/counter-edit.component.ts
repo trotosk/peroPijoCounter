@@ -1,6 +1,6 @@
 import { Component, inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
-import { COUNTER_CATEGORIES, CounterCategory, CounterGame, CounterRecord, PointEvent, WhatsappConfig } from '../../../models/counter.model';
+import { COUNTER_CATEGORIES, CounterCategory, CounterGame, CounterRecord, LiberoEvent, PointEvent, RotationState, WhatsappConfig } from '../../../models/counter.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -758,9 +758,35 @@ export class CounterEditComponent implements OnInit, OnDestroy {
   private autoRotate(team: 'left' | 'right'): void {
     const key = team === 'left' ? 'rotationLeft' : 'rotationRight';
     if (!this.record[key]?.enabled) return;
-    const p = this.record[key]!.positions;
-    this.record[key]!.positions = [p[1], p[2], p[3], p[4], p[5], p[0]];
+
+    const rotation = this.record[key]!;
+    const p = rotation.positions;
+    const newPositions = [p[1], p[2], p[3], p[4], p[5], p[0]];
+
+    const beforeActive = this.isLiberoOnCourt(rotation);
+    const newRotation: RotationState = { ...rotation, positions: newPositions };
+    const afterActive  = this.isLiberoOnCourt(newRotation);
+
+    // Registrar entrada/salida del líbero si cambió el estado
+    if (rotation.hasLibero && rotation.liberoNumber && beforeActive !== afterActive) {
+      const ev: LiberoEvent = {
+        minute:   this.elapsedMinutes(),
+        entering: afterActive,
+        timestamp: new Date().toISOString(),
+      };
+      newRotation.liberoEvents = [...(rotation.liberoEvents ?? []), ev];
+    }
+
+    this.record[key] = newRotation;
     // Se persiste junto con el punto vía saveCounter()
+  }
+
+  /** Calcula si el líbero está en pista para una rotación dada */
+  private isLiberoOnCourt(r: RotationState): boolean {
+    if (!r.hasLibero || !r.liberoReplaces || !r.liberoNumber) return false;
+    const idx = r.positions.indexOf(r.liberoReplaces);
+    if (idx === -1) return false;
+    return [1, 5, 6].includes(idx + 1); // zonas traseras
   }
 
   private calcElapsed(from: string, to: string, pausedMs = 0): string {
