@@ -4,12 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { CounterRecord, RotationState } from '../../../models/counter.model';
 import { FirestoreCounterService } from '../../../services/firestore-counter.service';
 
-/** Orden de rotación: zona 2→1, 3→2, 4→3, 5→4, 6→5, 1→6 */
-function rotatePositions(p: string[]): string[] {
+export function rotatePositions(p: string[]): string[] {
   return [p[1], p[2], p[3], p[4], p[5], p[0]];
 }
 
-const DEFAULT_POSITIONS: string[] = ['1', '2', '3', '4', '5', '6'];
+export const DEFAULT_POSITIONS: string[] = ['1', '2', '3', '4', '5', '6'];
 
 @Component({
   selector: 'app-counter-rotation',
@@ -22,43 +21,51 @@ export class CounterRotationComponent implements OnChanges {
   @Input() readOnly = false;
   @Output() close = new EventEmitter<void>();
 
+  activeSide: 'left' | 'right' = 'left';
   editingZone: number | null = null;
   editingValue = '';
 
   constructor(private fsService: FirestoreCounterService) {}
 
   ngOnChanges(): void {
-    // Ensure positions array is always 6 elements
-    if (this.record.rotation && this.record.rotation.positions.length < 6) {
-      this.record.rotation.positions = [...DEFAULT_POSITIONS];
+    // Ensure positions arrays are always 6 elements
+    for (const key of ['rotationLeft', 'rotationRight'] as const) {
+      if (this.record[key] && this.record[key]!.positions.length < 6) {
+        this.record[key]!.positions = [...DEFAULT_POSITIONS];
+      }
     }
   }
 
   // ── Getters ────────────────────────────────────────────────────────────────
 
-  get rotation(): RotationState {
-    return this.record.rotation ?? { enabled: false, positions: [...DEFAULT_POSITIONS] };
+  get teamName(): string {
+    return this.activeSide === 'left'
+      ? (this.record.leftName || 'Local')
+      : (this.record.rightName || 'Visitante');
   }
 
-  /** Dorsal en la zona indicada (1-6) */
+  get rotation(): RotationState {
+    const key = this.activeSide === 'left' ? 'rotationLeft' : 'rotationRight';
+    return this.record[key] ?? { enabled: false, positions: [...DEFAULT_POSITIONS] };
+  }
+
+  get eitherEnabled(): boolean {
+    return !!(this.record.rotationLeft?.enabled || this.record.rotationRight?.enabled);
+  }
+
   playerAt(zone: number): string {
     return this.rotation.positions[zone - 1] ?? '?';
   }
 
-  /** Jugadora que saca ahora (zona 1) */
-  get currentServer(): string {
-    return this.playerAt(1);
-  }
-
-  /**
-   * Jugadora que sacaría TRAS la próxima rotación (zona 2 ahora).
-   * Solo aplica si se pierde el punto actual.
-   */
-  get nextServer(): string {
-    return this.playerAt(2);
-  }
+  get currentServer(): string { return this.playerAt(1); }
+  get nextServer(): string    { return this.playerAt(2); }
 
   // ── Acciones ───────────────────────────────────────────────────────────────
+
+  switchSide(side: 'left' | 'right'): void {
+    this.activeSide = side;
+    this.editingZone = null;
+  }
 
   toggleEnabled(): void {
     if (this.readOnly) return;
@@ -79,9 +86,7 @@ export class CounterRotationComponent implements OnChanges {
     this.editingZone = null;
   }
 
-  cancelEdit(): void {
-    this.editingZone = null;
-  }
+  cancelEdit(): void { this.editingZone = null; }
 
   manualRotate(): void {
     if (this.readOnly) return;
@@ -96,7 +101,8 @@ export class CounterRotationComponent implements OnChanges {
   // ── Helpers ────────────────────────────────────────────────────────────────
 
   private save(rotation: RotationState): void {
-    this.record.rotation = rotation;
-    this.fsService.updateCounter(this.record.id, { rotation }).catch(console.error);
+    const key = this.activeSide === 'left' ? 'rotationLeft' : 'rotationRight';
+    this.record[key] = rotation;
+    this.fsService.updateCounter(this.record.id, { [key]: rotation }).catch(console.error);
   }
 }

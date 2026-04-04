@@ -305,9 +305,11 @@ export class CounterEditComponent implements OnInit, OnDestroy {
       this.recordGame.rightValue = this.recordGame.rightValue +1;
       this.highlightedTeam = 'right';
     }
-    // Auto-rotación: el equipo local recupera el saque
+    // Auto-rotación al recuperar el saque
     if (side === 'left' && prevHighlighted === 'right') {
-      this.autoRotate();
+      this.autoRotate('left');
+    } else if (side === 'right' && prevHighlighted === 'left') {
+      this.autoRotate('right');
     }
 
     // Arrancar el timer en el primer punto del partido
@@ -700,11 +702,12 @@ export class CounterEditComponent implements OnInit, OnDestroy {
     }
   }
 
-  private autoRotate(): void {
-    if (!this.record.rotation?.enabled) return;
-    const p = this.record.rotation.positions;
-    this.record.rotation.positions = [p[1], p[2], p[3], p[4], p[5], p[0]];
-    // Se persiste en Firestore junto con el punto via saveCounter()
+  private autoRotate(team: 'left' | 'right'): void {
+    const key = team === 'left' ? 'rotationLeft' : 'rotationRight';
+    if (!this.record[key]?.enabled) return;
+    const p = this.record[key]!.positions;
+    this.record[key]!.positions = [p[1], p[2], p[3], p[4], p[5], p[0]];
+    // Se persiste junto con el punto vía saveCounter()
   }
 
   private calcElapsed(from: string, to: string, pausedMs = 0): string {

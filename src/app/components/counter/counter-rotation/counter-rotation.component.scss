@@ -32,14 +32,70 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  flex-wrap: nowrap;
 }
 
 .rotation-title {
   font-size: 1.1rem;
   font-weight: 700;
   flex: 1;
+}
+
+// ── Pestañas equipos ───────────────────────────────────────────────────────
+.team-tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: rgba(255,255,255,0.06);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 0.6rem;
+  color: #9ca3af;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: 0.2s;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &.active {
+    background: rgba(249,115,22,0.15);
+    border-color: #f97316;
+    color: #fff;
+  }
+
+  &:hover:not(.active) {
+    background: rgba(255,255,255,0.1);
+    color: #d1d5db;
+  }
+}
+
+.tab-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  &--left  { background: #3b82f6; }
+  &--right { background: #f97316; }
+}
+
+.tab-active-badge {
+  font-size: 0.5rem;
+  color: #22c55e;
+  margin-left: 0.1rem;
+}
+
+// ── Toggle row ─────────────────────────────────────────────────────────────
+.toggle-row {
+  display: flex;
+  align-items: center;
 }
 
 .toggle-wrap {
@@ -48,7 +104,6 @@
   gap: 0.4rem;
   cursor: pointer;
   font-size: 0.85rem;
-  white-space: nowrap;
 
   input[type="checkbox"] {
     width: 1.1rem;
@@ -61,8 +116,6 @@
 .toggle-readonly {
   font-size: 0.82rem;
   color: #9ca3af;
-  white-space: nowrap;
-
   .fa-check-circle { color: #22c55e; }
 }
 

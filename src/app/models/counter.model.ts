@@ -38,7 +38,8 @@ export interface CounterRecord {
   whatsappConfig?: WhatsappConfig; // Configuración de envío automático por WhatsApp
   category?: CounterCategory;      // Categoría: Benjamín, Alevín, Infantil, Cadete, Junior, Senior
   peakViewers?: number;            // Máximo de espectadores simultáneos registrado
-  rotation?: RotationState;        // Estado del control de rotaciones (voley)
+  rotationLeft?: RotationState;    // Estado de rotación del equipo local
+  rotationRight?: RotationState;   // Estado de rotación del equipo visitante
 }
 
 /**

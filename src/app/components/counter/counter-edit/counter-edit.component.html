@@ -40,11 +40,11 @@
     <!-- Botón rotación (solo voley) -->
     <button class="copya-btn rotation-btn"
             *ngIf="record!.type === 'Voley'"
-            [class.rotation-active]="record!.rotation?.enabled"
+            [class.rotation-active]="record!.rotationLeft?.enabled || record!.rotationRight?.enabled"
             (click)="showRotation = true"
             title="Control de rotaciones">
       🔄
-      <span class="rotation-dot" *ngIf="record!.rotation?.enabled"></span>
+      <span class="rotation-dot" *ngIf="record!.rotationLeft?.enabled || record!.rotationRight?.enabled"></span>
     </button>
 
     <!-- Botón envío automático WhatsApp -->
@@ -348,7 +348,7 @@
     </button>
     <button class="fs-footer-btn"
             *ngIf="record!.type === 'Voley'"
-            [class.rotation-active]="record!.rotation?.enabled"
+            [class.rotation-active]="record!.rotationLeft?.enabled || record!.rotationRight?.enabled"
             (click)="showRotation = true"
             title="Control de rotaciones">
       🔄
